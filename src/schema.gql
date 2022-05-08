@@ -1,0 +1,20 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Client {
+  id: ID!
+  name: String!
+}
+
+type Query {
+  getAllClients: [Client!]!
+}
+
+type Mutation {
+  createClient(input: CreateClientInput!): Client!
+}
+
+input CreateClientInput {
+  name: String!
+}
