@@ -2,9 +2,9 @@
   "type": "postgres",
   "host": "localhost",
   "port": 5432,
-  "username": "postgres",
-  "password": "postgres",
-  "database": "nestjs_typeorm",
+  "username": "st",
+  "password": "st",
+  "database": "super_timesheet",
   "entities": ["dist/**/*.entity{.ts,.js}"],
   "synchronize": true
 }
