@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Client } from '@/client/client.entity';
-import { CreateClientInput } from '@/client/dto/create.client.input';
+import { CreateClientInput } from '@/client/dto/create-client.input';
 
 import { Repository } from 'typeorm';
 

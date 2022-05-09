@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
 import { ClientModule } from '@/client/client.module';
+import { UserModule } from '@/user/user.module';
 
 import { join } from 'path';
 
@@ -16,6 +17,7 @@ import { join } from 'path';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
     }),
+    UserModule,
     ClientModule,
   ],
   controllers: [AppController],

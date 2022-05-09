@@ -2,7 +2,7 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { Client } from '@/client/client.entity';
 import { ClientService } from '@/client/client.service';
-import { CreateClientInput } from '@/client/dto/create.client.input';
+import { CreateClientInput } from '@/client/dto/create-client.input';
 
 @Resolver()
 export class ClientResolver {
