@@ -7,4 +7,4 @@ COPY yarn.lock .
 
 RUN yarn
 
-CMD yarn start:dev
+CMD yarn && yarn start:dev
