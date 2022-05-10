@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { CreateUserInput } from '@/user/dto/create-user.input';
+import { GetUserInput } from '@/user/dto/get-user.input';
 import { User } from '@/user/user.entity';
 
 import { Repository } from 'typeorm';
@@ -38,7 +39,21 @@ export class UserService {
     return saved;
   }
 
-  async findAllUsers(): Promise<User[]> {
+  async getUser(params: GetUserInput): Promise<User> {
+    let search = {};
+
+    if (params.id) {
+      search = { id: params.id };
+    } else if (params.name) {
+      search = { name: params.name };
+    } else if (params.email) {
+      search = { email: params.email };
+    }
+
+    return this.userRepository.findOneBy(search);
+  }
+
+  async getAllUsers(): Promise<User[]> {
     return this.userRepository.find();
   }
 }

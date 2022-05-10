@@ -7,12 +7,33 @@ type Client {
   name: String!
 }
 
+type User {
+  id: ID!
+  name: String!
+  email: String!
+}
+
 type Query {
+  getAllUsers: [User!]!
+  getUser(input: GetUserInput!): User!
   getAllClients: [Client!]!
 }
 
+input GetUserInput {
+  id: String
+  name: String
+  email: String
+}
+
 type Mutation {
+  createUser(input: CreateUserInput!): User!
   createClient(input: CreateClientInput!): Client!
+}
+
+input CreateUserInput {
+  name: String!
+  email: String!
+  password: String!
 }
 
 input CreateClientInput {
