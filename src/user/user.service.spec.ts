@@ -18,6 +18,7 @@ const makeUserRepositoryStub = (
     .fn()
     .mockReturnValue([makeFakeUser(), makeFakeUser(), makeFakeUser()]),
   findBy: jest.fn().mockReturnValue([fakeUser]),
+  findOneBy: jest.fn().mockReturnValue(fakeUser),
   create: jest.fn().mockReturnValue(fakeUser),
   save: jest.fn().mockReturnValue(fakeUser),
 });
@@ -65,6 +66,22 @@ describe('UserService', () => {
 
       expect(users).toHaveLength(3);
       expect(userRepository.find).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getUsers', () => {
+    it('should return an user by id', async () => {
+      const fakeUser = makeFakeUser();
+
+      const { userService, userRepository } = await makeSut(fakeUser);
+
+      const users = await userService.getUser({ id: fakeUser.id });
+
+      expect(users).toBe(fakeUser);
+      expect(userRepository.findOneBy).toHaveBeenCalledTimes(1);
+      expect(userRepository.findOneBy).toHaveBeenCalledWith({
+        id: fakeUser.id,
+      });
     });
   });
 
