@@ -97,6 +97,20 @@ describe('UserService', () => {
         name: fakeUser.name,
       });
     });
+
+    it('should return an user by email', async () => {
+      const fakeUser = makeFakeUser();
+
+      const { userService, userRepository } = await makeSut(fakeUser);
+
+      const users = await userService.getUser({ email: fakeUser.email });
+
+      expect(users).toBe(fakeUser);
+      expect(userRepository.findOneBy).toHaveBeenCalledTimes(1);
+      expect(userRepository.findOneBy).toHaveBeenCalledWith({
+        email: fakeUser.email,
+      });
+    });
   });
 
   describe('createUser', () => {
