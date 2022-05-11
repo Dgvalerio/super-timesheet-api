@@ -80,5 +80,27 @@ describe('UserService', () => {
         email: fakeUser.email,
       });
     });
+
+    it('should create, save and return an user', async () => {
+      const fakeUser = makeFakeUser();
+
+      const { userService, userRepository } = await makeSut(fakeUser);
+
+      jest
+        .spyOn(userRepository, 'findBy')
+        .mockReturnValueOnce(Promise.resolve([]));
+
+      const user = await userService.createUser(fakeUser);
+
+      expect(user).toBe(fakeUser);
+      expect(userRepository.findBy).toHaveBeenCalledTimes(1);
+      expect(userRepository.findBy).toHaveBeenCalledWith({
+        email: fakeUser.email,
+      });
+      expect(userRepository.create).toHaveBeenCalledTimes(1);
+      expect(userRepository.create).toHaveBeenCalledWith(fakeUser);
+      expect(userRepository.save).toHaveBeenCalledTimes(1);
+      expect(userRepository.save).toHaveBeenCalledWith(fakeUser);
+    });
   });
 });
