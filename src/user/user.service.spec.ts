@@ -1,4 +1,7 @@
-import { ConflictException } from '@nestjs/common';
+import {
+  ConflictException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
@@ -79,6 +82,33 @@ describe('UserService', () => {
       expect(userRepository.findBy).toHaveBeenCalledWith({
         email: fakeUser.email,
       });
+    });
+
+    it('should throws if user is not created', async () => {
+      const fakeUser = makeFakeUser();
+
+      const { userService, userRepository } = await makeSut(fakeUser);
+
+      jest
+        .spyOn(userRepository, 'findBy')
+        .mockReturnValueOnce(Promise.resolve([]));
+
+      jest.spyOn(userRepository, 'save').mockReturnValueOnce(null);
+
+      await expect(userService.createUser(fakeUser)).rejects.toThrow(
+        new InternalServerErrorException(
+          'Houve um problema ao cadastrar um usuário',
+        ),
+      );
+
+      expect(userRepository.findBy).toHaveBeenCalledTimes(1);
+      expect(userRepository.findBy).toHaveBeenCalledWith({
+        email: fakeUser.email,
+      });
+      expect(userRepository.create).toHaveBeenCalledTimes(1);
+      expect(userRepository.create).toHaveBeenCalledWith(fakeUser);
+      expect(userRepository.save).toHaveBeenCalledTimes(1);
+      expect(userRepository.save).toHaveBeenCalledWith(fakeUser);
     });
 
     it('should create, save and return an user', async () => {
