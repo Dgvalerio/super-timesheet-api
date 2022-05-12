@@ -5,7 +5,7 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
-import { makeFakeUser } from '@/common/collaborators/makeFakeUser';
+import { makeFakeUser } from '@/tests/collaborators/makeFakeUser';
 import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
 
