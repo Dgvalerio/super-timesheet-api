@@ -6,22 +6,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
 import { makeFakeUser } from '@/tests/collaborators/makeFakeUser';
+import { makeUserRepositoryStub } from '@/tests/user/user.repository.stub';
 import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
 
 import { Repository } from 'typeorm';
-
-const makeUserRepositoryStub = (
-  fakeUser = makeFakeUser(),
-): Partial<Repository<User>> => ({
-  find: jest
-    .fn()
-    .mockReturnValue([makeFakeUser(), makeFakeUser(), makeFakeUser()]),
-  findBy: jest.fn().mockReturnValue([fakeUser]),
-  findOneBy: jest.fn().mockReturnValue(fakeUser),
-  create: jest.fn().mockReturnValue(fakeUser),
-  save: jest.fn().mockReturnValue(fakeUser),
-});
 
 namespace Sut {
   export interface Return {
