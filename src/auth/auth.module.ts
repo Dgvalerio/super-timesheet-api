@@ -15,7 +15,8 @@ import { UserService } from '@/user/user.service';
       useFactory: () => ({
         secret: process.env.JWT_SECRET,
         signOptions: {
-          expiresIn: '30s',
+          // One Day
+          expiresIn: `${1 * 24 * 60 * 60}s`,
         },
       }),
     }),
