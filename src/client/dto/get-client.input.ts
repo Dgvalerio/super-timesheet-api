@@ -5,12 +5,19 @@ import { Client } from '@/client/client.entity';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 @InputType()
-export class CreateClientInput implements Partial<Client> {
+export class GetClientInput implements Partial<Client> {
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
-  code?: string;
+  id?: Client['id'];
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  @IsOptional()
+  name?: Client['name'];
+
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  code?: Client['code'];
 }

@@ -7,6 +7,7 @@ import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
 import { AuthModule } from '@/auth/auth.module';
 import { ClientModule } from '@/client/client.module';
+import { ProjectModule } from '@/project/project.module';
 import { UserModule } from '@/user/user.module';
 
 import { join } from 'path';
@@ -21,6 +22,7 @@ import { join } from 'path';
     UserModule,
     ClientModule,
     AuthModule,
+    ProjectModule,
   ],
   controllers: [AppController],
   providers: [AppService],

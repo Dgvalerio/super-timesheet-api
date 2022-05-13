@@ -13,15 +13,34 @@ type AuthOutput {
   token: String!
 }
 
+type Project {
+  id: ID!
+  code: String!
+  name: String!
+  startDate: DateTime!
+  endDate: DateTime!
+  client: Client!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Client {
   id: ID!
+  code: String!
   name: String!
+  projects: [Project!]!
 }
 
 type Query {
   getAllUsers: [User!]!
   getUser(input: GetUserInput!): User!
   getAllClients: [Client!]!
+  getClient(input: GetClientInput!): Client!
+  getAllProjects: [Project!]!
+  getProject(input: GetProjectInput!): Project!
 }
 
 input GetUserInput {
@@ -30,10 +49,25 @@ input GetUserInput {
   email: String
 }
 
+input GetClientInput {
+  id: String
+  name: String
+  code: String
+}
+
+input GetProjectInput {
+  id: String
+  name: String
+  code: String
+}
+
 type Mutation {
   createUser(input: CreateUserInput!): User!
   createClient(input: CreateClientInput!): Client!
   login(input: AuthInput!): AuthOutput!
+  createProject(input: CreateProjectInput!): Project!
+  updateProject(input: UpdateProjectInput!): Project!
+  deleteProject(input: DeleteProjectInput!): Boolean!
 }
 
 input CreateUserInput {
@@ -43,10 +77,36 @@ input CreateUserInput {
 }
 
 input CreateClientInput {
+  code: String
   name: String!
 }
 
 input AuthInput {
   email: String!
   password: String!
+}
+
+input CreateProjectInput {
+  code: String
+  name: String!
+  startDate: DateTime!
+  endDate: DateTime!
+  clientId: String
+  clientCode: String
+}
+
+input UpdateProjectInput {
+  id: String!
+  code: String
+  name: String
+  startDate: DateTime
+  endDate: DateTime
+  clientId: String
+  clientCode: String
+}
+
+input DeleteProjectInput {
+  id: String
+  name: String
+  code: String
 }

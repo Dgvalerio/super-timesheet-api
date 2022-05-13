@@ -19,11 +19,9 @@ export class UserService {
   ) {}
 
   async createUser(input: CreateUserInput): Promise<User> {
-    const conflicting = await this.userRepository.findBy({
-      email: input.email,
-    });
+    const conflicting = await this.getUser({ email: input.email });
 
-    if (conflicting.length > 0) {
+    if (!conflicting) {
       throw new ConflictException('Esse email já foi utilizado!');
     }
 

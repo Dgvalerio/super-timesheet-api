@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Client } from '@/client/client.entity';
 import { CreateClientInput } from '@/client/dto/create-client.input';
+import { GetClientInput } from '@/client/dto/get-client.input';
 
 import { Repository } from 'typeorm';
 
@@ -18,12 +19,18 @@ export class ClientService {
   ) {}
 
   async createClient(input: CreateClientInput): Promise<Client> {
-    const conflicting = await this.clientRepository.findBy({
-      name: input.name,
-    });
+    const conflicting = await this.getClient({ name: input.name });
 
-    if (conflicting.length > 0) {
+    if (conflicting) {
       throw new ConflictException('Esse nome já foi utilizado!');
+    }
+
+    if (input.code) {
+      const haveCodeConflict = await this.getClient({ code: input.code });
+
+      if (haveCodeConflict) {
+        throw new ConflictException('Esse código já foi utilizado!');
+      }
     }
 
     const created = await this.clientRepository.create(input);
@@ -38,7 +45,21 @@ export class ClientService {
     return saved;
   }
 
-  async findAllClients(): Promise<Client[]> {
+  async getAllClients(): Promise<Client[]> {
     return this.clientRepository.find();
+  }
+
+  async getClient(params: GetClientInput): Promise<Client> {
+    let search = {};
+
+    if (params.id) {
+      search = { id: params.id };
+    } else if (params.name) {
+      search = { name: params.name };
+    } else if (params.code) {
+      search = { code: params.code };
+    }
+
+    return this.clientRepository.findOneBy(search);
   }
 }
