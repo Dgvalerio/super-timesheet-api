@@ -40,5 +40,17 @@ describe('Graphql Auth Module (e2e)', () => {
         'email must be an email',
       );
     });
+
+    it('should throw if enter a email of invalid user', async () => {
+      const promise = app.mutate({
+        mutation: makeLoginMutation('never@created.com'),
+      });
+
+      const { graphQLErrors } = await promise.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Nenhum usuário foi encontrado');
+      expect(graphQLErrors[0].extensions.code).toBe('404');
+      expect(graphQLErrors[0].extensions.response.error).toBe('Not Found');
+    });
   });
 });
