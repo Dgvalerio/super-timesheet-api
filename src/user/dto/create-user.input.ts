@@ -13,7 +13,7 @@ export class CreateUserInput {
   email: string;
 
   @IsString()
-  @IsNotEmpty()
   @MinLength(8)
+  @IsNotEmpty()
   password: string;
 }
