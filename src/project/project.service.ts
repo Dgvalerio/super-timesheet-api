@@ -164,7 +164,7 @@ export class ProjectService {
       throw new NotFoundException('O projeto informado não existe!');
     }
 
-    const deleted = await this.projectRepository.delete(project);
+    const deleted = await this.projectRepository.delete(project.id);
 
     return !!deleted;
   }
