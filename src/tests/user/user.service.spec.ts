@@ -112,8 +112,8 @@ describe('UserService', () => {
         new ConflictException('Esse email já foi utilizado!'),
       );
 
-      expect(userRepository.findBy).toHaveBeenCalledTimes(1);
-      expect(userRepository.findBy).toHaveBeenCalledWith({
+      expect(userRepository.findOneBy).toHaveBeenCalledTimes(1);
+      expect(userRepository.findOneBy).toHaveBeenCalledWith({
         email: fakeUser.email,
       });
     });
@@ -124,8 +124,8 @@ describe('UserService', () => {
       const { userService, userRepository } = await makeSut(fakeUser);
 
       jest
-        .spyOn(userRepository, 'findBy')
-        .mockReturnValueOnce(Promise.resolve([]));
+        .spyOn(userRepository, 'findOneBy')
+        .mockReturnValueOnce(Promise.resolve(null));
 
       jest.spyOn(userRepository, 'save').mockReturnValueOnce(null);
 
@@ -135,8 +135,8 @@ describe('UserService', () => {
         ),
       );
 
-      expect(userRepository.findBy).toHaveBeenCalledTimes(1);
-      expect(userRepository.findBy).toHaveBeenCalledWith({
+      expect(userRepository.findOneBy).toHaveBeenCalledTimes(1);
+      expect(userRepository.findOneBy).toHaveBeenCalledWith({
         email: fakeUser.email,
       });
       expect(userRepository.create).toHaveBeenCalledTimes(1);
@@ -151,14 +151,14 @@ describe('UserService', () => {
       const { userService, userRepository } = await makeSut(fakeUser);
 
       jest
-        .spyOn(userRepository, 'findBy')
-        .mockReturnValueOnce(Promise.resolve([]));
+        .spyOn(userRepository, 'findOneBy')
+        .mockReturnValueOnce(Promise.resolve(null));
 
       const user = await userService.createUser(fakeUser);
 
       expect(user).toBe(fakeUser);
-      expect(userRepository.findBy).toHaveBeenCalledTimes(1);
-      expect(userRepository.findBy).toHaveBeenCalledWith({
+      expect(userRepository.findOneBy).toHaveBeenCalledTimes(1);
+      expect(userRepository.findOneBy).toHaveBeenCalledWith({
         email: fakeUser.email,
       });
       expect(userRepository.create).toHaveBeenCalledTimes(1);

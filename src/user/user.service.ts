@@ -21,7 +21,7 @@ export class UserService {
   async createUser(input: CreateUserInput): Promise<User> {
     const conflicting = await this.getUser({ email: input.email });
 
-    if (!conflicting) {
+    if (conflicting) {
       throw new ConflictException('Esse email já foi utilizado!');
     }
 
