@@ -45,7 +45,7 @@ describe('Graphql User Module (e2e)', () => {
 
   describe('createUser', () => {
     const makeOut = async (input: Partial<CreateUserInput>) =>
-      app.mutate<User>({
+      app.mutate<{ createUser: User }>({
         mutation: makeCreateUserMutation(input),
       });
 
@@ -108,6 +108,21 @@ describe('Graphql User Module (e2e)', () => {
         'password must be longer than or equal to 8 characters',
       );
       expect(response.error).toBe('Bad Request');
+    });
+
+    it('should create an user', async () => {
+      const createUserInput = makeCreateUserInput();
+
+      const { data } = await makeOut(createUserInput);
+
+      expect(data).toHaveProperty('createUser');
+
+      expect(data.createUser).toEqual({
+        __typename: 'User',
+        id: expect.anything(),
+        name: createUserInput.name,
+        email: createUserInput.email,
+      });
     });
   });
 });
