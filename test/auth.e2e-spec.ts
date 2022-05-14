@@ -49,8 +49,20 @@ describe('Graphql Auth Module (e2e)', () => {
       const { graphQLErrors } = await promise.catch((e) => e);
 
       expect(graphQLErrors[0].message).toBe('Nenhum usuário foi encontrado');
-      expect(graphQLErrors[0].extensions.code).toBe('404');
+      expect(graphQLErrors[0].extensions.response.statusCode).toBe(404);
       expect(graphQLErrors[0].extensions.response.error).toBe('Not Found');
+    });
+
+    it('should throw if enter a invalid password', async () => {
+      const promise = app.mutate({
+        mutation: makeLoginMutation('dio@genes.com', '12344321'),
+      });
+
+      const { graphQLErrors } = await promise.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Senha incorreta!');
+      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
+      expect(graphQLErrors[0].extensions.response.error).toBe('Unauthorized');
     });
   });
 });
