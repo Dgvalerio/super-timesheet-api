@@ -2,10 +2,12 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { CreateUserInput } from '@/user/dto/create-user.input';
+import { DeleteUserInput } from '@/user/dto/delete-user.input';
 import { GetUserInput } from '@/user/dto/get-user.input';
 import { User } from '@/user/user.entity';
 
@@ -53,5 +55,17 @@ export class UserService {
 
   async getAllUsers(): Promise<User[]> {
     return this.userRepository.find();
+  }
+
+  async deleteUser(input: DeleteUserInput): Promise<boolean> {
+    const user = await this.getUser(input);
+
+    if (!user) {
+      throw new NotFoundException('O usuário informado não existe!');
+    }
+
+    const deleted = await this.userRepository.delete(user.id);
+
+    return !!deleted;
   }
 }

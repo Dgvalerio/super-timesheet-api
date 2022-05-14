@@ -63,6 +63,7 @@ input GetProjectInput {
 
 type Mutation {
   createUser(input: CreateUserInput!): User!
+  deleteUser(input: DeleteUserInput!): Boolean!
   createClient(input: CreateClientInput!): Client!
   login(input: AuthInput!): AuthOutput!
   createProject(input: CreateProjectInput!): Project!
@@ -74,6 +75,11 @@ input CreateUserInput {
   name: String!
   email: String!
   password: String!
+}
+
+input DeleteUserInput {
+  id: String
+  email: String
 }
 
 input CreateClientInput {
