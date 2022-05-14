@@ -1,23 +1,8 @@
 import { AuthOutput } from '@/auth/dto/auth.output';
+import { makeLoginMutation } from '@/tests/collaborators/makeLoginMutation';
 
-import { ApolloClient, gql, HttpLink, InMemoryCache } from 'apollo-boost';
+import { ApolloClient, HttpLink, InMemoryCache } from 'apollo-boost';
 import fetch from 'cross-fetch';
-
-const makeLoginMutation = ({
-  email = 'dio@genes.com',
-  password = '12345678',
-}) => gql`
-  mutation {
-    login(input: { email: "${email}", password: "${password}" }) {
-      user {
-        id
-        email
-        name
-      }
-      token
-    }
-  }
-`;
 
 describe('Graphql Auth Module (e2e)', () => {
   let app: ApolloClient<any>;
@@ -30,12 +15,19 @@ describe('Graphql Auth Module (e2e)', () => {
   });
 
   describe('Login', () => {
-    it('should throw if enter a invalid email', async () => {
-      const promise = app.mutate({
-        mutation: makeLoginMutation({ email: 'invalid-email' }),
+    const makeOut = async ({
+      email = 'dio@genes.com',
+      password = '12345678',
+    }) => {
+      return app.mutate<{ login: AuthOutput }>({
+        mutation: makeLoginMutation({ email, password }),
       });
+    };
 
-      const { graphQLErrors } = await promise.catch((e) => e);
+    it('should throw if enter a invalid email', async () => {
+      const out = makeOut({ email: 'invalid-email' });
+
+      const { graphQLErrors } = await out.catch((e) => e);
 
       expect(graphQLErrors[0].message).toBe('Bad Request Exception');
       expect(graphQLErrors[0].extensions.response.message[0]).toBe(
@@ -44,11 +36,9 @@ describe('Graphql Auth Module (e2e)', () => {
     });
 
     it('should throw if enter a email of invalid user', async () => {
-      const promise = app.mutate({
-        mutation: makeLoginMutation({ email: 'never@created.com' }),
-      });
+      const out = makeOut({ email: 'never@created.com' });
 
-      const { graphQLErrors } = await promise.catch((e) => e);
+      const { graphQLErrors } = await out.catch((e) => e);
 
       expect(graphQLErrors[0].message).toBe('Nenhum usuário foi encontrado');
       expect(graphQLErrors[0].extensions.response.statusCode).toBe(404);
@@ -56,14 +46,12 @@ describe('Graphql Auth Module (e2e)', () => {
     });
 
     it('should throw if enter a invalid password', async () => {
-      const promise = app.mutate({
-        mutation: makeLoginMutation({
-          email: 'dio@genes.com',
-          password: '12344321',
-        }),
+      const out = makeOut({
+        email: 'dio@genes.com',
+        password: '12344321',
       });
 
-      const { graphQLErrors } = await promise.catch((e) => e);
+      const { graphQLErrors } = await out.catch((e) => e);
 
       expect(graphQLErrors[0].message).toBe('Senha incorreta!');
       expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
@@ -71,11 +59,7 @@ describe('Graphql Auth Module (e2e)', () => {
     });
 
     it('should authenticate with valid email and password', async () => {
-      const promise = app.mutate<{ login: AuthOutput }>({
-        mutation: makeLoginMutation({}),
-      });
-
-      const { data } = await promise;
+      const { data } = await makeOut({});
 
       expect(data).toHaveProperty('login');
       expect(data.login).toHaveProperty('user');
