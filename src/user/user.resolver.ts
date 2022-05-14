@@ -1,4 +1,4 @@
-import { UseGuards } from '@nestjs/common';
+import { NotFoundException, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { GqlAuthGuard } from '@/auth/auth.guard';
@@ -26,7 +26,13 @@ export class UserResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => User)
   async getUser(@Args('input') input: GetUserInput): Promise<User> {
-    return this.userService.getUser(input);
+    const user = await this.userService.getUser(input);
+
+    if (!user) {
+      throw new NotFoundException('Nenhum usuário foi encontrado');
+    }
+
+    return user;
   }
 
   @UseGuards(GqlAuthGuard)

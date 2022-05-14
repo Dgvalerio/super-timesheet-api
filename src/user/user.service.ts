@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -39,7 +40,7 @@ export class UserService {
     return saved;
   }
 
-  async getUser(params: GetUserInput): Promise<User> {
+  async getUser(params: GetUserInput): Promise<User | null> {
     let search = {};
 
     if (params.id) {
@@ -48,6 +49,8 @@ export class UserService {
       search = { name: params.name };
     } else if (params.email) {
       search = { email: params.email };
+    } else {
+      throw new BadRequestException('Nenhum parâmetro válido foi informado');
     }
 
     return this.userRepository.findOneBy(search);
