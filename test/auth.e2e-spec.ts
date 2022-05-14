@@ -1,10 +1,12 @@
+import { AuthOutput } from '@/auth/dto/auth.output';
+
 import { ApolloClient, gql, HttpLink, InMemoryCache } from 'apollo-boost';
 import fetch from 'cross-fetch';
 
-const makeLoginMutation = (
+const makeLoginMutation = ({
   email = 'dio@genes.com',
   password = '12345678',
-) => gql`
+}) => gql`
   mutation {
     login(input: { email: "${email}", password: "${password}" }) {
       user {
@@ -30,7 +32,7 @@ describe('Graphql Auth Module (e2e)', () => {
   describe('Login', () => {
     it('should throw if enter a invalid email', async () => {
       const promise = app.mutate({
-        mutation: makeLoginMutation('invalid-email'),
+        mutation: makeLoginMutation({ email: 'invalid-email' }),
       });
 
       const { graphQLErrors } = await promise.catch((e) => e);
@@ -43,7 +45,7 @@ describe('Graphql Auth Module (e2e)', () => {
 
     it('should throw if enter a email of invalid user', async () => {
       const promise = app.mutate({
-        mutation: makeLoginMutation('never@created.com'),
+        mutation: makeLoginMutation({ email: 'never@created.com' }),
       });
 
       const { graphQLErrors } = await promise.catch((e) => e);
@@ -55,7 +57,10 @@ describe('Graphql Auth Module (e2e)', () => {
 
     it('should throw if enter a invalid password', async () => {
       const promise = app.mutate({
-        mutation: makeLoginMutation('dio@genes.com', '12344321'),
+        mutation: makeLoginMutation({
+          email: 'dio@genes.com',
+          password: '12344321',
+        }),
       });
 
       const { graphQLErrors } = await promise.catch((e) => e);
@@ -63,6 +68,20 @@ describe('Graphql Auth Module (e2e)', () => {
       expect(graphQLErrors[0].message).toBe('Senha incorreta!');
       expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
       expect(graphQLErrors[0].extensions.response.error).toBe('Unauthorized');
+    });
+
+    it('should authenticate with valid email and password', async () => {
+      const promise = app.mutate<{ login: AuthOutput }>({
+        mutation: makeLoginMutation({}),
+      });
+
+      const { data } = await promise;
+
+      expect(data).toHaveProperty('login');
+      expect(data.login).toHaveProperty('user');
+      expect(data.login.user).toBeDefined();
+      expect(data.login).toHaveProperty('token');
+      expect(data.login.token).toBeDefined();
     });
   });
 });
