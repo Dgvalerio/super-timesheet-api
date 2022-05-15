@@ -163,5 +163,20 @@ describe('Graphql User Module (e2e)', () => {
       expect(graphQLErrors[0].extensions).toHaveProperty('response');
       expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
     });
+
+    it('should get and list all users', async () => {
+      const { data } = await makeOut();
+
+      expect(data).toHaveProperty('getAllUsers');
+
+      expect(Array.isArray(data.getAllUsers)).toBeTruthy();
+      expect(data.getAllUsers.length >= 1).toBeTruthy();
+      expect(data.getAllUsers.find(({ id }) => user.id === id)).toEqual({
+        __typename: 'User',
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      });
+    });
   });
 });
