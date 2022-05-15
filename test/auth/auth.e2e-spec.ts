@@ -1,7 +1,7 @@
 import { AuthOutput } from '@/auth/dto/auth.output';
 
+import { makeLoginMutation } from '!/auth/collaborators/makeLoginMutation';
 import { apolloClient } from '!/collaborators/apolloClient';
-import { makeLoginMutation } from '!/collaborators/makeLoginMutation';
 
 describe('Graphql Auth Module (e2e)', () => {
   describe('Login', () => {

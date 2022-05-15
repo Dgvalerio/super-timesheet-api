@@ -1,38 +1,9 @@
 import { CreateUserInput } from '@/user/dto/create-user.input';
 import { User } from '@/user/user.entity';
-import { randEmail, randFullName, randPassword } from '@ngneat/falso';
 
 import { apolloClient } from '!/collaborators/apolloClient';
-
-import { gql } from 'apollo-boost';
-
-export const makeCreateUserInput = (): CreateUserInput => {
-  const createUserInput = new CreateUserInput();
-
-  createUserInput.name = randFullName();
-  createUserInput.email = randEmail();
-  createUserInput.password = randPassword({ size: 8 });
-
-  return createUserInput;
-};
-
-export const makeCreateUserMutation = ({
-  name,
-  email,
-  password,
-}: Partial<CreateUserInput>) => gql`
-  mutation {
-    createUser(input: {
-      name: "${name}"
-      email: "${email}"
-      password: "${password}"
-    }) {
-      id
-      email
-      name
-    }
-  }
-`;
+import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
+import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
 
 describe('Graphql User Module (e2e)', () => {
   describe('createUser', () => {
