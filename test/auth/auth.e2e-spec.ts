@@ -1,20 +1,37 @@
+import { AuthInput } from '@/auth/dto/auth.input';
 import { AuthOutput } from '@/auth/dto/auth.output';
+import { User } from '@/user/user.entity';
+import { randWord } from '@ngneat/falso';
 
 import { makeLoginMutation } from '!/auth/collaborators/makeLoginMutation';
 import { apolloClient } from '!/collaborators/apolloClient';
+import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
+import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
+
+const makeOut = async (input: Partial<AuthInput>) =>
+  apolloClient.mutate<{ login: AuthOutput }>({
+    mutation: makeLoginMutation({
+      email: input.email,
+      password: input.password,
+    }),
+  });
 
 describe('Graphql Auth Module (e2e)', () => {
-  describe('Login', () => {
-    const makeOut = async ({
-      email = 'dio@genes.com',
-      password = '12345678',
-    }) =>
-      apolloClient.mutate<{ login: AuthOutput }>({
-        mutation: makeLoginMutation({ email, password }),
-      });
+  let user: User;
 
+  beforeAll(async () => {
+    const createUserInput = makeCreateUserInput();
+
+    const { data } = await apolloClient.mutate<{ createUser: User }>({
+      mutation: makeCreateUserMutation(createUserInput),
+    });
+
+    user = { ...data.createUser, ...createUserInput };
+  });
+
+  describe('Login', () => {
     it('should throw if enter a invalid email', async () => {
-      const out = makeOut({ email: 'invalid-email' });
+      const out = makeOut({ email: randWord() });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
@@ -25,7 +42,9 @@ describe('Graphql Auth Module (e2e)', () => {
     });
 
     it('should throw if enter a email of invalid user', async () => {
-      const out = makeOut({ email: 'never@created.com' });
+      const fakeEmail = `${randWord()}_${user.email}`;
+
+      const out = makeOut({ email: fakeEmail });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
@@ -36,8 +55,8 @@ describe('Graphql Auth Module (e2e)', () => {
 
     it('should throw if enter a invalid password', async () => {
       const out = makeOut({
-        email: 'dio@genes.com',
-        password: '12344321',
+        email: user.email,
+        password: `${randWord()}_${user.password}`,
       });
 
       const { graphQLErrors } = await out.catch((e) => e);
@@ -48,10 +67,21 @@ describe('Graphql Auth Module (e2e)', () => {
     });
 
     it('should authenticate with valid email and password', async () => {
-      const { data } = await makeOut({});
+      const { data } = await makeOut({
+        email: user.email,
+        password: user.password,
+      });
 
       expect(data).toHaveProperty('login');
       expect(data.login).toHaveProperty('user');
+
+      expect(data.login.user).toEqual({
+        __typename: 'User',
+        id: expect.anything(),
+        name: user.name,
+        email: user.email,
+      });
+
       expect(data.login.user).toBeDefined();
       expect(data.login).toHaveProperty('token');
       expect(data.login.token).toBeDefined();
