@@ -1,29 +1,17 @@
 import { AuthOutput } from '@/auth/dto/auth.output';
 
+import { apolloClient } from '!/collaborators/apolloClient';
 import { makeLoginMutation } from '!/collaborators/makeLoginMutation';
 
-import { ApolloClient, HttpLink, InMemoryCache } from 'apollo-boost';
-import fetch from 'cross-fetch';
-
 describe('Graphql Auth Module (e2e)', () => {
-  let app: ApolloClient<any>;
-
-  beforeAll(async () => {
-    app = new ApolloClient({
-      link: new HttpLink({ uri: 'http://localhost:3001/graphql', fetch }),
-      cache: new InMemoryCache(),
-    });
-  });
-
   describe('Login', () => {
     const makeOut = async ({
       email = 'dio@genes.com',
       password = '12345678',
-    }) => {
-      return app.mutate<{ login: AuthOutput }>({
+    }) =>
+      apolloClient.mutate<{ login: AuthOutput }>({
         mutation: makeLoginMutation({ email, password }),
       });
-    };
 
     it('should throw if enter a invalid email', async () => {
       const out = makeOut({ email: 'invalid-email' });

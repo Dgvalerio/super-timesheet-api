@@ -2,8 +2,9 @@ import { CreateUserInput } from '@/user/dto/create-user.input';
 import { User } from '@/user/user.entity';
 import { randEmail, randFullName, randPassword } from '@ngneat/falso';
 
-import { ApolloClient, gql, HttpLink, InMemoryCache } from 'apollo-boost';
-import fetch from 'cross-fetch';
+import { apolloClient } from '!/collaborators/apolloClient';
+
+import { gql } from 'apollo-boost';
 
 export const makeCreateUserInput = (): CreateUserInput => {
   const createUserInput = new CreateUserInput();
@@ -34,18 +35,9 @@ export const makeCreateUserMutation = ({
 `;
 
 describe('Graphql User Module (e2e)', () => {
-  let app: ApolloClient<any>;
-
-  beforeAll(async () => {
-    app = new ApolloClient({
-      link: new HttpLink({ uri: 'http://localhost:3001/graphql', fetch }),
-      cache: new InMemoryCache(),
-    });
-  });
-
   describe('createUser', () => {
     const makeOut = async (input: Partial<CreateUserInput>) =>
-      app.mutate<{ createUser: User }>({
+      apolloClient.mutate<{ createUser: User }>({
         mutation: makeCreateUserMutation(input),
       });
 
