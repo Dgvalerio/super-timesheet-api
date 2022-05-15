@@ -228,5 +228,21 @@ describe('Graphql User Module (e2e)', () => {
       expect(graphQLErrors[0].extensions).toHaveProperty('response');
       expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
     });
+
+    it('should throw if no parameter as entered', async () => {
+      const out = makeOut({});
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe(
+        'Nenhum parâmetro válido foi informado',
+      );
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(400);
+      expect(response.error).toBe('Bad Request');
+    });
   });
 });
