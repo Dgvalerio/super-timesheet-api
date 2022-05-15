@@ -1,5 +1,6 @@
-import { makeFakeUser } from '@/tests/collaborators/makeFakeUser';
 import { UserService } from '@/user/user.service';
+
+import { makeFakeUser } from '!/collaborators/makeFakeUser';
 
 export const makeUserServiceStub = (
   fakeUser = makeFakeUser(),

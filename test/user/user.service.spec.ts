@@ -5,10 +5,11 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
-import { makeFakeUser } from '@/tests/collaborators/makeFakeUser';
-import { makeUserRepositoryStub } from '@/tests/user/user.repository.stub';
 import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
+
+import { makeFakeUser } from '!/collaborators/makeFakeUser';
+import { makeUserRepositoryStub } from '!/user/user.repository.stub';
 
 import { Repository } from 'typeorm';
 

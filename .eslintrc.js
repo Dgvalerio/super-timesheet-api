@@ -76,6 +76,7 @@ module.exports = {
         "groups": [
           "/^@nestjs/",
           "/@/",
+          "/!/",
           "module",
           [
             "parent",

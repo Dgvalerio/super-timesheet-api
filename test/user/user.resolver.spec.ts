@@ -1,11 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { makeFakeUser } from '@/tests/collaborators/makeFakeUser';
-import { makeUserServiceStub } from '@/tests/user/user.service.stub';
 import { CreateUserInput } from '@/user/dto/create-user.input';
 import { GetUserInput } from '@/user/dto/get-user.input';
 import { UserResolver } from '@/user/user.resolver';
 import { UserService } from '@/user/user.service';
+
+import { makeFakeUser } from '!/collaborators/makeFakeUser';
+import { makeUserServiceStub } from '!/user/user.service.stub';
 
 namespace Sut {
   export interface Return {

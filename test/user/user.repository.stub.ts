@@ -1,5 +1,6 @@
-import { makeFakeUser } from '@/tests/collaborators/makeFakeUser';
 import { User } from '@/user/user.entity';
+
+import { makeFakeUser } from '!/collaborators/makeFakeUser';
 
 import { Repository } from 'typeorm';
 

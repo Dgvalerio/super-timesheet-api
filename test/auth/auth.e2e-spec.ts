@@ -1,5 +1,6 @@
 import { AuthOutput } from '@/auth/dto/auth.output';
-import { makeLoginMutation } from '@/tests/collaborators/makeLoginMutation';
+
+import { makeLoginMutation } from '!/collaborators/makeLoginMutation';
 
 import { ApolloClient, HttpLink, InMemoryCache } from 'apollo-boost';
 import fetch from 'cross-fetch';
