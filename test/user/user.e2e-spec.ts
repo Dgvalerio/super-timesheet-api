@@ -1,5 +1,6 @@
 import { AuthOutput } from '@/auth/dto/auth.output';
 import { CreateUserInput } from '@/user/dto/create-user.input';
+import { GetUserInput } from '@/user/dto/get-user.input';
 import { User } from '@/user/user.entity';
 
 import { makeLoginMutation } from '!/auth/collaborators/makeLoginMutation';
@@ -10,6 +11,7 @@ import {
 import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
 import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
 import { makeGetAllUsersQuery } from '!/user/collaborators/makeGetAllUsersQuery';
+import { makeGetUserQuery } from '!/user/collaborators/makeGetUserQuery';
 
 import { ApolloClient, NormalizedCacheObject } from 'apollo-boost';
 
@@ -125,8 +127,8 @@ describe('Graphql User Module (e2e)', () => {
     let user: User;
     let client: ApolloClient<NormalizedCacheObject>;
 
-    const makeOut = async (theClient = client) =>
-      theClient.query<{ getAllUsers: User[] }>({
+    const makeOut = async () =>
+      client.query<{ getAllUsers: User[] }>({
         query: makeGetAllUsersQuery(),
       });
 
@@ -155,7 +157,9 @@ describe('Graphql User Module (e2e)', () => {
     });
 
     it('should throw if unauthenticated', async () => {
-      const out = makeOut(apolloClient);
+      const out = apolloClient.query<{ getAllUsers: User[] }>({
+        query: makeGetAllUsersQuery(),
+      });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
@@ -177,6 +181,52 @@ describe('Graphql User Module (e2e)', () => {
         name: user.name,
         email: user.email,
       });
+    });
+  });
+
+  describe('getUser', () => {
+    let user: User;
+    let client: ApolloClient<NormalizedCacheObject>;
+
+    const makeOut = async (input: Partial<GetUserInput>) =>
+      client.query<{ getUser: User }>({
+        query: makeGetUserQuery(input),
+      });
+
+    beforeAll(async () => {
+      const createUserInput = makeCreateUserInput();
+
+      const {
+        data: { createUser },
+      } = await apolloClient.mutate<{ createUser: User }>({
+        mutation: makeCreateUserMutation(createUserInput),
+      });
+
+      const {
+        data: {
+          login: { token },
+        },
+      } = await apolloClient.mutate<{ login: AuthOutput }>({
+        mutation: makeLoginMutation({
+          email: createUserInput.email,
+          password: createUserInput.password,
+        }),
+      });
+
+      client = apolloAuthorizedClient(token);
+      user = createUser;
+    });
+
+    it('should throw if unauthenticated', async () => {
+      const out = apolloClient.query<{ createUser: User }>({
+        query: makeGetUserQuery({}),
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Unauthorized');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
     });
   });
 });
