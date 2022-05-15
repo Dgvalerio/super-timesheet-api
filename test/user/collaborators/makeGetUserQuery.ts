@@ -6,7 +6,7 @@ export const makeGetUserQuery = (input: GetUserInput) => {
   if (input.id)
     return gql`
       query {
-        getUser(input: { id: ${input.id} }) {
+        getUser(input: { id: "${input.id}" }) {
           id
           email
           name
@@ -16,7 +16,7 @@ export const makeGetUserQuery = (input: GetUserInput) => {
   if (input.email)
     return gql`
       query {
-        getUser(input: { email: ${input.email} }) {
+        getUser(input: { email: "${input.email}" }) {
           id
           email
           name
@@ -26,7 +26,7 @@ export const makeGetUserQuery = (input: GetUserInput) => {
   if (input.name)
     return gql`
       query {
-        getUser(input: { name: ${input.name} }) {
+        getUser(input: { name: "${input.name}" }) {
           id
           email
           name

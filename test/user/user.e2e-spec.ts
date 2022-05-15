@@ -244,5 +244,19 @@ describe('Graphql User Module (e2e)', () => {
       expect(response.statusCode).toBe(400);
       expect(response.error).toBe('Bad Request');
     });
+
+    it('should get and show user by id', async () => {
+      const { data } = await makeOut({ id: user.id });
+
+      expect(data).toHaveProperty('getUser');
+
+      expect(data).toHaveProperty('getUser');
+      expect(data.getUser).toEqual({
+        __typename: 'User',
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      });
+    });
   });
 });
