@@ -5,13 +5,13 @@ import { apolloClient } from '!/collaborators/apolloClient';
 import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
 import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
 
+const makeOut = async (input: Partial<CreateUserInput>) =>
+  apolloClient.mutate<{ createUser: User }>({
+    mutation: makeCreateUserMutation(input),
+  });
+
 describe('Graphql User Module (e2e)', () => {
   describe('createUser', () => {
-    const makeOut = async (input: Partial<CreateUserInput>) =>
-      apolloClient.mutate<{ createUser: User }>({
-        mutation: makeCreateUserMutation(input),
-      });
-
     it('should throw if enter a empty name', async () => {
       const createUserInput = makeCreateUserInput();
 
@@ -86,6 +86,30 @@ describe('Graphql User Module (e2e)', () => {
         name: createUserInput.name,
         email: createUserInput.email,
       });
+    });
+
+    it('should fail if you enter an email that has already been registered', async () => {
+      const {
+        data: {
+          createUser: { email },
+        },
+      } = await makeOut(makeCreateUserInput());
+
+      const createUserInput = makeCreateUserInput();
+
+      createUserInput.email = email;
+
+      const out = makeOut(createUserInput);
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Esse email já foi utilizado!');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(409);
+      expect(response.error).toBe('Conflict');
     });
   });
 });
