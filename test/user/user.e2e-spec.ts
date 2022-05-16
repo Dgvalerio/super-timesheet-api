@@ -258,5 +258,19 @@ describe('Graphql User Module (e2e)', () => {
         email: user.email,
       });
     });
+
+    it('should get and show user by email', async () => {
+      const { data } = await makeOut({ email: user.email });
+
+      expect(data).toHaveProperty('getUser');
+
+      expect(data).toHaveProperty('getUser');
+      expect(data.getUser).toEqual({
+        __typename: 'User',
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      });
+    });
   });
 });
