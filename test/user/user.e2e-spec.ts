@@ -2,6 +2,7 @@ import { AuthOutput } from '@/auth/dto/auth.output';
 import { CreateUserInput } from '@/user/dto/create-user.input';
 import { GetUserInput } from '@/user/dto/get-user.input';
 import { User } from '@/user/user.entity';
+import { randWord } from '@ngneat/falso';
 
 import { makeLoginMutation } from '!/auth/collaborators/makeLoginMutation';
 import {
@@ -279,6 +280,20 @@ describe('Graphql User Module (e2e)', () => {
         name: user.name,
         email: user.email,
       });
+    });
+
+    it('should throw if not found user', async () => {
+      const out = makeOut({ name: `${randWord()}_${user.email}` });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Nenhum usuário foi encontrado');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(404);
+      expect(response.error).toBe('Not Found');
     });
   });
 });
