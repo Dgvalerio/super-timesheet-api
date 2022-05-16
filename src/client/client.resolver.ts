@@ -1,4 +1,4 @@
-import { UseGuards } from '@nestjs/common';
+import { NotFoundException, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { GqlAuthGuard } from '@/auth/auth.guard';
@@ -26,6 +26,12 @@ export class ClientResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => Client)
   async getClient(@Args('input') input: GetClientInput): Promise<Client> {
-    return this.clientService.getClient(input);
+    const client = await this.clientService.getClient(input);
+
+    if (!client) {
+      throw new NotFoundException('Nenhum cliente foi encontrado');
+    }
+
+    return client;
   }
 }

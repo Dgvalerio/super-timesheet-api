@@ -2,6 +2,7 @@ import {
   Injectable,
   InternalServerErrorException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -58,6 +59,8 @@ export class ClientService {
       search = { name: params.name };
     } else if (params.code) {
       search = { code: params.code };
+    } else {
+      throw new BadRequestException('Nenhum parâmetro válido foi informado');
     }
 
     return this.clientRepository.findOneBy(search);

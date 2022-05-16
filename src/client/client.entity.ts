@@ -12,7 +12,7 @@ export class Client {
   id: string;
 
   @Column({ unique: true, nullable: true })
-  code: string;
+  code?: string;
 
   @Column({ unique: true })
   name: string;

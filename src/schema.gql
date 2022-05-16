@@ -29,7 +29,7 @@ scalar DateTime
 
 type Client {
   id: ID!
-  code: String!
+  code: String
   name: String!
   projects: [Project!]!
 }
