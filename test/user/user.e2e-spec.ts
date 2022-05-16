@@ -249,8 +249,6 @@ describe('Graphql User Module (e2e)', () => {
       const { data } = await makeOut({ id: user.id });
 
       expect(data).toHaveProperty('getUser');
-
-      expect(data).toHaveProperty('getUser');
       expect(data.getUser).toEqual({
         __typename: 'User',
         id: user.id,
@@ -263,6 +261,16 @@ describe('Graphql User Module (e2e)', () => {
       const { data } = await makeOut({ email: user.email });
 
       expect(data).toHaveProperty('getUser');
+      expect(data.getUser).toEqual({
+        __typename: 'User',
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      });
+    });
+
+    it('should get and show user by name', async () => {
+      const { data } = await makeOut({ name: user.name });
 
       expect(data).toHaveProperty('getUser');
       expect(data.getUser).toEqual({
