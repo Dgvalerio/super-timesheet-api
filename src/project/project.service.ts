@@ -33,7 +33,12 @@ export class ProjectService {
     const haveConflict = await this.getProject({ [fieldName]: newValue });
 
     if (haveConflict) {
-      throw new ConflictException(`"${newValue}" já foi cadastrado!`);
+      switch (fieldName) {
+        case 'code':
+          throw new ConflictException(`Esse código já foi utilizado!`);
+        default:
+          throw new ConflictException(`O "${fieldName}" já foi utilizado!`);
+      }
     }
   }
 

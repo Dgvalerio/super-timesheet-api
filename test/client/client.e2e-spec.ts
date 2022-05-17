@@ -18,7 +18,7 @@ import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutat
 
 import { ApolloClient, NormalizedCacheObject } from 'apollo-boost';
 
-describe('Graphql User Module (e2e)', () => {
+describe('Graphql Client Module (e2e)', () => {
   let api: ApolloClient<NormalizedCacheObject>;
 
   beforeAll(async () => {
