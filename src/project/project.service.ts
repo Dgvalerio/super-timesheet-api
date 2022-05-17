@@ -107,7 +107,7 @@ export class ProjectService {
 
   async updateProject(input: UpdateProjectInput): Promise<Project> {
     const newData: Partial<Project> = {};
-    const project = await this.getProject(input);
+    const project = await this.getProject({ id: input.id });
 
     if (!project) {
       throw new NotFoundException('O projeto informado não existe!');
@@ -137,16 +137,16 @@ export class ProjectService {
       newData.name = input.name;
     }
 
-    if (input.startDate !== project.startDate) {
+    if (input.startDate && input.startDate !== project.startDate) {
       newData.startDate = input.startDate;
     }
 
-    if (input.endDate !== project.endDate) {
+    if (input.endDate && input.endDate !== project.endDate) {
       newData.endDate = input.endDate;
     }
 
     if (Object.keys(newData).length === 0) {
-      return this.getProject({ id: input.id });
+      return project;
     }
 
     await this.projectRepository.update(project, { ...newData });
@@ -159,7 +159,7 @@ export class ProjectService {
       );
     }
 
-    return saved;
+    return this.getProject({ id: input.id });
   }
 
   async deleteProject(input: DeleteProjectInput): Promise<boolean> {

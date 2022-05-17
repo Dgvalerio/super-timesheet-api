@@ -13,6 +13,7 @@ export class UpdateProjectInput implements Partial<Project> {
 
   @IsString()
   @IsOptional()
+  @IsNotEmpty()
   code?: Project['code'];
 
   @IsString()
