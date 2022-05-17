@@ -374,14 +374,14 @@ describe('Graphql User Module (e2e)', () => {
       const { data } = await makeOut({ id: user.id });
 
       expect(data).toHaveProperty('deleteUser');
-      expect(data).toBeTruthy();
+      expect(data.deleteUser).toBeTruthy();
     });
 
     it('should delete user by email', async () => {
       const { data } = await makeOut({ email: user.email });
 
       expect(data).toHaveProperty('deleteUser');
-      expect(data).toBeTruthy();
+      expect(data.deleteUser).toBeTruthy();
     });
 
     it('should throw if not found user', async () => {
