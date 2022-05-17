@@ -12,6 +12,7 @@ import {
 } from '!/collaborators/apolloClient';
 import { makeCreateProjectInput } from '!/project/collaborators/makeCreateProjectInput';
 import { makeCreateProjectMutation } from '!/project/collaborators/makeCreateProjectMutation';
+import { makeGetAllProjectsQuery } from '!/project/collaborators/makeGetAllProjectsQuery';
 import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
 import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
 
@@ -308,6 +309,67 @@ describe('Graphql Project Module (e2e)', () => {
 
       expect(response.statusCode).toBe(409);
       expect(response.error).toBe('Conflict');
+    });
+  });
+
+  describe('getAllProjects', () => {
+    let project: Project;
+
+    const makeOut = async () =>
+      api.query<{ getAllProjects: Project[] }>({
+        query: makeGetAllProjectsQuery(),
+      });
+
+    beforeAll(async () => {
+      const createClientInput = makeCreateClientInput();
+
+      const {
+        data: { createClient },
+      } = await api.mutate<{ createClient: Client }>({
+        mutation: makeCreateClientMutation(createClientInput),
+      });
+
+      const createProjectInput = makeCreateProjectInput();
+
+      createProjectInput.clientId = createClient.id;
+
+      const {
+        data: { createProject },
+      } = await api.mutate<{ createProject: Project }>({
+        mutation: makeCreateProjectMutation(createProjectInput),
+      });
+
+      project = { ...createProjectInput, ...createProject };
+    });
+
+    it('should throw if unauthenticated', async () => {
+      const out = apolloClient.query<{ getAllProjects: Project[] }>({
+        query: makeGetAllProjectsQuery(),
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Unauthorized');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
+    });
+
+    it('should get and list all projects', async () => {
+      const { data } = await makeOut();
+
+      expect(data).toHaveProperty('getAllProjects');
+
+      expect(Array.isArray(data.getAllProjects)).toBeTruthy();
+      expect(data.getAllProjects.length >= 1).toBeTruthy();
+      expect(data.getAllProjects.find(({ id }) => project.id === id)).toEqual({
+        __typename: 'Project',
+        id: project.id,
+        name: project.name,
+        code: project.code,
+        startDate: project.startDate,
+        endDate: project.endDate,
+        client: project.client,
+      });
     });
   });
 });

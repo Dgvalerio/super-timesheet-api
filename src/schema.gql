@@ -15,7 +15,7 @@ type AuthOutput {
 
 type Project {
   id: ID!
-  code: String!
+  code: String
   name: String!
   startDate: DateTime!
   endDate: DateTime!

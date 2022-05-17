@@ -12,7 +12,7 @@ export class Project {
   id: string;
 
   @Column({ unique: true, nullable: true })
-  code: string;
+  code?: string;
 
   @Column()
   name: string;
