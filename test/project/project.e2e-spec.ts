@@ -1,7 +1,8 @@
 import { AuthOutput } from '@/auth/dto/auth.output';
 import { Client } from '@/client/client.entity';
-import { CreateProjectInput } from '@/project/dto';
+import { CreateProjectInput, GetProjectInput } from '@/project/dto';
 import { Project } from '@/project/project.entity';
+import { randWord } from '@ngneat/falso';
 
 import { makeLoginMutation } from '!/auth/collaborators/makeLoginMutation';
 import { makeCreateClientInput } from '!/client/collaborators/makeCreateClientInput';
@@ -13,6 +14,7 @@ import {
 import { makeCreateProjectInput } from '!/project/collaborators/makeCreateProjectInput';
 import { makeCreateProjectMutation } from '!/project/collaborators/makeCreateProjectMutation';
 import { makeGetAllProjectsQuery } from '!/project/collaborators/makeGetAllProjectsQuery';
+import { makeGetProjectQuery } from '!/project/collaborators/makeGetProjectQuery';
 import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
 import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
 
@@ -370,6 +372,124 @@ describe('Graphql Project Module (e2e)', () => {
         endDate: project.endDate,
         client: project.client,
       });
+    });
+  });
+
+  describe('getProject', () => {
+    let project: Project;
+
+    const makeOut = async (input: Partial<GetProjectInput>) =>
+      api.query<{ getProject: Project }>({
+        query: makeGetProjectQuery(input),
+      });
+
+    beforeAll(async () => {
+      const createClientInput = makeCreateClientInput();
+
+      const {
+        data: { createClient },
+      } = await api.mutate<{ createClient: Client }>({
+        mutation: makeCreateClientMutation(createClientInput),
+      });
+
+      const createProjectInput = makeCreateProjectInput();
+
+      createProjectInput.clientId = createClient.id;
+
+      const {
+        data: { createProject },
+      } = await api.mutate<{ createProject: Project }>({
+        mutation: makeCreateProjectMutation(createProjectInput),
+      });
+
+      project = { ...createProjectInput, ...createProject };
+    });
+
+    it('should throw if unauthenticated', async () => {
+      const out = apolloClient.query<{ getProject: Project }>({
+        query: makeGetProjectQuery({}),
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Unauthorized');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
+    });
+
+    it('should throw if no parameter as entered', async () => {
+      const out = makeOut({});
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe(
+        'Nenhum parâmetro válido foi informado',
+      );
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(400);
+      expect(response.error).toBe('Bad Request');
+    });
+
+    it('should get and show by id', async () => {
+      const { data } = await makeOut({ id: project.id });
+
+      expect(data).toHaveProperty('getProject');
+      expect(data.getProject).toEqual({
+        __typename: 'Project',
+        id: project.id,
+        name: project.name,
+        code: project.code,
+        startDate: project.startDate,
+        endDate: project.endDate,
+        client: project.client,
+      });
+    });
+
+    it('should get and show by name', async () => {
+      const { data } = await makeOut({ name: project.name });
+
+      expect(data).toHaveProperty('getProject');
+      expect(data.getProject).toEqual({
+        __typename: 'Project',
+        id: project.id,
+        name: project.name,
+        code: project.code,
+        startDate: project.startDate,
+        endDate: project.endDate,
+        client: project.client,
+      });
+    });
+
+    it('should get and show by code', async () => {
+      const { data } = await makeOut({ code: project.code });
+
+      expect(data).toHaveProperty('getProject');
+      expect(data.getProject).toEqual({
+        __typename: 'Project',
+        id: project.id,
+        name: project.name,
+        code: project.code,
+        startDate: project.startDate,
+        endDate: project.endDate,
+        client: project.client,
+      });
+    });
+
+    it('should throw if not found project', async () => {
+      const out = makeOut({ name: `${randWord()}_${project.id}` });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Nenhum projeto foi encontrado');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(404);
+      expect(response.error).toBe('Not Found');
     });
   });
 });
