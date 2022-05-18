@@ -1,4 +1,3 @@
-import { AuthOutput } from '@/auth/dto/auth.output';
 import { Client } from '@/client/client.entity';
 import {
   CreateProjectInput,
@@ -9,13 +8,9 @@ import {
 import { Project } from '@/project/project.entity';
 import { randNumber, randWord } from '@ngneat/falso';
 
-import { makeLoginMutation } from '!/auth/collaborators/makeLoginMutation';
 import { makeCreateClientInput } from '!/client/collaborators/makeCreateClientInput';
 import { makeCreateClientMutation } from '!/client/collaborators/makeCreateClientMutation';
-import {
-  apolloAuthorizedClient,
-  apolloClient,
-} from '!/collaborators/apolloClient';
+import { ApolloClientHelper } from '!/collaborators/apolloClient';
 import { shouldThrowIfUnauthenticated } from '!/collaborators/helpers';
 import { randMore } from '!/collaborators/randMore';
 import { makeCreateProjectInput } from '!/project/collaborators/makeCreateProjectInput';
@@ -25,40 +20,19 @@ import { makeGetAllProjectsQuery } from '!/project/collaborators/makeGetAllProje
 import { makeGetProjectQuery } from '!/project/collaborators/makeGetProjectQuery';
 import { makeUpdateProjectInput } from '!/project/collaborators/makeUpdateProjectInput';
 import { makeUpdateProjectMutation } from '!/project/collaborators/makeUpdateProjectMutation';
-import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
-import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
-
-import { ApolloClient, NormalizedCacheObject } from 'apollo-boost';
 
 describe('Graphql Project Module (e2e)', () => {
-  let api: ApolloClient<NormalizedCacheObject>;
+  const api = new ApolloClientHelper();
 
   beforeAll(async () => {
-    const createUserInput = makeCreateUserInput();
-
-    await apolloClient.mutate({
-      mutation: makeCreateUserMutation(createUserInput),
-    });
-
-    const {
-      data: {
-        login: { token },
-      },
-    } = await apolloClient.mutate<{ login: AuthOutput }>({
-      mutation: makeLoginMutation({
-        email: createUserInput.email,
-        password: createUserInput.password,
-      }),
-    });
-
-    api = apolloAuthorizedClient(token);
+    await api.authenticate();
   });
 
   describe('createProject', () => {
     const makeOut = async (input: Partial<CreateProjectInput>) =>
-      api.mutate<{ createProject: Project }>({
-        mutation: makeCreateProjectMutation(input),
-      });
+      api.mutation<{ createProject: Project }>(
+        makeCreateProjectMutation(input),
+      );
 
     shouldThrowIfUnauthenticated('mutation', makeCreateProjectMutation({}));
 
@@ -145,9 +119,9 @@ describe('Graphql Project Module (e2e)', () => {
     it('should throw if enter a invalid client', async () => {
       const {
         data: { createClient },
-      } = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(makeCreateClientInput()),
-      });
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(makeCreateClientInput()),
+      );
 
       const createProjectInput = makeCreateProjectInput();
 
@@ -170,9 +144,9 @@ describe('Graphql Project Module (e2e)', () => {
     it('should create an project (with client id) (without project code)', async () => {
       const {
         data: { createClient },
-      } = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(makeCreateClientInput()),
-      });
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(makeCreateClientInput()),
+      );
 
       const createProjectInput = makeCreateProjectInput();
 
@@ -199,9 +173,9 @@ describe('Graphql Project Module (e2e)', () => {
     it('should create an project (with client code) (without project code)', async () => {
       const {
         data: { createClient },
-      } = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(makeCreateClientInput()),
-      });
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(makeCreateClientInput()),
+      );
 
       const createProjectInput = makeCreateProjectInput();
 
@@ -228,9 +202,9 @@ describe('Graphql Project Module (e2e)', () => {
     it('should create an project (with client id) (with project code)', async () => {
       const {
         data: { createClient },
-      } = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(makeCreateClientInput()),
-      });
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(makeCreateClientInput()),
+      );
 
       const createProjectInput = makeCreateProjectInput();
 
@@ -257,9 +231,9 @@ describe('Graphql Project Module (e2e)', () => {
     it('should create an project (with client code) (with project code)', async () => {
       const {
         data: { createClient },
-      } = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(makeCreateClientInput()),
-      });
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(makeCreateClientInput()),
+      );
 
       const createProjectInput = makeCreateProjectInput();
 
@@ -286,9 +260,9 @@ describe('Graphql Project Module (e2e)', () => {
     it('should fail if entered code already been registered', async () => {
       const {
         data: { createClient },
-      } = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(makeCreateClientInput()),
-      });
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(makeCreateClientInput()),
+      );
 
       const { data } = await makeOut({
         ...makeCreateProjectInput(),
@@ -318,18 +292,16 @@ describe('Graphql Project Module (e2e)', () => {
     let project: Project;
 
     const makeOut = async () =>
-      api.query<{ getAllProjects: Project[] }>({
-        query: makeGetAllProjectsQuery(),
-      });
+      api.query<{ getAllProjects: Project[] }>(makeGetAllProjectsQuery());
 
     beforeAll(async () => {
       const createClientInput = makeCreateClientInput();
 
       const {
         data: { createClient },
-      } = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(createClientInput),
-      });
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(createClientInput),
+      );
 
       const createProjectInput = makeCreateProjectInput();
 
@@ -337,9 +309,9 @@ describe('Graphql Project Module (e2e)', () => {
 
       const {
         data: { createProject },
-      } = await api.mutate<{ createProject: Project }>({
-        mutation: makeCreateProjectMutation(createProjectInput),
-      });
+      } = await api.mutation<{ createProject: Project }>(
+        makeCreateProjectMutation(createProjectInput),
+      );
 
       project = { ...createProjectInput, ...createProject };
     });
@@ -369,18 +341,16 @@ describe('Graphql Project Module (e2e)', () => {
     let project: Project;
 
     const makeOut = async (input: Partial<GetProjectInput>) =>
-      api.query<{ getProject: Project }>({
-        query: makeGetProjectQuery(input),
-      });
+      api.query<{ getProject: Project }>(makeGetProjectQuery(input));
 
     beforeAll(async () => {
       const createClientInput = makeCreateClientInput();
 
       const {
         data: { createClient },
-      } = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(createClientInput),
-      });
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(createClientInput),
+      );
 
       const createProjectInput = makeCreateProjectInput();
 
@@ -388,9 +358,9 @@ describe('Graphql Project Module (e2e)', () => {
 
       const {
         data: { createProject },
-      } = await api.mutate<{ createProject: Project }>({
-        mutation: makeCreateProjectMutation(createProjectInput),
-      });
+      } = await api.mutation<{ createProject: Project }>(
+        makeCreateProjectMutation(createProjectInput),
+      );
 
       project = { ...createProjectInput, ...createProject };
     });
@@ -477,18 +447,18 @@ describe('Graphql Project Module (e2e)', () => {
     let project: Project;
 
     const makeOut = async (input: Partial<UpdateProjectInput>) =>
-      api.mutate<{ updateProject: Project }>({
-        mutation: makeUpdateProjectMutation(input),
-      });
+      api.mutation<{ updateProject: Project }>(
+        makeUpdateProjectMutation(input),
+      );
 
     beforeEach(async () => {
       const createClientInput = makeCreateClientInput();
 
       const {
         data: { createClient },
-      } = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(createClientInput),
-      });
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(createClientInput),
+      );
 
       const createProjectInput = makeCreateProjectInput();
 
@@ -496,9 +466,9 @@ describe('Graphql Project Module (e2e)', () => {
 
       const {
         data: { createProject },
-      } = await api.mutate<{ createProject: Project }>({
-        mutation: makeCreateProjectMutation(createProjectInput),
-      });
+      } = await api.mutation<{ createProject: Project }>(
+        makeCreateProjectMutation(createProjectInput),
+      );
 
       project = createProject;
     });
@@ -561,9 +531,9 @@ describe('Graphql Project Module (e2e)', () => {
 
       const {
         data: { createClient },
-      } = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(createClientInput),
-      });
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(createClientInput),
+      );
 
       const createProjectInput = makeCreateProjectInput();
 
@@ -571,9 +541,9 @@ describe('Graphql Project Module (e2e)', () => {
 
       const {
         data: { createProject },
-      } = await api.mutate<{ createProject: Project }>({
-        mutation: makeCreateProjectMutation(createProjectInput),
-      });
+      } = await api.mutation<{ createProject: Project }>(
+        makeCreateProjectMutation(createProjectInput),
+      );
 
       const out = makeOut({
         id: project.id,
@@ -754,9 +724,9 @@ describe('Graphql Project Module (e2e)', () => {
     it('should update the client (with client id)', async () => {
       const {
         data: { createClient },
-      } = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(makeCreateClientInput()),
-      });
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(makeCreateClientInput()),
+      );
 
       const { data } = await makeOut({
         id: project.id,
@@ -775,9 +745,9 @@ describe('Graphql Project Module (e2e)', () => {
     it('should update the client (with client code)', async () => {
       const {
         data: { createClient },
-      } = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(makeCreateClientInput()),
-      });
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(makeCreateClientInput()),
+      );
 
       const { data } = await makeOut({
         id: project.id,
@@ -798,18 +768,18 @@ describe('Graphql Project Module (e2e)', () => {
     let project: Project;
 
     const makeOut = async (input: Partial<DeleteProjectInput>) =>
-      api.mutate<{ deleteProject: Project }>({
-        mutation: makeDeleteProjectMutation(input),
-      });
+      api.mutation<{ deleteProject: Project }>(
+        makeDeleteProjectMutation(input),
+      );
 
     beforeEach(async () => {
       const createClientInput = makeCreateClientInput();
 
       const {
         data: { createClient },
-      } = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(createClientInput),
-      });
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(createClientInput),
+      );
 
       const createProjectInput = makeCreateProjectInput();
 
@@ -817,9 +787,9 @@ describe('Graphql Project Module (e2e)', () => {
 
       const {
         data: { createProject },
-      } = await api.mutate<{ createProject: Project }>({
-        mutation: makeCreateProjectMutation(createProjectInput),
-      });
+      } = await api.mutation<{ createProject: Project }>(
+        makeCreateProjectMutation(createProjectInput),
+      );
 
       project = { ...createProjectInput, ...createProject };
     });

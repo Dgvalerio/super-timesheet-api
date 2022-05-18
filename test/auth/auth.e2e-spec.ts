@@ -4,27 +4,28 @@ import { User } from '@/user/user.entity';
 import { randWord } from '@ngneat/falso';
 
 import { makeLoginMutation } from '!/auth/collaborators/makeLoginMutation';
-import { apolloClient } from '!/collaborators/apolloClient';
+import { ApolloClientHelper } from '!/collaborators/apolloClient';
 import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
 import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
 
-const makeOut = async (input: Partial<AuthInput>) =>
-  apolloClient.mutate<{ login: AuthOutput }>({
-    mutation: makeLoginMutation({
-      email: input.email,
-      password: input.password,
-    }),
-  });
-
 describe('Graphql Auth Module (e2e)', () => {
+  const api = new ApolloClientHelper();
   let user: User;
+
+  const makeOut = async (input: Partial<AuthInput>) =>
+    api.mutation<{ login: AuthOutput }>(
+      makeLoginMutation({
+        email: input.email,
+        password: input.password,
+      }),
+    );
 
   beforeAll(async () => {
     const createUserInput = makeCreateUserInput();
 
-    const { data } = await apolloClient.mutate<{ createUser: User }>({
-      mutation: makeCreateUserMutation(createUserInput),
-    });
+    const { data } = await api.mutation<{ createUser: User }>(
+      makeCreateUserMutation(createUserInput),
+    );
 
     user = { ...data.createUser, ...createUserInput };
   });

@@ -1,53 +1,27 @@
-import { AuthOutput } from '@/auth/dto/auth.output';
 import { Category } from '@/category/category.entity';
 import { CreateCategoryInput } from '@/category/dto/create-category.input';
 import { GetCategoryInput } from '@/category/dto/get-category.input';
 import { randWord } from '@ngneat/falso';
 
-import { makeLoginMutation } from '!/auth/collaborators/makeLoginMutation';
 import { makeCreateCategoryInput } from '!/category/collaborators/makeCreateCategoryInput';
 import { makeCreateCategoryMutation } from '!/category/collaborators/makeCreateCategoryMutation';
 import { makeGetAllCategoriesQuery } from '!/category/collaborators/makeGetAllCategoriesQuery';
 import { makeGetCategoryQuery } from '!/category/collaborators/makeGetCategoryQuery';
-import {
-  apolloAuthorizedClient,
-  apolloClient,
-} from '!/collaborators/apolloClient';
+import { ApolloClientHelper } from '!/collaborators/apolloClient';
 import { shouldThrowIfUnauthenticated } from '!/collaborators/helpers';
-import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
-import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
-
-import { ApolloClient, NormalizedCacheObject } from 'apollo-boost';
 
 describe('Graphql Category Module (e2e)', () => {
-  let api: ApolloClient<NormalizedCacheObject>;
+  const api = new ApolloClientHelper();
 
   beforeAll(async () => {
-    const createUserInput = makeCreateUserInput();
-
-    await apolloClient.mutate({
-      mutation: makeCreateUserMutation(createUserInput),
-    });
-
-    const {
-      data: {
-        login: { token },
-      },
-    } = await apolloClient.mutate<{ login: AuthOutput }>({
-      mutation: makeLoginMutation({
-        email: createUserInput.email,
-        password: createUserInput.password,
-      }),
-    });
-
-    api = apolloAuthorizedClient(token);
+    await api.authenticate();
   });
 
   describe('createCategory', () => {
     const makeOut = async (input: Partial<CreateCategoryInput>) =>
-      api.mutate<{ createCategory: Category }>({
-        mutation: makeCreateCategoryMutation(input),
-      });
+      api.mutation<{ createCategory: Category }>(
+        makeCreateCategoryMutation(input),
+      );
 
     shouldThrowIfUnauthenticated('mutation', makeCreateCategoryMutation({}));
 
@@ -148,16 +122,14 @@ describe('Graphql Category Module (e2e)', () => {
     let category: Category;
 
     const makeOut = async () =>
-      api.query<{ getAllCategories: Category[] }>({
-        query: makeGetAllCategoriesQuery(),
-      });
+      api.query<{ getAllCategories: Category[] }>(makeGetAllCategoriesQuery());
 
     beforeAll(async () => {
       const createCategoryInput = makeCreateCategoryInput();
 
-      const createdCategory = await api.mutate<{ createCategory: Category }>({
-        mutation: makeCreateCategoryMutation(createCategoryInput),
-      });
+      const createdCategory = await api.mutation<{ createCategory: Category }>(
+        makeCreateCategoryMutation(createCategoryInput),
+      );
 
       category = {
         ...createCategoryInput,
@@ -189,16 +161,14 @@ describe('Graphql Category Module (e2e)', () => {
     let category: Category;
 
     const makeOut = async (input: Partial<GetCategoryInput>) =>
-      api.query<{ getCategory: Category }>({
-        query: makeGetCategoryQuery(input),
-      });
+      api.query<{ getCategory: Category }>(makeGetCategoryQuery(input));
 
     beforeAll(async () => {
       const createCategoryInput = makeCreateCategoryInput();
 
-      const createdCategory = await api.mutate<{ createCategory: Category }>({
-        mutation: makeCreateCategoryMutation(createCategoryInput),
-      });
+      const createdCategory = await api.mutation<{ createCategory: Category }>(
+        makeCreateCategoryMutation(createCategoryInput),
+      );
 
       category = {
         ...createCategoryInput,

@@ -1,15 +1,10 @@
-import { AuthOutput } from '@/auth/dto/auth.output';
 import { CreateUserInput } from '@/user/dto/create-user.input';
 import { DeleteUserInput } from '@/user/dto/delete-user.input';
 import { GetUserInput } from '@/user/dto/get-user.input';
 import { User } from '@/user/user.entity';
 import { randWord } from '@ngneat/falso';
 
-import { makeLoginMutation } from '!/auth/collaborators/makeLoginMutation';
-import {
-  apolloAuthorizedClient,
-  apolloClient,
-} from '!/collaborators/apolloClient';
+import { ApolloClientHelper } from '!/collaborators/apolloClient';
 import { shouldThrowIfUnauthenticated } from '!/collaborators/helpers';
 import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
 import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
@@ -17,14 +12,18 @@ import { makeDeleteUserMutation } from '!/user/collaborators/makeDeleteUserMutat
 import { makeGetAllUsersQuery } from '!/user/collaborators/makeGetAllUsersQuery';
 import { makeGetUserQuery } from '!/user/collaborators/makeGetUserQuery';
 
-import { ApolloClient, NormalizedCacheObject } from 'apollo-boost';
-
 describe('Graphql User Module (e2e)', () => {
+  const api = new ApolloClientHelper();
+
+  beforeAll(async () => {
+    await api.authenticate();
+  });
+
   describe('createUser', () => {
+    const apiUnAuth = new ApolloClientHelper();
+
     const makeOut = async (input: Partial<CreateUserInput>) =>
-      apolloClient.mutate<{ createUser: User }>({
-        mutation: makeCreateUserMutation(input),
-      });
+      apiUnAuth.mutation<{ createUser: User }>(makeCreateUserMutation(input));
 
     it('should throw if enter a empty name', async () => {
       const createUserInput = makeCreateUserInput();
@@ -129,34 +128,19 @@ describe('Graphql User Module (e2e)', () => {
 
   describe('getAllUsers', () => {
     let user: User;
-    let client: ApolloClient<NormalizedCacheObject>;
 
     const makeOut = async () =>
-      client.query<{ getAllUsers: User[] }>({
-        query: makeGetAllUsersQuery(),
-      });
+      api.query<{ getAllUsers: User[] }>(makeGetAllUsersQuery());
 
     beforeAll(async () => {
       const createUserInput = makeCreateUserInput();
 
       const {
         data: { createUser },
-      } = await apolloClient.mutate<{ createUser: User }>({
-        mutation: makeCreateUserMutation(createUserInput),
-      });
+      } = await api.mutation<{ createUser: User }>(
+        makeCreateUserMutation(createUserInput),
+      );
 
-      const {
-        data: {
-          login: { token },
-        },
-      } = await apolloClient.mutate<{ login: AuthOutput }>({
-        mutation: makeLoginMutation({
-          email: createUserInput.email,
-          password: createUserInput.password,
-        }),
-      });
-
-      client = apolloAuthorizedClient(token);
       user = createUser;
     });
 
@@ -180,34 +164,19 @@ describe('Graphql User Module (e2e)', () => {
 
   describe('getUser', () => {
     let user: User;
-    let client: ApolloClient<NormalizedCacheObject>;
 
     const makeOut = async (input: Partial<GetUserInput>) =>
-      client.query<{ getUser: User }>({
-        query: makeGetUserQuery(input),
-      });
+      api.query<{ getUser: User }>(makeGetUserQuery(input));
 
     beforeAll(async () => {
       const createUserInput = makeCreateUserInput();
 
       const {
         data: { createUser },
-      } = await apolloClient.mutate<{ createUser: User }>({
-        mutation: makeCreateUserMutation(createUserInput),
-      });
+      } = await api.mutation<{ createUser: User }>(
+        makeCreateUserMutation(createUserInput),
+      );
 
-      const {
-        data: {
-          login: { token },
-        },
-      } = await apolloClient.mutate<{ login: AuthOutput }>({
-        mutation: makeLoginMutation({
-          email: createUserInput.email,
-          password: createUserInput.password,
-        }),
-      });
-
-      client = apolloAuthorizedClient(token);
       user = createUser;
     });
 
@@ -282,40 +251,16 @@ describe('Graphql User Module (e2e)', () => {
 
   describe('deleteUser', () => {
     let user: User;
-    let client: ApolloClient<NormalizedCacheObject>;
 
     const makeOut = async (input: Partial<DeleteUserInput>) =>
-      client.mutate<{ deleteUser: boolean }>({
-        mutation: makeDeleteUserMutation(input),
-      });
-
-    beforeAll(async () => {
-      const createUserInput = makeCreateUserInput();
-
-      await apolloClient.mutate<{ createUser: User }>({
-        mutation: makeCreateUserMutation(createUserInput),
-      });
-
-      const {
-        data: {
-          login: { token },
-        },
-      } = await apolloClient.mutate<{ login: AuthOutput }>({
-        mutation: makeLoginMutation({
-          email: createUserInput.email,
-          password: createUserInput.password,
-        }),
-      });
-
-      client = apolloAuthorizedClient(token);
-    });
+      api.mutation<{ deleteUser: boolean }>(makeDeleteUserMutation(input));
 
     beforeEach(async () => {
       const createUserInput = makeCreateUserInput();
 
-      const { data } = await apolloClient.mutate<{ createUser: User }>({
-        mutation: makeCreateUserMutation(createUserInput),
-      });
+      const { data } = await api.mutation<{ createUser: User }>(
+        makeCreateUserMutation(createUserInput),
+      );
 
       user = data.createUser;
     });
