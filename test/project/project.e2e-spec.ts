@@ -55,7 +55,7 @@ describe('Graphql Project Module (e2e)', () => {
       expect(response.error).toBe('Bad Request');
     });
 
-    it('should throw if enter a empty startDate', async () => {
+    it('should throw if enter a invalid startDate', async () => {
       const createProjectInput = makeCreateProjectInput();
 
       delete createProjectInput.startDate;
@@ -74,7 +74,7 @@ describe('Graphql Project Module (e2e)', () => {
       expect(response.error).toBe('Bad Request');
     });
 
-    it('should throw if enter a empty endDate', async () => {
+    it('should throw if enter a invalid endDate', async () => {
       const createProjectInput = makeCreateProjectInput();
 
       delete createProjectInput.endDate;
@@ -812,21 +812,21 @@ describe('Graphql Project Module (e2e)', () => {
       expect(response.error).toBe('Bad Request');
     });
 
-    it('should get and show by id', async () => {
+    it('should delete by id', async () => {
       const { data } = await makeOut({ id: project.id });
 
       expect(data).toHaveProperty('deleteProject');
       expect(data.deleteProject).toBeTruthy();
     });
 
-    it('should get and show by name', async () => {
+    it('should delete by name', async () => {
       const { data } = await makeOut({ name: project.name });
 
       expect(data).toHaveProperty('deleteProject');
       expect(data.deleteProject).toBeTruthy();
     });
 
-    it('should get and show by code', async () => {
+    it('should delete by code', async () => {
       const { data } = await makeOut({ code: project.code });
 
       expect(data).toHaveProperty('deleteProject');
