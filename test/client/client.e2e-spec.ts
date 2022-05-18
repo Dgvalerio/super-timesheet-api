@@ -1,64 +1,27 @@
-import { AuthOutput } from '@/auth/dto/auth.output';
 import { Client } from '@/client/client.entity';
 import { CreateClientInput } from '@/client/dto/create-client.input';
 import { GetClientInput } from '@/client/dto/get-client.input';
 import { randWord } from '@ngneat/falso';
 
-import { makeLoginMutation } from '!/auth/collaborators/makeLoginMutation';
 import { makeCreateClientInput } from '!/client/collaborators/makeCreateClientInput';
 import { makeCreateClientMutation } from '!/client/collaborators/makeCreateClientMutation';
 import { makeGetAllClientsQuery } from '!/client/collaborators/makeGetAllClientsQuery';
 import { makeGetClientQuery } from '!/client/collaborators/makeGetClientQuery';
-import {
-  apolloAuthorizedClient,
-  apolloClient,
-} from '!/collaborators/apolloClient';
-import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
-import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
-
-import { ApolloClient, NormalizedCacheObject } from 'apollo-boost';
+import { ApolloClientHelper } from '!/collaborators/apolloClient';
+import { shouldThrowIfUnauthenticated } from '!/collaborators/helpers';
 
 describe('Graphql Client Module (e2e)', () => {
-  let api: ApolloClient<NormalizedCacheObject>;
+  const api = new ApolloClientHelper();
 
   beforeAll(async () => {
-    const createUserInput = makeCreateUserInput();
-
-    await apolloClient.mutate({
-      mutation: makeCreateUserMutation(createUserInput),
-    });
-
-    const {
-      data: {
-        login: { token },
-      },
-    } = await apolloClient.mutate<{ login: AuthOutput }>({
-      mutation: makeLoginMutation({
-        email: createUserInput.email,
-        password: createUserInput.password,
-      }),
-    });
-
-    api = apolloAuthorizedClient(token);
+    await api.authenticate();
   });
 
   describe('createClient', () => {
     const makeOut = async (input: Partial<CreateClientInput>) =>
-      api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(input),
-      });
+      api.mutation<{ createClient: Client }>(makeCreateClientMutation(input));
 
-    it('should throw if unauthenticated', async () => {
-      const out = apolloClient.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation({}),
-      });
-
-      const { graphQLErrors } = await out.catch((e) => e);
-
-      expect(graphQLErrors[0].message).toBe('Unauthorized');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
-    });
+    shouldThrowIfUnauthenticated('mutation', makeCreateClientMutation({}));
 
     it('should throw if enter a empty name', async () => {
       const createUserInput = makeCreateClientInput();
@@ -157,31 +120,19 @@ describe('Graphql Client Module (e2e)', () => {
     let client: Client;
 
     const makeOut = async () =>
-      api.query<{ getAllClients: Client[] }>({
-        query: makeGetAllClientsQuery(),
-      });
+      api.query<{ getAllClients: Client[] }>(makeGetAllClientsQuery());
 
     beforeAll(async () => {
       const createClientInput = makeCreateClientInput();
 
-      const createdClient = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(createClientInput),
-      });
+      const createdClient = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(createClientInput),
+      );
 
       client = { ...createClientInput, ...createdClient.data.createClient };
     });
 
-    it('should throw if unauthenticated', async () => {
-      const out = apolloClient.query<{ getAllClients: Client[] }>({
-        query: makeGetAllClientsQuery(),
-      });
-
-      const { graphQLErrors } = await out.catch((e) => e);
-
-      expect(graphQLErrors[0].message).toBe('Unauthorized');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
-    });
+    shouldThrowIfUnauthenticated('query', makeGetAllClientsQuery());
 
     it('should get and list all clients', async () => {
       const { data } = await makeOut();
@@ -203,31 +154,19 @@ describe('Graphql Client Module (e2e)', () => {
     let client: Client;
 
     const makeOut = async (input: Partial<GetClientInput>) =>
-      api.query<{ getClient: Client }>({
-        query: makeGetClientQuery(input),
-      });
+      api.query<{ getClient: Client }>(makeGetClientQuery(input));
 
     beforeAll(async () => {
       const createClientInput = makeCreateClientInput();
 
-      const createdClient = await api.mutate<{ createClient: Client }>({
-        mutation: makeCreateClientMutation(createClientInput),
-      });
+      const createdClient = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(createClientInput),
+      );
 
       client = { ...createClientInput, ...createdClient.data.createClient };
     });
 
-    it('should throw if unauthenticated', async () => {
-      const out = apolloClient.query<{ getClient: Client }>({
-        query: makeGetClientQuery({}),
-      });
-
-      const { graphQLErrors } = await out.catch((e) => e);
-
-      expect(graphQLErrors[0].message).toBe('Unauthorized');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
-    });
+    shouldThrowIfUnauthenticated('query', makeGetClientQuery({}));
 
     it('should throw if no parameter as entered', async () => {
       const out = makeOut({});

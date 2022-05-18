@@ -10,6 +10,7 @@ import {
   apolloAuthorizedClient,
   apolloClient,
 } from '!/collaborators/apolloClient';
+import { shouldThrowIfUnauthenticated } from '!/collaborators/helpers';
 import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
 import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
 import { makeDeleteUserMutation } from '!/user/collaborators/makeDeleteUserMutation';
@@ -159,17 +160,7 @@ describe('Graphql User Module (e2e)', () => {
       user = createUser;
     });
 
-    it('should throw if unauthenticated', async () => {
-      const out = apolloClient.query<{ getAllUsers: User[] }>({
-        query: makeGetAllUsersQuery(),
-      });
-
-      const { graphQLErrors } = await out.catch((e) => e);
-
-      expect(graphQLErrors[0].message).toBe('Unauthorized');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
-    });
+    shouldThrowIfUnauthenticated('query', makeGetAllUsersQuery());
 
     it('should get and list all users', async () => {
       const { data } = await makeOut();
@@ -220,17 +211,7 @@ describe('Graphql User Module (e2e)', () => {
       user = createUser;
     });
 
-    it('should throw if unauthenticated', async () => {
-      const out = apolloClient.query<{ createUser: User }>({
-        query: makeGetUserQuery({}),
-      });
-
-      const { graphQLErrors } = await out.catch((e) => e);
-
-      expect(graphQLErrors[0].message).toBe('Unauthorized');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
-    });
+    shouldThrowIfUnauthenticated('query', makeGetUserQuery({}));
 
     it('should throw if no parameter as entered', async () => {
       const out = makeOut({});
@@ -339,17 +320,7 @@ describe('Graphql User Module (e2e)', () => {
       user = data.createUser;
     });
 
-    it('should throw if unauthenticated', async () => {
-      const out = apolloClient.mutate<{ deleteUser: boolean }>({
-        mutation: makeDeleteUserMutation({}),
-      });
-
-      const { graphQLErrors } = await out.catch((e) => e);
-
-      expect(graphQLErrors[0].message).toBe('Unauthorized');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
-    });
+    shouldThrowIfUnauthenticated('mutation', makeDeleteUserMutation({}));
 
     it('should throw if no parameter as entered', async () => {
       const out = makeOut({});

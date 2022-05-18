@@ -16,6 +16,7 @@ import {
   apolloAuthorizedClient,
   apolloClient,
 } from '!/collaborators/apolloClient';
+import { shouldThrowIfUnauthenticated } from '!/collaborators/helpers';
 import { randMore } from '!/collaborators/randMore';
 import { makeCreateProjectInput } from '!/project/collaborators/makeCreateProjectInput';
 import { makeCreateProjectMutation } from '!/project/collaborators/makeCreateProjectMutation';
@@ -59,17 +60,7 @@ describe('Graphql Project Module (e2e)', () => {
         mutation: makeCreateProjectMutation(input),
       });
 
-    it('should throw if unauthenticated', async () => {
-      const out = apolloClient.mutate<{ createProject: Project }>({
-        mutation: makeCreateProjectMutation({}),
-      });
-
-      const { graphQLErrors } = await out.catch((e) => e);
-
-      expect(graphQLErrors[0].message).toBe('Unauthorized');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
-    });
+    shouldThrowIfUnauthenticated('mutation', makeCreateProjectMutation({}));
 
     it('should throw if enter a empty name', async () => {
       const createProjectInput = makeCreateProjectInput();
@@ -353,17 +344,7 @@ describe('Graphql Project Module (e2e)', () => {
       project = { ...createProjectInput, ...createProject };
     });
 
-    it('should throw if unauthenticated', async () => {
-      const out = apolloClient.query<{ getAllProjects: Project[] }>({
-        query: makeGetAllProjectsQuery(),
-      });
-
-      const { graphQLErrors } = await out.catch((e) => e);
-
-      expect(graphQLErrors[0].message).toBe('Unauthorized');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
-    });
+    shouldThrowIfUnauthenticated('query', makeGetAllProjectsQuery());
 
     it('should get and list all projects', async () => {
       const { data } = await makeOut();
@@ -414,17 +395,7 @@ describe('Graphql Project Module (e2e)', () => {
       project = { ...createProjectInput, ...createProject };
     });
 
-    it('should throw if unauthenticated', async () => {
-      const out = apolloClient.query<{ getProject: Project }>({
-        query: makeGetProjectQuery({}),
-      });
-
-      const { graphQLErrors } = await out.catch((e) => e);
-
-      expect(graphQLErrors[0].message).toBe('Unauthorized');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
-    });
+    shouldThrowIfUnauthenticated('query', makeGetProjectQuery({}));
 
     it('should throw if no parameter as entered', async () => {
       const out = makeOut({});
@@ -532,17 +503,7 @@ describe('Graphql Project Module (e2e)', () => {
       project = createProject;
     });
 
-    it('should throw if unauthenticated', async () => {
-      const out = apolloClient.mutate<{ updateProject: Project }>({
-        mutation: makeUpdateProjectMutation({}),
-      });
-
-      const { graphQLErrors } = await out.catch((e) => e);
-
-      expect(graphQLErrors[0].message).toBe('Unauthorized');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
-    });
+    shouldThrowIfUnauthenticated('mutation', makeUpdateProjectMutation({}));
 
     it('should throw if enter a empty id', async () => {
       const out = makeOut({ id: '' });
@@ -863,17 +824,7 @@ describe('Graphql Project Module (e2e)', () => {
       project = { ...createProjectInput, ...createProject };
     });
 
-    it('should throw if unauthenticated', async () => {
-      const out = apolloClient.query<{ getProject: Project }>({
-        query: makeGetProjectQuery({}),
-      });
-
-      const { graphQLErrors } = await out.catch((e) => e);
-
-      expect(graphQLErrors[0].message).toBe('Unauthorized');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
-    });
+    shouldThrowIfUnauthenticated('mutation', makeDeleteProjectMutation({}));
 
     it('should throw if no parameter as entered', async () => {
       const out = makeOut({});

@@ -13,6 +13,7 @@ import {
   apolloAuthorizedClient,
   apolloClient,
 } from '!/collaborators/apolloClient';
+import { shouldThrowIfUnauthenticated } from '!/collaborators/helpers';
 import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
 import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
 
@@ -48,17 +49,7 @@ describe('Graphql Category Module (e2e)', () => {
         mutation: makeCreateCategoryMutation(input),
       });
 
-    it('should throw if unauthenticated', async () => {
-      const out = apolloClient.mutate<{ createCategory: Category }>({
-        mutation: makeCreateCategoryMutation({}),
-      });
-
-      const { graphQLErrors } = await out.catch((e) => e);
-
-      expect(graphQLErrors[0].message).toBe('Unauthorized');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
-    });
+    shouldThrowIfUnauthenticated('mutation', makeCreateCategoryMutation({}));
 
     it('should throw if enter a empty name', async () => {
       const createUserInput = makeCreateCategoryInput();
@@ -174,17 +165,7 @@ describe('Graphql Category Module (e2e)', () => {
       };
     });
 
-    it('should throw if unauthenticated', async () => {
-      const out = apolloClient.query<{ getAllCategories: Category[] }>({
-        query: makeGetAllCategoriesQuery(),
-      });
-
-      const { graphQLErrors } = await out.catch((e) => e);
-
-      expect(graphQLErrors[0].message).toBe('Unauthorized');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
-    });
+    shouldThrowIfUnauthenticated('query', makeGetAllCategoriesQuery());
 
     it('should get all and list', async () => {
       const { data } = await makeOut();
@@ -225,17 +206,7 @@ describe('Graphql Category Module (e2e)', () => {
       };
     });
 
-    it('should throw if unauthenticated', async () => {
-      const out = apolloClient.query<{ getCategory: Category }>({
-        query: makeGetCategoryQuery({}),
-      });
-
-      const { graphQLErrors } = await out.catch((e) => e);
-
-      expect(graphQLErrors[0].message).toBe('Unauthorized');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
-    });
+    shouldThrowIfUnauthenticated('query', makeGetCategoryQuery({}));
 
     it('should throw if no parameter as entered', async () => {
       const out = makeOut({});
