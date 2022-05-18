@@ -13,6 +13,12 @@ type AuthOutput {
   token: String!
 }
 
+type Category {
+  id: ID!
+  code: String
+  name: String!
+}
+
 type Project {
   id: ID!
   code: String
@@ -20,6 +26,7 @@ type Project {
   startDate: DateTime!
   endDate: DateTime!
   client: Client!
+  categories: [Category!]!
 }
 
 """
@@ -41,6 +48,8 @@ type Query {
   getClient(input: GetClientInput!): Client!
   getAllProjects: [Project!]!
   getProject(input: GetProjectInput!): Project!
+  getAllCategories: [Category!]!
+  getCategory(input: GetCategoryInput!): Category!
 }
 
 input GetUserInput {
@@ -61,6 +70,12 @@ input GetProjectInput {
   code: String
 }
 
+input GetCategoryInput {
+  id: String
+  name: String
+  code: String
+}
+
 type Mutation {
   createUser(input: CreateUserInput!): User!
   deleteUser(input: DeleteUserInput!): Boolean!
@@ -69,6 +84,7 @@ type Mutation {
   createProject(input: CreateProjectInput!): Project!
   updateProject(input: UpdateProjectInput!): Project!
   deleteProject(input: DeleteProjectInput!): Boolean!
+  createCategory(input: CreateCategoryInput!): Category!
 }
 
 input CreateUserInput {
@@ -115,4 +131,9 @@ input DeleteProjectInput {
   id: String
   name: String
   code: String
+}
+
+input CreateCategoryInput {
+  code: String
+  name: String!
 }

@@ -1,0 +1,306 @@
+import { AuthOutput } from '@/auth/dto/auth.output';
+import { Category } from '@/category/category.entity';
+import { CreateCategoryInput } from '@/category/dto/create-category.input';
+import { GetCategoryInput } from '@/category/dto/get-category.input';
+import { randWord } from '@ngneat/falso';
+
+import { makeLoginMutation } from '!/auth/collaborators/makeLoginMutation';
+import { makeCreateCategoryInput } from '!/category/collaborators/makeCreateCategoryInput';
+import { makeCreateCategoryMutation } from '!/category/collaborators/makeCreateCategoryMutation';
+import { makeGetAllCategoriesQuery } from '!/category/collaborators/makeGetAllCategoriesQuery';
+import { makeGetCategoryQuery } from '!/category/collaborators/makeGetCategoryQuery';
+import {
+  apolloAuthorizedClient,
+  apolloClient,
+} from '!/collaborators/apolloClient';
+import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
+import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
+
+import { ApolloClient, NormalizedCacheObject } from 'apollo-boost';
+
+describe('Graphql Category Module (e2e)', () => {
+  let api: ApolloClient<NormalizedCacheObject>;
+
+  beforeAll(async () => {
+    const createUserInput = makeCreateUserInput();
+
+    await apolloClient.mutate({
+      mutation: makeCreateUserMutation(createUserInput),
+    });
+
+    const {
+      data: {
+        login: { token },
+      },
+    } = await apolloClient.mutate<{ login: AuthOutput }>({
+      mutation: makeLoginMutation({
+        email: createUserInput.email,
+        password: createUserInput.password,
+      }),
+    });
+
+    api = apolloAuthorizedClient(token);
+  });
+
+  describe('createCategory', () => {
+    const makeOut = async (input: Partial<CreateCategoryInput>) =>
+      api.mutate<{ createCategory: Category }>({
+        mutation: makeCreateCategoryMutation(input),
+      });
+
+    it('should throw if unauthenticated', async () => {
+      const out = apolloClient.mutate<{ createCategory: Category }>({
+        mutation: makeCreateCategoryMutation({}),
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Unauthorized');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
+    });
+
+    it('should throw if enter a empty name', async () => {
+      const createUserInput = makeCreateCategoryInput();
+
+      createUserInput.name = '';
+
+      const out = makeOut(createUserInput);
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(400);
+      expect(response.message[0]).toBe('name should not be empty');
+      expect(response.error).toBe('Bad Request');
+    });
+
+    it('should create without code', async () => {
+      const createCategoryInput = makeCreateCategoryInput();
+
+      delete createCategoryInput.code;
+
+      const { data } = await makeOut(createCategoryInput);
+
+      expect(data).toHaveProperty('createCategory');
+
+      expect(data.createCategory).toEqual({
+        __typename: 'Category',
+        id: expect.anything(),
+        name: createCategoryInput.name,
+      });
+    });
+
+    it('should create with code', async () => {
+      const createCategoryInput = makeCreateCategoryInput();
+
+      const { data } = await makeOut(createCategoryInput);
+
+      expect(data).toHaveProperty('createCategory');
+
+      expect(data.createCategory).toEqual({
+        __typename: 'Category',
+        id: expect.anything(),
+        name: createCategoryInput.name,
+        code: createCategoryInput.code,
+      });
+    });
+
+    it('should fail if name already been registered', async () => {
+      const { data } = await makeOut(makeCreateCategoryInput());
+
+      const createCategoryInput = makeCreateCategoryInput();
+
+      createCategoryInput.name = data.createCategory.name;
+
+      const out = makeOut(createCategoryInput);
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Esse nome já foi utilizado!');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(409);
+      expect(response.error).toBe('Conflict');
+    });
+
+    it('should fail if code already been registered', async () => {
+      const a = makeCreateCategoryInput();
+
+      const { data } = await makeOut(a);
+
+      const createCategoryInput = makeCreateCategoryInput();
+
+      createCategoryInput.code = data.createCategory.code;
+
+      const out = makeOut(createCategoryInput);
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Esse código já foi utilizado!');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(409);
+      expect(response.error).toBe('Conflict');
+    });
+  });
+
+  describe('getAllCategories', () => {
+    let category: Category;
+
+    const makeOut = async () =>
+      api.query<{ getAllCategories: Category[] }>({
+        query: makeGetAllCategoriesQuery(),
+      });
+
+    beforeAll(async () => {
+      const createCategoryInput = makeCreateCategoryInput();
+
+      const createdCategory = await api.mutate<{ createCategory: Category }>({
+        mutation: makeCreateCategoryMutation(createCategoryInput),
+      });
+
+      category = {
+        ...createCategoryInput,
+        ...createdCategory.data.createCategory,
+      };
+    });
+
+    it('should throw if unauthenticated', async () => {
+      const out = apolloClient.query<{ getAllCategories: Category[] }>({
+        query: makeGetAllCategoriesQuery(),
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Unauthorized');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
+    });
+
+    it('should get all and list', async () => {
+      const { data } = await makeOut();
+
+      expect(data).toHaveProperty('getAllCategories');
+
+      expect(Array.isArray(data.getAllCategories)).toBeTruthy();
+      expect(data.getAllCategories.length >= 1).toBeTruthy();
+      expect(
+        data.getAllCategories.find(({ id }) => category.id === id),
+      ).toEqual({
+        __typename: 'Category',
+        id: category.id,
+        name: category.name,
+        code: category.code,
+      });
+    });
+  });
+
+  describe('getCategory', () => {
+    let category: Category;
+
+    const makeOut = async (input: Partial<GetCategoryInput>) =>
+      api.query<{ getCategory: Category }>({
+        query: makeGetCategoryQuery(input),
+      });
+
+    beforeAll(async () => {
+      const createCategoryInput = makeCreateCategoryInput();
+
+      const createdCategory = await api.mutate<{ createCategory: Category }>({
+        mutation: makeCreateCategoryMutation(createCategoryInput),
+      });
+
+      category = {
+        ...createCategoryInput,
+        ...createdCategory.data.createCategory,
+      };
+    });
+
+    it('should throw if unauthenticated', async () => {
+      const out = apolloClient.query<{ getCategory: Category }>({
+        query: makeGetCategoryQuery({}),
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Unauthorized');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+      expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
+    });
+
+    it('should throw if no parameter as entered', async () => {
+      const out = makeOut({});
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe(
+        'Nenhum parâmetro válido foi informado',
+      );
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(400);
+      expect(response.error).toBe('Bad Request');
+    });
+
+    it('should get and show by id', async () => {
+      const { data } = await makeOut({ id: category.id });
+
+      expect(data).toHaveProperty('getCategory');
+      expect(data.getCategory).toEqual({
+        __typename: 'Category',
+        id: category.id,
+        name: category.name,
+        code: category.code,
+      });
+    });
+
+    it('should get and show by name', async () => {
+      const { data } = await makeOut({ name: category.name });
+
+      expect(data).toHaveProperty('getCategory');
+      expect(data.getCategory).toEqual({
+        __typename: 'Category',
+        id: category.id,
+        name: category.name,
+        code: category.code,
+      });
+    });
+
+    it('should get and show by code', async () => {
+      const { data } = await makeOut({ code: category.code });
+
+      expect(data).toHaveProperty('getCategory');
+      expect(data.getCategory).toEqual({
+        __typename: 'Category',
+        id: category.id,
+        name: category.name,
+        code: category.code,
+      });
+    });
+
+    it('should throw if not found', async () => {
+      const out = makeOut({ name: `${randWord()}_${category.id}` });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('Nenhuma categoria foi encontrada');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(404);
+      expect(response.error).toBe('Not Found');
+    });
+  });
+});

@@ -1,8 +1,16 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
+import { Category } from '@/category/category.entity';
 import { Client } from '@/client/client.entity';
 
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @ObjectType()
 @Entity()
@@ -25,4 +33,8 @@ export class Project {
 
   @ManyToOne(() => Client, (client) => client.projects)
   client: Client;
+
+  @ManyToMany(() => Category, { cascade: false })
+  @JoinTable()
+  categories: Category[];
 }
