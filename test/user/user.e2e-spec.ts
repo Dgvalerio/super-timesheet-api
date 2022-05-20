@@ -5,7 +5,10 @@ import { User } from '@/user/user.entity';
 import { randWord } from '@ngneat/falso';
 
 import { ApolloClientHelper } from '!/collaborators/apolloClient';
-import { shouldThrowIfUnauthenticated } from '!/collaborators/helpers';
+import {
+  shouldThrowIfEnterAEmptyParam,
+  shouldThrowIfUnauthenticated,
+} from '!/collaborators/helpers';
 import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
 import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
 import { makeDeleteUserMutation } from '!/user/collaborators/makeDeleteUserMutation';
@@ -26,64 +29,33 @@ describe('Graphql User Module (e2e)', () => {
       apiUnAuth.mutation<{ createUser: User }>(makeCreateUserMutation(input));
 
     it('should throw if enter a empty name', async () => {
-      const createUserInput = makeCreateUserInput();
-
-      createUserInput.name = '';
-
-      const out = makeOut(createUserInput);
+      const out = makeOut({ ...makeCreateUserInput(), name: '' });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.message[0]).toBe('name should not be empty');
-      expect(response.error).toBe('Bad Request');
+      shouldThrowIfEnterAEmptyParam('name', graphQLErrors);
     });
 
     it('should throw if enter a empty and invalid email', async () => {
-      const createUserInput = makeCreateUserInput();
-
-      createUserInput.email = '';
-
-      const out = makeOut(createUserInput);
+      const out = makeOut({ ...makeCreateUserInput(), email: '' });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.message[0]).toBe('email should not be empty');
-      expect(response.message[1]).toBe('email must be an email');
-      expect(response.error).toBe('Bad Request');
+      shouldThrowIfEnterAEmptyParam('email', graphQLErrors);
+      expect(graphQLErrors[0].extensions.response.message[1]).toBe(
+        'email must be an email',
+      );
     });
 
     it('should throw if enter a empty and invalid password', async () => {
-      const createUserInput = makeCreateUserInput();
-
-      createUserInput.password = '';
-
-      const out = makeOut(createUserInput);
+      const out = makeOut({ ...makeCreateUserInput(), password: '' });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.message[0]).toBe('password should not be empty');
-      expect(response.message[1]).toBe(
+      shouldThrowIfEnterAEmptyParam('password', graphQLErrors);
+      expect(graphQLErrors[0].extensions.response.message[1]).toBe(
         'password must be longer than or equal to 8 characters',
       );
-      expect(response.error).toBe('Bad Request');
     });
 
     it('should create an user', async () => {

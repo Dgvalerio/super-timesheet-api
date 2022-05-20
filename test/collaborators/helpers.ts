@@ -1,6 +1,7 @@
 import { apolloClient } from '!/collaborators/apolloClient';
 
 import { DocumentNode } from 'apollo-boost';
+import { GraphQLError } from 'graphql';
 
 export const shouldThrowIfUnauthenticated = (
   action: 'query' | 'mutation',
@@ -24,4 +25,18 @@ export const shouldThrowIfUnauthenticated = (
     expect(graphQLErrors[0].extensions).toHaveProperty('response');
     expect(graphQLErrors[0].extensions.response.statusCode).toBe(401);
   });
+};
+
+export const shouldThrowIfEnterAEmptyParam = (
+  param: string,
+  errors: GraphQLError,
+) => {
+  expect(errors[0].message).toBe('Bad Request Exception');
+  expect(errors[0].extensions).toHaveProperty('response');
+
+  const { response } = errors[0].extensions;
+
+  expect(response.statusCode).toBe(400);
+  expect(response.message[0]).toBe(`${param} should not be empty`);
+  expect(response.error).toBe('Bad Request');
 };

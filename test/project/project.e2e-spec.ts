@@ -11,7 +11,10 @@ import { randNumber, randWord } from '@ngneat/falso';
 import { makeCreateClientInput } from '!/client/collaborators/makeCreateClientInput';
 import { makeCreateClientMutation } from '!/client/collaborators/makeCreateClientMutation';
 import { ApolloClientHelper } from '!/collaborators/apolloClient';
-import { shouldThrowIfUnauthenticated } from '!/collaborators/helpers';
+import {
+  shouldThrowIfEnterAEmptyParam,
+  shouldThrowIfUnauthenticated,
+} from '!/collaborators/helpers';
 import { randMore } from '!/collaborators/randMore';
 import { makeCreateProjectInput } from '!/project/collaborators/makeCreateProjectInput';
 import { makeCreateProjectMutation } from '!/project/collaborators/makeCreateProjectMutation';
@@ -37,22 +40,11 @@ describe('Graphql Project Module (e2e)', () => {
     shouldThrowIfUnauthenticated('mutation', makeCreateProjectMutation({}));
 
     it('should throw if enter a empty name', async () => {
-      const createProjectInput = makeCreateProjectInput();
-
-      createProjectInput.name = '';
-
-      const out = makeOut(createProjectInput);
+      const out = makeOut({ ...makeCreateProjectInput(), name: '' });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.message[0]).toBe('name should not be empty');
-      expect(response.error).toBe('Bad Request');
+      shouldThrowIfEnterAEmptyParam('name', graphQLErrors);
     });
 
     it('should throw if enter a invalid startDate', async () => {
@@ -94,12 +86,11 @@ describe('Graphql Project Module (e2e)', () => {
     });
 
     it('should throw if enter a empty clientId and clientCode', async () => {
-      const createProjectInput = makeCreateProjectInput();
-
-      createProjectInput.clientId = '';
-      createProjectInput.clientCode = '';
-
-      const out = makeOut(createProjectInput);
+      const out = makeOut({
+        ...makeCreateProjectInput(),
+        clientId: '',
+        clientCode: '',
+      });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
@@ -480,14 +471,7 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.message[0]).toBe('id should not be empty');
-      expect(response.error).toBe('Bad Request');
+      shouldThrowIfEnterAEmptyParam('id', graphQLErrors);
     });
 
     it('should throw if enter a invalid id', async () => {
@@ -509,21 +493,11 @@ describe('Graphql Project Module (e2e)', () => {
     });
 
     it('should throw if enter a empty code', async () => {
-      const out = makeOut({
-        id: project.id,
-        code: '',
-      });
+      const out = makeOut({ id: project.id, code: '' });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.message[0]).toBe('code should not be empty');
-      expect(response.error).toBe('Bad Request');
+      shouldThrowIfEnterAEmptyParam('code', graphQLErrors);
     });
 
     it('should throw if enter a code that has already been registered', async () => {
@@ -579,21 +553,11 @@ describe('Graphql Project Module (e2e)', () => {
     });
 
     it('should throw if enter a empty name', async () => {
-      const out = makeOut({
-        id: project.id,
-        name: '',
-      });
+      const out = makeOut({ id: project.id, name: '' });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.message[0]).toBe('name should not be empty');
-      expect(response.error).toBe('Bad Request');
+      shouldThrowIfEnterAEmptyParam('name', graphQLErrors);
     });
 
     it('should update the name', async () => {
@@ -652,21 +616,11 @@ describe('Graphql Project Module (e2e)', () => {
     });
 
     it('should throw if enter a empty clientId', async () => {
-      const out = makeOut({
-        id: project.id,
-        clientId: '',
-      });
+      const out = makeOut({ id: project.id, clientId: '' });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.message[0]).toBe('clientId should not be empty');
-      expect(response.error).toBe('Bad Request');
+      shouldThrowIfEnterAEmptyParam('clientId', graphQLErrors);
     });
 
     it('should throw if enter a invalid clientId', async () => {
@@ -687,21 +641,11 @@ describe('Graphql Project Module (e2e)', () => {
     });
 
     it('should throw if enter a empty clientCode', async () => {
-      const out = makeOut({
-        id: project.id,
-        clientCode: '',
-      });
+      const out = makeOut({ id: project.id, clientCode: '' });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.message[0]).toBe('clientCode should not be empty');
-      expect(response.error).toBe('Bad Request');
+      shouldThrowIfEnterAEmptyParam('clientCode', graphQLErrors);
     });
 
     it('should throw if enter a invalid clientCode', async () => {

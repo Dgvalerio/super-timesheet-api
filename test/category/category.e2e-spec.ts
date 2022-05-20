@@ -8,7 +8,10 @@ import { makeCreateCategoryMutation } from '!/category/collaborators/makeCreateC
 import { makeGetAllCategoriesQuery } from '!/category/collaborators/makeGetAllCategoriesQuery';
 import { makeGetCategoryQuery } from '!/category/collaborators/makeGetCategoryQuery';
 import { ApolloClientHelper } from '!/collaborators/apolloClient';
-import { shouldThrowIfUnauthenticated } from '!/collaborators/helpers';
+import {
+  shouldThrowIfEnterAEmptyParam,
+  shouldThrowIfUnauthenticated,
+} from '!/collaborators/helpers';
 
 describe('Graphql Category Module (e2e)', () => {
   const api = new ApolloClientHelper();
@@ -26,22 +29,11 @@ describe('Graphql Category Module (e2e)', () => {
     shouldThrowIfUnauthenticated('mutation', makeCreateCategoryMutation({}));
 
     it('should throw if enter a empty name', async () => {
-      const createUserInput = makeCreateCategoryInput();
-
-      createUserInput.name = '';
-
-      const out = makeOut(createUserInput);
+      const out = makeOut({ ...makeCreateCategoryInput(), name: '' });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.message[0]).toBe('name should not be empty');
-      expect(response.error).toBe('Bad Request');
+      shouldThrowIfEnterAEmptyParam('name', graphQLErrors);
     });
 
     it('should create without code', async () => {

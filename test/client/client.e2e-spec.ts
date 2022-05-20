@@ -8,7 +8,10 @@ import { makeCreateClientMutation } from '!/client/collaborators/makeCreateClien
 import { makeGetAllClientsQuery } from '!/client/collaborators/makeGetAllClientsQuery';
 import { makeGetClientQuery } from '!/client/collaborators/makeGetClientQuery';
 import { ApolloClientHelper } from '!/collaborators/apolloClient';
-import { shouldThrowIfUnauthenticated } from '!/collaborators/helpers';
+import {
+  shouldThrowIfEnterAEmptyParam,
+  shouldThrowIfUnauthenticated,
+} from '!/collaborators/helpers';
 
 describe('Graphql Client Module (e2e)', () => {
   const api = new ApolloClientHelper();
@@ -24,22 +27,11 @@ describe('Graphql Client Module (e2e)', () => {
     shouldThrowIfUnauthenticated('mutation', makeCreateClientMutation({}));
 
     it('should throw if enter a empty name', async () => {
-      const createUserInput = makeCreateClientInput();
-
-      createUserInput.name = '';
-
-      const out = makeOut(createUserInput);
+      const out = makeOut({ ...makeCreateClientInput(), name: '' });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.message[0]).toBe('name should not be empty');
-      expect(response.error).toBe('Bad Request');
+      shouldThrowIfEnterAEmptyParam('name', graphQLErrors);
     });
 
     it('should create an client (without code)', async () => {
