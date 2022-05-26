@@ -43,7 +43,7 @@ export class CategoryService {
       );
     }
 
-    return saved;
+    return this.getCategory({ id: saved.id });
   }
 
   async getAllCategories(): Promise<Category[]> {
