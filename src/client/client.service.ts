@@ -43,26 +43,33 @@ export class ClientService {
       );
     }
 
-    return saved;
+    return this.getClient({ id: saved.id });
   }
 
   async getAllClients(): Promise<Client[]> {
-    return this.clientRepository.find();
+    return this.clientRepository.find({
+      relations: {
+        projects: true,
+      },
+    });
   }
 
   async getClient(params: GetClientInput): Promise<Client> {
-    let search = {};
+    let where = {};
 
     if (params.id) {
-      search = { id: params.id };
+      where = { id: params.id };
     } else if (params.name) {
-      search = { name: params.name };
+      where = { name: params.name };
     } else if (params.code) {
-      search = { code: params.code };
+      where = { code: params.code };
     } else {
       throw new BadRequestException('Nenhum parâmetro válido foi informado');
     }
 
-    return this.clientRepository.findOneBy(search);
+    return this.clientRepository.findOne({
+      where,
+      relations: { projects: true },
+    });
   }
 }
