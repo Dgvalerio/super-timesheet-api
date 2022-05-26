@@ -971,5 +971,37 @@ describe('Graphql Project Module (e2e)', () => {
         categories: [category],
       });
     });
+
+    it('should throw category already be added', async () => {
+      const { data } = await makeOut({
+        projectCode: project.code,
+        categoryCode: category.code,
+      });
+
+      expect(data).toHaveProperty('addCategory');
+
+      expect(data.addCategory).toEqual({
+        __typename: 'Project',
+        ...project,
+        categories: [category],
+      });
+
+      const out = makeOut({
+        projectCode: project.code,
+        categoryCode: category.code,
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe(
+        'Essa categoria já foi adicionada a esse projeto!',
+      );
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(409);
+      expect(response.error).toBe('Conflict');
+    });
   });
 });
