@@ -727,6 +727,60 @@ describe('Graphql Project Module (e2e)', () => {
         client: createClient,
       });
     });
+
+    it('should update the client and keep the categories', async () => {
+      const {
+        data: { createCategory },
+      } = await api.mutation<{ createCategory: Category }>(
+        makeCreateCategoryMutation(makeCreateCategoryInput()),
+      );
+
+      await api.mutation<{ addCategory: Project }>(
+        makeAddCategoryMutation({
+          projectCode: project.code,
+          categoryCode: createCategory.code,
+        }),
+      );
+
+      const {
+        data: { createClient },
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(makeCreateClientInput()),
+      );
+
+      delete createClient.projects;
+
+      const { data: step1 } = await makeOut({
+        id: project.id,
+        clientCode: createClient.code,
+      });
+
+      expect(step1).toHaveProperty('updateProject');
+
+      expect(step1.updateProject).toEqual({
+        __typename: 'Project',
+        ...project,
+        client: createClient,
+        categories: [createCategory],
+      });
+
+      const newName = `${randWord()}_${createClient.name}`;
+
+      const { data: step2 } = await makeOut({
+        id: project.id,
+        name: newName,
+      });
+
+      expect(step2).toHaveProperty('updateProject');
+
+      expect(step2.updateProject).toEqual({
+        __typename: 'Project',
+        ...project,
+        client: createClient,
+        name: newName,
+        categories: [createCategory],
+      });
+    });
   });
 
   describe('deleteProject', () => {
