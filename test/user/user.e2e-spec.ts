@@ -1,14 +1,22 @@
+import { Client } from '@/client/client.entity';
+import { Project } from '@/project/project.entity';
+import { AddProjectInput } from '@/user/dto/add-project.input';
 import { CreateUserInput } from '@/user/dto/create-user.input';
 import { DeleteUserInput } from '@/user/dto/delete-user.input';
 import { GetUserInput } from '@/user/dto/get-user.input';
 import { User } from '@/user/user.entity';
-import { randWord } from '@ngneat/falso';
+import { randNumber, randWord } from '@ngneat/falso';
 
+import { makeCreateClientInput } from '!/client/collaborators/makeCreateClientInput';
+import { makeCreateClientMutation } from '!/client/collaborators/makeCreateClientMutation';
 import { ApolloClientHelper } from '!/collaborators/apolloClient';
 import {
   shouldThrowIfEnterAEmptyParam,
   shouldThrowIfUnauthenticated,
 } from '!/collaborators/helpers';
+import { makeCreateProjectInput } from '!/project/collaborators/makeCreateProjectInput';
+import { makeCreateProjectMutation } from '!/project/collaborators/makeCreateProjectMutation';
+import { makeAddProjectMutation } from '!/user/collaborators/makeAddProjectMutation';
 import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
 import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
 import { makeDeleteUserMutation } from '!/user/collaborators/makeDeleteUserMutation';
@@ -284,6 +292,142 @@ describe('Graphql User Module (e2e)', () => {
 
       expect(response.statusCode).toBe(404);
       expect(response.error).toBe('Not Found');
+    });
+  });
+
+  describe('addProject', () => {
+    let project: Project;
+    let user: User;
+
+    const makeOut = async (input: Partial<AddProjectInput>) =>
+      api.mutation<{ addProject: User }>(makeAddProjectMutation(input));
+
+    beforeEach(async () => {
+      const {
+        data: { createUser },
+      } = await api.mutation<{ createUser: User }>(
+        makeCreateUserMutation(makeCreateUserInput()),
+      );
+
+      user = createUser;
+
+      const {
+        data: { createClient },
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(makeCreateClientInput()),
+      );
+
+      const {
+        data: { createProject },
+      } = await api.mutation<{ createProject: Project }>(
+        makeCreateProjectMutation({
+          ...makeCreateProjectInput(),
+          clientId: createClient.id,
+        }),
+      );
+
+      delete createProject.categories;
+      delete createProject.client;
+
+      project = { ...createProject };
+    });
+
+    shouldThrowIfUnauthenticated('mutation', makeAddProjectMutation({}));
+
+    it('should throw if no parameter as entered', async () => {
+      const out = makeOut({});
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe(
+        'Nenhum parâmetro válido foi informado',
+      );
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(400);
+      expect(response.error).toBe('Bad Request');
+    });
+
+    it('should throw if not found user', async () => {
+      const out = makeOut({
+        userId: `${randNumber()}${user.id}`,
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('O usuário informado não existe!');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(404);
+      expect(response.error).toBe('Not Found');
+    });
+
+    it('should throw if not found project', async () => {
+      const out = makeOut({
+        userId: user.id,
+        projectCode: `${randWord()}_${project.id}`,
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('O projeto informado não existe!');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(404);
+      expect(response.error).toBe('Not Found');
+    });
+
+    it('should add project to some user', async () => {
+      const { data } = await makeOut({
+        userId: user.id,
+        projectCode: project.code,
+      });
+
+      expect(data).toHaveProperty('addProject');
+
+      expect(data.addProject).toEqual({
+        __typename: 'User',
+        ...user,
+        projects: [project],
+      });
+    });
+
+    it('should throw if project already be added', async () => {
+      const { data } = await makeOut({
+        userId: user.id,
+        projectCode: project.code,
+      });
+
+      expect(data).toHaveProperty('addProject');
+
+      expect(data.addProject).toEqual({
+        __typename: 'User',
+        ...user,
+        projects: [project],
+      });
+
+      const out = makeOut({
+        userId: user.id,
+        projectCode: project.code,
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe(
+        'Esse projeto já foi adicionado a esse usuário!',
+      );
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(409);
+      expect(response.error).toBe('Conflict');
     });
   });
 });

@@ -6,10 +6,11 @@ import { AuthResolver } from '@/auth/auth.resolver';
 import { AuthService } from '@/auth/auth.service';
 import { JwtStrategy } from '@/auth/jwt.strategy';
 import { User } from '@/user/user.entity';
-import { UserService } from '@/user/user.service';
+import { UserModule } from '@/user/user.module';
 
 @Module({
   imports: [
+    UserModule,
     TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       useFactory: () => ({
@@ -21,6 +22,6 @@ import { UserService } from '@/user/user.service';
       }),
     }),
   ],
-  providers: [AuthService, AuthResolver, UserService, JwtStrategy],
+  providers: [AuthService, AuthResolver, JwtStrategy],
 })
 export class AuthModule {}

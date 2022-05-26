@@ -2,17 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type User {
-  id: ID!
-  name: String!
-  email: String!
-}
-
-type AuthOutput {
-  user: User!
-  token: String!
-}
-
 type Category {
   id: ID!
   code: String
@@ -41,13 +30,25 @@ type Client {
   projects: [Project!]!
 }
 
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  projects: [Project!]!
+}
+
+type AuthOutput {
+  user: User!
+  token: String!
+}
+
 type Query {
   getAllUsers: [User!]!
   getUser(input: GetUserInput!): User!
-  getAllClients: [Client!]!
-  getClient(input: GetClientInput!): Client!
   getAllProjects: [Project!]!
   getProject(input: GetProjectInput!): Project!
+  getAllClients: [Client!]!
+  getClient(input: GetClientInput!): Client!
   getAllCategories: [Category!]!
   getCategory(input: GetCategoryInput!): Category!
 }
@@ -58,13 +59,13 @@ input GetUserInput {
   email: String
 }
 
-input GetClientInput {
+input GetProjectInput {
   id: String
   name: String
   code: String
 }
 
-input GetProjectInput {
+input GetClientInput {
   id: String
   name: String
   code: String
@@ -79,12 +80,13 @@ input GetCategoryInput {
 type Mutation {
   createUser(input: CreateUserInput!): User!
   deleteUser(input: DeleteUserInput!): Boolean!
-  createClient(input: CreateClientInput!): Client!
-  login(input: AuthInput!): AuthOutput!
+  addProject(input: AddProjectInput!): User!
   createProject(input: CreateProjectInput!): Project!
   updateProject(input: UpdateProjectInput!): Project!
   deleteProject(input: DeleteProjectInput!): Boolean!
   addCategory(input: AddCategoryInput!): Project!
+  createClient(input: CreateClientInput!): Client!
+  login(input: AuthInput!): AuthOutput!
   createCategory(input: CreateCategoryInput!): Category!
 }
 
@@ -99,14 +101,11 @@ input DeleteUserInput {
   email: String
 }
 
-input CreateClientInput {
-  code: String
-  name: String!
-}
-
-input AuthInput {
-  email: String!
-  password: String!
+input AddProjectInput {
+  userId: String
+  userEmail: String
+  projectId: String
+  projectCode: String
 }
 
 input CreateProjectInput {
@@ -140,6 +139,16 @@ input AddCategoryInput {
   categoryId: String
   categoryName: String
   categoryCode: String
+}
+
+input CreateClientInput {
+  code: String
+  name: String!
+}
+
+input AuthInput {
+  email: String!
+  password: String!
 }
 
 input CreateCategoryInput {

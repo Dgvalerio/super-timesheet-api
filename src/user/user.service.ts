@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
+import { ProjectService } from '@/project/project.service';
+import { AddProjectInput } from '@/user/dto/add-project.input';
 import { CreateUserInput } from '@/user/dto/create-user.input';
 import { DeleteUserInput } from '@/user/dto/delete-user.input';
 import { GetUserInput } from '@/user/dto/get-user.input';
@@ -19,6 +21,7 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private projectService: ProjectService,
   ) {}
 
   async createUser(input: CreateUserInput): Promise<User> {
@@ -41,19 +44,22 @@ export class UserService {
   }
 
   async getUser(params: GetUserInput): Promise<User | null> {
-    let search = {};
+    let where = {};
 
     if (params.id) {
-      search = { id: params.id };
+      where = { id: params.id };
     } else if (params.name) {
-      search = { name: params.name };
+      where = { name: params.name };
     } else if (params.email) {
-      search = { email: params.email };
+      where = { email: params.email };
     } else {
       throw new BadRequestException('Nenhum parâmetro válido foi informado');
     }
 
-    return this.userRepository.findOneBy(search);
+    return this.userRepository.findOne({
+      where,
+      relations: { projects: true },
+    });
   }
 
   async getAllUsers(): Promise<User[]> {
@@ -70,5 +76,34 @@ export class UserService {
     const deleted = await this.userRepository.delete(user.id);
 
     return !!deleted;
+  }
+
+  async addProject(
+    input: Pick<AddProjectInput, 'userId' | 'projectId'>,
+  ): Promise<User> {
+    const user = await this.getUser({ id: input.userId });
+
+    const project = await this.projectService.getProject({
+      id: input.projectId,
+    });
+
+    if (user.projects.find(({ id }) => id === project.id)) {
+      throw new ConflictException(
+        `Esse projeto já foi adicionado a esse usuário!`,
+      );
+    }
+
+    const saved = await this.userRepository.save({
+      ...user,
+      projects: [...user.projects, project],
+    });
+
+    if (!saved) {
+      throw new InternalServerErrorException(
+        'Houve um problema ao adicionar um projeto ao usuário',
+      );
+    }
+
+    return this.getUser({ id: user.id });
   }
 }

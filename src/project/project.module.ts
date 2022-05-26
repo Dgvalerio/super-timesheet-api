@@ -8,17 +8,10 @@ import { ClientService } from '@/client/client.service';
 import { Project } from '@/project/project.entity';
 import { ProjectResolver } from '@/project/project.resolver';
 import { ProjectService } from '@/project/project.service';
-import { User } from '@/user/user.entity';
-import { UserService } from '@/user/user.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Client, Project, Category, User])],
-  providers: [
-    ProjectService,
-    ProjectResolver,
-    CategoryService,
-    ClientService,
-    UserService,
-  ],
+  imports: [TypeOrmModule.forFeature([Project, Client, Category])],
+  providers: [ProjectService, ProjectResolver, ClientService, CategoryService],
+  exports: [ProjectService],
 })
 export class ProjectModule {}
