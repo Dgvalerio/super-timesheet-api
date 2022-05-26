@@ -84,6 +84,7 @@ type Mutation {
   createProject(input: CreateProjectInput!): Project!
   updateProject(input: UpdateProjectInput!): Project!
   deleteProject(input: DeleteProjectInput!): Boolean!
+  addCategory(input: AddCategoryInput!): Project!
   createCategory(input: CreateCategoryInput!): Category!
 }
 
@@ -131,6 +132,14 @@ input DeleteProjectInput {
   id: String
   name: String
   code: String
+}
+
+input AddCategoryInput {
+  projectId: String
+  projectCode: String
+  categoryId: String
+  categoryName: String
+  categoryCode: String
 }
 
 input CreateCategoryInput {

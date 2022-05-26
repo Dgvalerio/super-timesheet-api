@@ -47,6 +47,7 @@ describe('Graphql Client Module (e2e)', () => {
         __typename: 'Client',
         id: expect.anything(),
         name: createClientInput.name,
+        projects: [],
       });
     });
 
@@ -62,6 +63,7 @@ describe('Graphql Client Module (e2e)', () => {
         id: expect.anything(),
         name: createClientInput.name,
         code: createClientInput.code,
+        projects: [],
       });
     });
 
@@ -138,6 +140,7 @@ describe('Graphql Client Module (e2e)', () => {
         id: client.id,
         name: client.name,
         code: client.code,
+        projects: [],
       });
     });
   });
@@ -185,6 +188,7 @@ describe('Graphql Client Module (e2e)', () => {
         id: client.id,
         name: client.name,
         code: client.code,
+        projects: client.projects,
       });
     });
 
@@ -197,6 +201,7 @@ describe('Graphql Client Module (e2e)', () => {
         id: client.id,
         name: client.name,
         code: client.code,
+        projects: client.projects,
       });
     });
 
@@ -209,6 +214,7 @@ describe('Graphql Client Module (e2e)', () => {
         id: client.id,
         name: client.name,
         code: client.code,
+        projects: client.projects,
       });
     });
 

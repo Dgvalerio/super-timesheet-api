@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
+import { CategoryService } from '@/category/category.service';
 import { ClientService } from '@/client/client.service';
 import {
   CreateProjectInput,
@@ -14,6 +15,7 @@ import {
   GetProjectInput,
   UpdateProjectInput,
 } from '@/project/dto';
+import { AddCategoryInput } from '@/project/dto/add-category.input';
 import { Project } from '@/project/project.entity';
 
 import { Repository } from 'typeorm';
@@ -24,6 +26,7 @@ export class ProjectService {
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
     private clientService: ClientService,
+    private categoryService: CategoryService,
   ) {}
 
   private async verifyConflicts<ValueType = string>(
@@ -64,7 +67,7 @@ export class ProjectService {
       );
     }
 
-    return saved;
+    return this.getProject({ id: saved.id });
   }
 
   async getAllProjects(params: GetProjectInput): Promise<Project[]> {
@@ -101,7 +104,7 @@ export class ProjectService {
 
     return this.projectRepository.findOne({
       where: search,
-      relations: { client: true },
+      relations: { client: true, categories: true },
     });
   }
 
@@ -112,6 +115,8 @@ export class ProjectService {
     if (!project) {
       throw new NotFoundException('O projeto informado não existe!');
     }
+
+    delete project.categories;
 
     if (input.code && input.code !== project.code) {
       await this.verifyConflicts('code', input.code);
@@ -172,5 +177,34 @@ export class ProjectService {
     const deleted = await this.projectRepository.delete(project.id);
 
     return !!deleted;
+  }
+
+  async addCategory(
+    input: Pick<AddCategoryInput, 'projectId' | 'categoryId'>,
+  ): Promise<Project> {
+    const project = await this.getProject({ id: input.projectId });
+
+    const category = await this.categoryService.getCategory({
+      id: input.categoryId,
+    });
+
+    if (project.categories.find(({ id }) => id === category.id)) {
+      throw new ConflictException(
+        `Essa categoria já foi adicionada a esse projeto!`,
+      );
+    }
+
+    const saved = await this.projectRepository.save({
+      ...project,
+      categories: [...project.categories, category],
+    });
+
+    if (!saved) {
+      throw new InternalServerErrorException(
+        'Houve um problema ao adicionar uma categoria ao projeto',
+      );
+    }
+
+    return this.getProject({ id: project.id });
   }
 }

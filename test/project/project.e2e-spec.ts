@@ -1,3 +1,4 @@
+import { Category } from '@/category/category.entity';
 import { Client } from '@/client/client.entity';
 import {
   CreateProjectInput,
@@ -5,9 +6,12 @@ import {
   GetProjectInput,
   UpdateProjectInput,
 } from '@/project/dto';
+import { AddCategoryInput } from '@/project/dto/add-category.input';
 import { Project } from '@/project/project.entity';
 import { randNumber, randWord } from '@ngneat/falso';
 
+import { makeCreateCategoryInput } from '!/category/collaborators/makeCreateCategoryInput';
+import { makeCreateCategoryMutation } from '!/category/collaborators/makeCreateCategoryMutation';
 import { makeCreateClientInput } from '!/client/collaborators/makeCreateClientInput';
 import { makeCreateClientMutation } from '!/client/collaborators/makeCreateClientMutation';
 import { ApolloClientHelper } from '!/collaborators/apolloClient';
@@ -16,6 +20,7 @@ import {
   shouldThrowIfUnauthenticated,
 } from '!/collaborators/helpers';
 import { randMore } from '!/collaborators/randMore';
+import { makeAddCategoryMutation } from '!/project/collaborators/makeAddCategoryMutation';
 import { makeCreateProjectInput } from '!/project/collaborators/makeCreateProjectInput';
 import { makeCreateProjectMutation } from '!/project/collaborators/makeCreateProjectMutation';
 import { makeDeleteProjectMutation } from '!/project/collaborators/makeDeleteProjectMutation';
@@ -139,6 +144,8 @@ describe('Graphql Project Module (e2e)', () => {
         makeCreateClientMutation(makeCreateClientInput()),
       );
 
+      delete createClient.projects;
+
       const createProjectInput = makeCreateProjectInput();
 
       delete createProjectInput.code;
@@ -158,6 +165,7 @@ describe('Graphql Project Module (e2e)', () => {
         startDate: createProjectInput.startDate.toISOString(),
         endDate: createProjectInput.endDate.toISOString(),
         client: createClient,
+        categories: [],
       });
     });
 
@@ -168,6 +176,8 @@ describe('Graphql Project Module (e2e)', () => {
         makeCreateClientMutation(makeCreateClientInput()),
       );
 
+      delete createClient.projects;
+
       const createProjectInput = makeCreateProjectInput();
 
       delete createProjectInput.code;
@@ -187,6 +197,7 @@ describe('Graphql Project Module (e2e)', () => {
         startDate: createProjectInput.startDate.toISOString(),
         endDate: createProjectInput.endDate.toISOString(),
         client: createClient,
+        categories: [],
       });
     });
 
@@ -197,6 +208,8 @@ describe('Graphql Project Module (e2e)', () => {
         makeCreateClientMutation(makeCreateClientInput()),
       );
 
+      delete createClient.projects;
+
       const createProjectInput = makeCreateProjectInput();
 
       createProjectInput.clientId = createClient.id;
@@ -216,6 +229,7 @@ describe('Graphql Project Module (e2e)', () => {
         startDate: createProjectInput.startDate.toISOString(),
         endDate: createProjectInput.endDate.toISOString(),
         client: createClient,
+        categories: [],
       });
     });
 
@@ -226,6 +240,8 @@ describe('Graphql Project Module (e2e)', () => {
         makeCreateClientMutation(makeCreateClientInput()),
       );
 
+      delete createClient.projects;
+
       const createProjectInput = makeCreateProjectInput();
 
       createProjectInput.clientId = createClient.id;
@@ -245,6 +261,7 @@ describe('Graphql Project Module (e2e)', () => {
         startDate: createProjectInput.startDate.toISOString(),
         endDate: createProjectInput.endDate.toISOString(),
         client: createClient,
+        categories: [],
       });
     });
 
@@ -672,6 +689,8 @@ describe('Graphql Project Module (e2e)', () => {
         makeCreateClientMutation(makeCreateClientInput()),
       );
 
+      delete createClient.projects;
+
       const { data } = await makeOut({
         id: project.id,
         clientId: createClient.id,
@@ -692,6 +711,8 @@ describe('Graphql Project Module (e2e)', () => {
       } = await api.mutation<{ createClient: Client }>(
         makeCreateClientMutation(makeCreateClientInput()),
       );
+
+      delete createClient.projects;
 
       const { data } = await makeOut({
         id: project.id,
@@ -789,6 +810,112 @@ describe('Graphql Project Module (e2e)', () => {
 
       expect(response.statusCode).toBe(404);
       expect(response.error).toBe('Not Found');
+    });
+  });
+
+  describe('addCategory', () => {
+    let project: Project;
+    let category: Category;
+
+    const makeOut = async (input: Partial<AddCategoryInput>) =>
+      api.mutation<{ addCategory: Project }>(makeAddCategoryMutation(input));
+
+    beforeEach(async () => {
+      const createClientInput = makeCreateClientInput();
+
+      const {
+        data: { createClient },
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(createClientInput),
+      );
+
+      const createProjectInput = makeCreateProjectInput();
+
+      createProjectInput.clientId = createClient.id;
+
+      const {
+        data: { createProject },
+      } = await api.mutation<{ createProject: Project }>(
+        makeCreateProjectMutation(createProjectInput),
+      );
+
+      project = { ...createProject };
+
+      const createCategoryInput = makeCreateCategoryInput();
+
+      const {
+        data: { createCategory },
+      } = await api.mutation<{ createCategory: Category }>(
+        makeCreateCategoryMutation(createCategoryInput),
+      );
+
+      category = { ...createCategory };
+    });
+
+    shouldThrowIfUnauthenticated('mutation', makeAddCategoryMutation({}));
+
+    it('should throw if no parameter as entered', async () => {
+      const out = makeOut({});
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe(
+        'Nenhum parâmetro válido foi informado',
+      );
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(400);
+      expect(response.error).toBe('Bad Request');
+    });
+
+    it('should throw if not found project', async () => {
+      const out = makeOut({ projectCode: `${randWord()}_${project.id}` });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe('O projeto informado não existe!');
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(404);
+      expect(response.error).toBe('Not Found');
+    });
+
+    it('should throw if not found category', async () => {
+      const out = makeOut({
+        projectCode: project.code,
+        categoryCode: `${randWord()}_${category.id}`,
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      expect(graphQLErrors[0].message).toBe(
+        'A categoria informada não existe!',
+      );
+      expect(graphQLErrors[0].extensions).toHaveProperty('response');
+
+      const { response } = graphQLErrors[0].extensions;
+
+      expect(response.statusCode).toBe(404);
+      expect(response.error).toBe('Not Found');
+    });
+
+    it('should add category to some project', async () => {
+      const { data } = await makeOut({
+        projectCode: project.code,
+        categoryCode: category.code,
+      });
+
+      expect(data).toHaveProperty('addCategory');
+
+      expect(data.addCategory).toEqual({
+        __typename: 'Project',
+        ...project,
+        categories: [category],
+      });
     });
   });
 });

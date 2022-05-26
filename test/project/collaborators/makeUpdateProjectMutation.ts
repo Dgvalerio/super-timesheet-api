@@ -22,6 +22,11 @@ export const makeUpdateProjectMutation = (
             code
             name
           }
+          categories {
+            id
+            code
+            name
+          }
         }
       }
     `;
@@ -38,6 +43,11 @@ export const makeUpdateProjectMutation = (
           startDate
           endDate
           client {
+            id
+            code
+            name
+          }
+          categories {
             id
             code
             name
@@ -62,6 +72,11 @@ export const makeUpdateProjectMutation = (
             code
             name
           }
+          categories {
+            id
+            code
+            name
+          }
         }
       }
     `;
@@ -78,6 +93,11 @@ export const makeUpdateProjectMutation = (
           startDate
           endDate
           client {
+            id
+            code
+            name
+          }
+          categories {
             id
             code
             name
@@ -102,6 +122,11 @@ export const makeUpdateProjectMutation = (
             code
             name
           }
+          categories {
+            id
+            code
+            name
+          }
         }
       }
     `;
@@ -122,6 +147,11 @@ export const makeUpdateProjectMutation = (
             code
             name
           }
+          categories {
+            id
+            code
+            name
+          }
         }
       }
     `;
@@ -137,6 +167,11 @@ export const makeUpdateProjectMutation = (
         startDate
         endDate
         client {
+          id
+          code
+          name
+        }
+        categories {
           id
           code
           name

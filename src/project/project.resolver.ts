@@ -2,18 +2,23 @@ import { NotFoundException, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { GqlAuthGuard } from '@/auth/auth.guard';
+import { CategoryService } from '@/category/category.service';
 import {
   CreateProjectInput,
   GetProjectInput,
   UpdateProjectInput,
   DeleteProjectInput,
 } from '@/project/dto';
+import { AddCategoryInput } from '@/project/dto/add-category.input';
 import { Project } from '@/project/project.entity';
 import { ProjectService } from '@/project/project.service';
 
 @Resolver()
 export class ProjectResolver {
-  constructor(private projectService: ProjectService) {}
+  constructor(
+    private projectService: ProjectService,
+    private categoryService: CategoryService,
+  ) {}
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Project)
@@ -55,5 +60,33 @@ export class ProjectResolver {
     @Args('input') input: DeleteProjectInput,
   ): Promise<boolean> {
     return this.projectService.deleteProject(input);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => Project)
+  async addCategory(@Args('input') input: AddCategoryInput): Promise<Project> {
+    const project = await this.projectService.getProject({
+      id: input.projectId,
+      code: input.projectCode,
+    });
+
+    if (!project) {
+      throw new NotFoundException('O projeto informado não existe!');
+    }
+
+    const category = await this.categoryService.getCategory({
+      id: input.categoryId,
+      code: input.categoryCode,
+      name: input.categoryName,
+    });
+
+    if (!category) {
+      throw new NotFoundException('A categoria informada não existe!');
+    }
+
+    return this.projectService.addCategory({
+      projectId: project.id,
+      categoryId: category.id,
+    });
   }
 }
