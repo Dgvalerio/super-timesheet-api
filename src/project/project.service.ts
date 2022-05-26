@@ -75,8 +75,6 @@ export class ProjectService {
 
     if (params.id) {
       search = { id: params.id };
-    } else if (params.name) {
-      search = { name: params.name };
     } else if (params.code) {
       search = { code: params.code };
     } else {
@@ -94,8 +92,6 @@ export class ProjectService {
 
     if (params.id) {
       search = { id: params.id };
-    } else if (params.name) {
-      search = { name: params.name };
     } else if (params.code) {
       search = { code: params.code };
     } else {

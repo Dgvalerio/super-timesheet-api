@@ -20,23 +20,6 @@ export const makeGetProjectQuery = (input: GetProjectInput) => {
         }
       }
     `;
-  if (input.name)
-    return gql`
-      query {
-        getProject(input: { name: "${input.name}" }) {
-          id
-          code
-          name
-          startDate
-          endDate
-          client {
-            id
-            name
-            code
-          }
-        }
-      }
-    `;
   if (input.code)
     return gql`
       query {

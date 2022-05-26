@@ -11,14 +11,6 @@ export const makeDeleteProjectMutation = (input: DeleteProjectInput) => {
         })
       }
     `;
-  if (input.name)
-    return gql`
-      mutation {
-        deleteProject(input: {
-          name: "${input.name}"
-        })
-      }
-    `;
   if (input.code)
     return gql`
       mutation {

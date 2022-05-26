@@ -61,7 +61,6 @@ input GetUserInput {
 
 input GetProjectInput {
   id: String
-  name: String
   code: String
 }
 
@@ -129,7 +128,6 @@ input UpdateProjectInput {
 
 input DeleteProjectInput {
   id: String
-  name: String
   code: String
 }
 

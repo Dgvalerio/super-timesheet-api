@@ -406,21 +406,6 @@ describe('Graphql Project Module (e2e)', () => {
       });
     });
 
-    it('should get and show by name', async () => {
-      const { data } = await makeOut({ name: project.name });
-
-      expect(data).toHaveProperty('getProject');
-      expect(data.getProject).toEqual({
-        __typename: 'Project',
-        id: project.id,
-        name: project.name,
-        code: project.code,
-        startDate: project.startDate,
-        endDate: project.endDate,
-        client: project.client,
-      });
-    });
-
     it('should get and show by code', async () => {
       const { data } = await makeOut({ code: project.code });
 
@@ -437,7 +422,7 @@ describe('Graphql Project Module (e2e)', () => {
     });
 
     it('should throw if not found project', async () => {
-      const out = makeOut({ name: `${randWord()}_${project.id}` });
+      const out = makeOut({ code: `${randWord()}_${project.id}` });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
@@ -838,13 +823,6 @@ describe('Graphql Project Module (e2e)', () => {
       expect(data.deleteProject).toBeTruthy();
     });
 
-    it('should delete by name', async () => {
-      const { data } = await makeOut({ name: project.name });
-
-      expect(data).toHaveProperty('deleteProject');
-      expect(data.deleteProject).toBeTruthy();
-    });
-
     it('should delete by code', async () => {
       const { data } = await makeOut({ code: project.code });
 
@@ -853,7 +831,7 @@ describe('Graphql Project Module (e2e)', () => {
     });
 
     it('should throw if not found project', async () => {
-      const out = makeOut({ name: `${randWord()}_${project.id}` });
+      const out = makeOut({ code: `${randWord()}_${project.id}` });
 
       const { graphQLErrors } = await out.catch((e) => e);
 

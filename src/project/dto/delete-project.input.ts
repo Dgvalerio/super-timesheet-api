@@ -14,10 +14,5 @@ export class DeleteProjectInput implements Partial<Project> {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  name?: Project['name'];
-
-  @IsString()
-  @IsNotEmpty()
-  @IsOptional()
   code?: Project['code'];
 }
