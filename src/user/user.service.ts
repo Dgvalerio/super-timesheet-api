@@ -48,8 +48,6 @@ export class UserService {
 
     if (params.id) {
       where = { id: params.id };
-    } else if (params.name) {
-      where = { name: params.name };
     } else if (params.email) {
       where = { email: params.email };
     } else {

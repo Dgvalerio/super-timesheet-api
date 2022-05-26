@@ -202,20 +202,8 @@ describe('Graphql User Module (e2e)', () => {
       });
     });
 
-    it('should get and show user by name', async () => {
-      const { data } = await makeOut({ name: user.name });
-
-      expect(data).toHaveProperty('getUser');
-      expect(data.getUser).toEqual({
-        __typename: 'User',
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      });
-    });
-
     it('should throw if not found user', async () => {
-      const out = makeOut({ name: `${randWord()}_${user.email}` });
+      const out = makeOut({ id: `${randNumber()}${user.id}` });
 
       const { graphQLErrors } = await out.catch((e) => e);
 

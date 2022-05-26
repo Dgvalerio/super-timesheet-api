@@ -5,16 +5,11 @@ import { User } from '@/user/user.entity';
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 @InputType()
-export class GetUserInput {
+export class GetUserInput implements Partial<User> {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
   id?: User['id'];
-
-  @IsString()
-  @IsNotEmpty()
-  @IsOptional()
-  name?: User['name'];
 
   @IsEmail()
   @IsNotEmpty()

@@ -23,16 +23,6 @@ export const makeGetUserQuery = (input: GetUserInput) => {
         }
       }
     `;
-  if (input.name)
-    return gql`
-      query {
-        getUser(input: { name: "${input.name}" }) {
-          id
-          email
-          name
-        }
-      }
-    `;
 
   return gql`
     query {
