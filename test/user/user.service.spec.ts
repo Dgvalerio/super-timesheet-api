@@ -8,7 +8,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
 
-import { makeFakeUser } from '!/collaborators/makeFakeUser';
+import { makeFakeUser } from '!/user/collaborators/makeFakeUser';
 import { makeUserRepositoryStub } from '!/user/user.repository.stub';
 
 import { Repository } from 'typeorm';

@@ -5,7 +5,7 @@ import { GetUserInput } from '@/user/dto/get-user.input';
 import { UserResolver } from '@/user/user.resolver';
 import { UserService } from '@/user/user.service';
 
-import { makeFakeUser } from '!/collaborators/makeFakeUser';
+import { makeFakeUser } from '!/user/collaborators/makeFakeUser';
 import { makeUserServiceStub } from '!/user/user.service.stub';
 
 namespace Sut {
