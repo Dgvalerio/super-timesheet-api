@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
+import { AppointmentModule } from '@/appointment/appointment.module';
 import { AuthModule } from '@/auth/auth.module';
 import { CategoryModule } from '@/category/category.module';
 import { ClientModule } from '@/client/client.module';
@@ -27,6 +28,7 @@ import { join } from 'path';
     AuthModule,
     ProjectModule,
     CategoryModule,
+    AppointmentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

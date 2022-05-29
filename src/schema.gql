@@ -2,6 +2,13 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Client {
+  id: ID!
+  code: String
+  name: String!
+  projects: [Project!]!
+}
+
 type Category {
   id: ID!
   code: String
@@ -23,18 +30,34 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type Client {
-  id: ID!
-  code: String
-  name: String!
-  projects: [Project!]!
-}
-
 type User {
   id: ID!
   name: String!
   email: String!
   projects: [Project!]!
+}
+
+type Appointment {
+  id: ID!
+  code: String
+  date: DateTime!
+  startTime: String!
+  endTime: String!
+  notMonetize: Boolean!
+  description: String!
+  commit: String
+  status: AppointmentStatus!
+  user: User!
+  project: Project!
+  category: Category!
+}
+
+"""Current status of appointment."""
+enum AppointmentStatus {
+  Approved
+  Review
+  Unapproved
+  Draft
 }
 
 type AuthOutput {
@@ -51,6 +74,8 @@ type Query {
   getClient(input: GetClientInput!): Client!
   getAllCategories: [Category!]!
   getCategory(input: GetCategoryInput!): Category!
+  getAllAppointments: [Appointment!]!
+  getAppointment(input: GetAppointmentInput!): Appointment!
 }
 
 input GetUserInput {
@@ -75,6 +100,11 @@ input GetCategoryInput {
   code: String
 }
 
+input GetAppointmentInput {
+  id: String
+  code: String
+}
+
 type Mutation {
   createUser(input: CreateUserInput!): User!
   deleteUser(input: DeleteUserInput!): Boolean!
@@ -86,6 +116,9 @@ type Mutation {
   createClient(input: CreateClientInput!): Client!
   login(input: AuthInput!): AuthOutput!
   createCategory(input: CreateCategoryInput!): Category!
+  createAppointment(input: CreateAppointmentInput!): Appointment!
+  updateAppointment(input: UpdateAppointmentInput!): Appointment!
+  deleteAppointment(input: DeleteAppointmentInput!): Boolean!
 }
 
 input CreateUserInput {
@@ -151,4 +184,46 @@ input AuthInput {
 input CreateCategoryInput {
   code: String
   name: String!
+}
+
+input CreateAppointmentInput {
+  code: String
+  date: DateTime!
+  startTime: String!
+  endTime: String!
+  notMonetize: Boolean!
+  description: String!
+  commit: String
+  status: AppointmentStatus!
+  userId: String
+  userEmail: String
+  projectId: String
+  projectCode: String
+  categoryId: String
+  categoryName: String
+  categoryCode: String
+}
+
+input UpdateAppointmentInput {
+  id: String!
+  code: String
+  date: DateTime
+  startTime: String
+  endTime: String
+  notMonetize: Boolean
+  description: String
+  commit: String
+  status: AppointmentStatus
+  userId: String
+  userEmail: String
+  projectId: String
+  projectCode: String
+  categoryId: String
+  categoryName: String
+  categoryCode: String
+}
+
+input DeleteAppointmentInput {
+  id: String
+  code: String
 }
