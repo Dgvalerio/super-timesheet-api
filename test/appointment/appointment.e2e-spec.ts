@@ -440,7 +440,76 @@ describe('Graphql Appointment Module (e2e)', () => {
   });
 
   describe('getAllAppointments', () => {
+    let appointments: Appointment[];
+
+    beforeAll(async () => {
+      await api.authenticate();
+
+      const {
+        data: { createUser },
+      } = await api.mutation<{ createUser: User }>(
+        makeCreateUserMutation(makeCreateUserInput()),
+      );
+
+      const {
+        data: { createClient },
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(makeCreateClientInput()),
+      );
+
+      const {
+        data: { createProject },
+      } = await api.mutation<{ createProject: Project }>(
+        makeCreateProjectMutation({
+          ...makeCreateProjectInput(),
+          clientId: createClient.id,
+        }),
+      );
+
+      const {
+        data: { createCategory },
+      } = await api.mutation<{ createCategory: Category }>(
+        makeCreateCategoryMutation(makeCreateCategoryInput()),
+      );
+
+      const promise = [1, 2, 3].map(async () => {
+        const input = makeCreateAppointmentInput();
+
+        input.userId = createUser.id;
+        input.projectId = createProject.id;
+        input.categoryId = createCategory.id;
+
+        const {
+          data: { createAppointment },
+        } = await api.mutation<{ createAppointment: Appointment }>(
+          makeCreateAppointmentMutation(input),
+        );
+
+        return createAppointment;
+      });
+
+      appointments = await Promise.all(promise);
+    });
+
+    const makeOut = async () =>
+      api.query<{ getAllAppointments: Appointment[] }>(
+        makeGetAllAppointmentsQuery(),
+      );
+
     shouldThrowIfUnauthenticated('query', makeGetAllAppointmentsQuery());
+
+    it('should get and list all appointments', async () => {
+      const { data } = await makeOut();
+
+      expect(data).toHaveProperty('getAllAppointments');
+
+      expect(Array.isArray(data.getAllAppointments)).toBeTruthy();
+      expect(data.getAllAppointments.length >= 3).toBeTruthy();
+
+      appointments.forEach((appointment) =>
+        expect(data.getAllAppointments).toContainEqual(appointment),
+      );
+    });
   });
 
   describe('getAppointment', () => {

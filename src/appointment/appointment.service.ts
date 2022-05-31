@@ -113,7 +113,11 @@ export class AppointmentService {
   ): Promise<Appointment[]> {
     const options: FindManyOptions<Appointment> = {
       where: {},
-      relations: { user: true, project: true, category: true },
+      relations: {
+        user: true,
+        project: { client: true },
+        category: true,
+      },
     };
 
     if (params.id) {
