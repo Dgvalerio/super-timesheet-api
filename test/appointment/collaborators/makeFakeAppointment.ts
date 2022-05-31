@@ -12,7 +12,7 @@ import {
 } from '@ngneat/falso';
 
 import { makeFakeCategory } from '!/category/collaborators/makeFakeCategory';
-import { randCode, randId, randMore } from '!/collaborators/randMore';
+import { randCode, randId } from '!/collaborators/randMore';
 import { makeFakeProject } from '!/project/collaborators/makeFakeProject';
 import { makeFakeUser } from '!/user/collaborators/makeFakeUser';
 
@@ -29,7 +29,7 @@ export const makeFakeAppointment = (): Appointment => ({
     minute: '2-digit',
   }),
   notMonetize: randBoolean(),
-  description: randMore(randText()),
+  description: randText({ charCount: 256 }),
   commit: randUrl(),
   status: AppointmentStatus.Draft,
   user: makeFakeUser(),

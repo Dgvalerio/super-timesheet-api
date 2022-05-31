@@ -7,6 +7,6 @@ export const randMore = (value: string) => {
   return `${time}${value}`;
 };
 
-export const randId = () => randMore(String(randNumber()));
+export const randId = () => randMore(String(randNumber())).slice(0, 8);
 
 export const randCode = () => randMore(String(randAlphaNumeric()));

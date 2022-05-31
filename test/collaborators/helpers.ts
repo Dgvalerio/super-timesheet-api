@@ -40,3 +40,57 @@ export const shouldThrowIfEnterAEmptyParam = (
   expect(response.message[0]).toBe(`${param} should not be empty`);
   expect(response.error).toBe('Bad Request');
 };
+
+type ShouldThrowHelperParams =
+  | {
+      graphQLErrors: GraphQLError;
+      predictedError: 'Bad Request';
+      messages: string[];
+    }
+  | {
+      graphQLErrors: GraphQLError;
+      predictedError: 'Conflict';
+      messages: string;
+    }
+  | {
+      graphQLErrors: GraphQLError;
+      predictedError: 'Not Found';
+      messages: string;
+    };
+
+export const shouldThrowHelper = ({
+  graphQLErrors,
+  predictedError,
+  messages,
+}: ShouldThrowHelperParams) => {
+  const { message, extensions } = graphQLErrors[0];
+
+  expect(extensions).toHaveProperty('response');
+
+  const { statusCode, error, message: errorMessages } = extensions.response;
+
+  switch (predictedError) {
+    case 'Bad Request':
+      expect(message).toBe('Bad Request Exception');
+      expect(statusCode).toBe(400);
+      expect(error).toBe('Bad Request');
+
+      messages.forEach((message) => expect(errorMessages).toContain(message));
+
+      if (errorMessages.length !== messages.length) {
+        errorMessages.forEach((message) => expect(messages).toContain(message));
+      }
+
+      break;
+    case 'Not Found':
+      expect(message).toBe(messages);
+      expect(statusCode).toBe(404);
+      expect(error).toBe('Not Found');
+      break;
+    case 'Conflict':
+      expect(message).toBe(messages);
+      expect(statusCode).toBe(409);
+      expect(error).toBe('Conflict');
+      break;
+  }
+};

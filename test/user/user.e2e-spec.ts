@@ -5,7 +5,7 @@ import { CreateUserInput } from '@/user/dto/create-user.input';
 import { DeleteUserInput } from '@/user/dto/delete-user.input';
 import { GetUserInput } from '@/user/dto/get-user.input';
 import { User } from '@/user/user.entity';
-import { randNumber, randWord } from '@ngneat/falso';
+import { randWord } from '@ngneat/falso';
 
 import { makeCreateClientInput } from '!/client/collaborators/makeCreateClientInput';
 import { makeCreateClientMutation } from '!/client/collaborators/makeCreateClientMutation';
@@ -14,6 +14,7 @@ import {
   shouldThrowIfEnterAEmptyParam,
   shouldThrowIfUnauthenticated,
 } from '!/collaborators/helpers';
+import { randId } from '!/collaborators/randMore';
 import { makeCreateProjectInput } from '!/project/collaborators/makeCreateProjectInput';
 import { makeCreateProjectMutation } from '!/project/collaborators/makeCreateProjectMutation';
 import { makeAddProjectMutation } from '!/user/collaborators/makeAddProjectMutation';
@@ -203,7 +204,7 @@ describe('Graphql User Module (e2e)', () => {
     });
 
     it('should throw if not found user', async () => {
-      const out = makeOut({ id: `${randNumber()}${user.id}` });
+      const out = makeOut({ id: randId() });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
@@ -340,7 +341,7 @@ describe('Graphql User Module (e2e)', () => {
 
     it('should throw if not found user', async () => {
       const out = makeOut({
-        userId: `${randNumber()}${user.id}`,
+        userId: randId(),
       });
 
       const { graphQLErrors } = await out.catch((e) => e);
