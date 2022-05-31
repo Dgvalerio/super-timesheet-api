@@ -1,5 +1,6 @@
 import { Appointment } from '@/appointment/appointment.entity';
 import { CreateAppointmentInput } from '@/appointment/dto/create-appointment.input';
+import { DeleteAppointmentInput } from '@/appointment/dto/delete-appointment.input';
 import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
 import { Category } from '@/category/category.entity';
 import { Client } from '@/client/client.entity';
@@ -23,7 +24,7 @@ import {
   shouldThrowIfEnterAEmptyParam,
   shouldThrowIfUnauthenticated,
 } from '!/collaborators/helpers';
-import { randId } from '!/collaborators/randMore';
+import { randCode, randId } from '!/collaborators/randMore';
 import { makeCreateProjectInput } from '!/project/collaborators/makeCreateProjectInput';
 import { makeCreateProjectMutation } from '!/project/collaborators/makeCreateProjectMutation';
 import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
@@ -444,8 +445,6 @@ describe('Graphql Appointment Module (e2e)', () => {
     let appointments: Appointment[];
 
     beforeAll(async () => {
-      await api.authenticate();
-
       const promise = [1, 2, 3].map(async () => {
         const input = makeCreateAppointmentInput();
 
@@ -489,9 +488,12 @@ describe('Graphql Appointment Module (e2e)', () => {
   describe('getAppointment', () => {
     let appointment: Appointment;
 
-    beforeAll(async () => {
-      await api.authenticate();
+    const makeOut = async (input: Partial<GetAppointmentInput>) =>
+      api.query<{ getAppointment: Appointment }>(
+        makeGetAppointmentQuery(input),
+      );
 
+    beforeAll(async () => {
       const input = makeCreateAppointmentInput();
 
       input.userId = user.id;
@@ -506,11 +508,6 @@ describe('Graphql Appointment Module (e2e)', () => {
 
       appointment = createAppointment;
     });
-
-    const makeOut = async (input: Partial<GetAppointmentInput>) =>
-      api.query<{ getAppointment: Appointment }>(
-        makeGetAppointmentQuery(input),
-      );
 
     shouldThrowIfUnauthenticated('query', makeGetAppointmentQuery({}));
 
@@ -615,7 +612,7 @@ describe('Graphql Appointment Module (e2e)', () => {
     });
 
     it('should throw if not found appointment', async () => {
-      const out = makeOut({ code: `${randWord()}_${project.id}` });
+      const out = makeOut({ code: randCode() });
 
       const { graphQLErrors } = await out.catch((e) => e);
 
@@ -632,6 +629,67 @@ describe('Graphql Appointment Module (e2e)', () => {
   });
 
   describe('deleteAppointment', () => {
+    let appointment: Appointment;
+
+    const makeOut = async (input: Partial<DeleteAppointmentInput>) =>
+      api.mutation<{ deleteAppointment: Appointment }>(
+        makeDeleteAppointmentMutation(input),
+      );
+
+    beforeEach(async () => {
+      const input = makeCreateAppointmentInput();
+
+      input.userId = user.id;
+      input.projectId = project.id;
+      input.categoryId = category.id;
+
+      const {
+        data: { createAppointment },
+      } = await api.mutation<{ createAppointment: Appointment }>(
+        makeCreateAppointmentMutation(input),
+      );
+
+      appointment = createAppointment;
+    });
+
     shouldThrowIfUnauthenticated('mutation', makeDeleteAppointmentMutation({}));
+
+    it('should throw if no parameter as entered', async () => {
+      const out = makeOut({});
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['Nenhum parâmetro válido foi informado'],
+      });
+    });
+
+    it('should delete by id', async () => {
+      const { data } = await makeOut({ id: appointment.id });
+
+      expect(data).toHaveProperty('deleteAppointment');
+      expect(data.deleteAppointment).toBeTruthy();
+    });
+
+    it('should delete by code', async () => {
+      const { data } = await makeOut({ code: appointment.code });
+
+      expect(data).toHaveProperty('deleteAppointment');
+      expect(data.deleteAppointment).toBeTruthy();
+    });
+
+    it('should throw if not found appointment', async () => {
+      const out = makeOut({ code: randCode() });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'O apontamento informado não existe!',
+      });
+    });
   });
 });
