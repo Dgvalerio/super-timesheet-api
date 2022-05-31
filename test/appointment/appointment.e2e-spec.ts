@@ -658,6 +658,18 @@ describe('Graphql Appointment Module (e2e)', () => {
 
       shouldThrowIfEnterAEmptyParam('id', graphQLErrors);
     });
+
+    it('should throw if not found appointment', async () => {
+      const out = makeOut({ id: randId() });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'O apontamento informado não existe!',
+      });
+    });
   });
 
   describe('deleteAppointment', () => {
