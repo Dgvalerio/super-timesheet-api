@@ -1,5 +1,6 @@
 import { Appointment } from '@/appointment/appointment.entity';
 import { CreateAppointmentInput } from '@/appointment/dto/create-appointment.input';
+import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
 import { Category } from '@/category/category.entity';
 import { Client } from '@/client/client.entity';
 import { Project } from '@/project/project.entity';
@@ -445,39 +446,12 @@ describe('Graphql Appointment Module (e2e)', () => {
     beforeAll(async () => {
       await api.authenticate();
 
-      const {
-        data: { createUser },
-      } = await api.mutation<{ createUser: User }>(
-        makeCreateUserMutation(makeCreateUserInput()),
-      );
-
-      const {
-        data: { createClient },
-      } = await api.mutation<{ createClient: Client }>(
-        makeCreateClientMutation(makeCreateClientInput()),
-      );
-
-      const {
-        data: { createProject },
-      } = await api.mutation<{ createProject: Project }>(
-        makeCreateProjectMutation({
-          ...makeCreateProjectInput(),
-          clientId: createClient.id,
-        }),
-      );
-
-      const {
-        data: { createCategory },
-      } = await api.mutation<{ createCategory: Category }>(
-        makeCreateCategoryMutation(makeCreateCategoryInput()),
-      );
-
       const promise = [1, 2, 3].map(async () => {
         const input = makeCreateAppointmentInput();
 
-        input.userId = createUser.id;
-        input.projectId = createProject.id;
-        input.categoryId = createCategory.id;
+        input.userId = user.id;
+        input.projectId = project.id;
+        input.categoryId = category.id;
 
         const {
           data: { createAppointment },
@@ -513,7 +487,144 @@ describe('Graphql Appointment Module (e2e)', () => {
   });
 
   describe('getAppointment', () => {
-    shouldThrowIfUnauthenticated('mutation', makeGetAppointmentQuery({}));
+    let appointment: Appointment;
+
+    beforeAll(async () => {
+      await api.authenticate();
+
+      const input = makeCreateAppointmentInput();
+
+      input.userId = user.id;
+      input.projectId = project.id;
+      input.categoryId = category.id;
+
+      const {
+        data: { createAppointment },
+      } = await api.mutation<{ createAppointment: Appointment }>(
+        makeCreateAppointmentMutation(input),
+      );
+
+      appointment = createAppointment;
+    });
+
+    const makeOut = async (input: Partial<GetAppointmentInput>) =>
+      api.query<{ getAppointment: Appointment }>(
+        makeGetAppointmentQuery(input),
+      );
+
+    shouldThrowIfUnauthenticated('query', makeGetAppointmentQuery({}));
+
+    it('should throw if no parameter as entered', async () => {
+      const out = makeOut({});
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['Nenhum parâmetro válido foi informado'],
+      });
+    });
+
+    it('should get and show by id', async () => {
+      const { data } = await makeOut({ id: appointment.id });
+
+      expect(data).toHaveProperty('getAppointment');
+      expect(data.getAppointment).toEqual({
+        __typename: 'Appointment',
+        id: expect.anything(),
+        code: appointment.code,
+        date: appointment.date,
+        startTime: appointment.startTime,
+        endTime: appointment.endTime,
+        notMonetize: appointment.notMonetize,
+        description: appointment.description,
+        commit: appointment.commit,
+        status: appointment.status,
+        user: {
+          __typename: 'User',
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        },
+        project: {
+          __typename: 'Project',
+          id: project.id,
+          code: project.code,
+          name: project.name,
+          startDate: project.startDate,
+          endDate: project.endDate,
+          client: {
+            __typename: 'Client',
+            id: project.client.id,
+            code: project.client.code,
+            name: project.client.name,
+          },
+        },
+        category: {
+          __typename: 'Category',
+          id: category.id,
+          code: category.code,
+          name: category.name,
+        },
+      });
+    });
+
+    it('should get and show by code', async () => {
+      const { data } = await makeOut({ code: appointment.code });
+
+      expect(data).toHaveProperty('getAppointment');
+      expect(data.getAppointment).toEqual({
+        __typename: 'Appointment',
+        id: expect.anything(),
+        code: appointment.code,
+        date: appointment.date,
+        startTime: appointment.startTime,
+        endTime: appointment.endTime,
+        notMonetize: appointment.notMonetize,
+        description: appointment.description,
+        commit: appointment.commit,
+        status: appointment.status,
+        user: {
+          __typename: 'User',
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        },
+        project: {
+          __typename: 'Project',
+          id: project.id,
+          code: project.code,
+          name: project.name,
+          startDate: project.startDate,
+          endDate: project.endDate,
+          client: {
+            __typename: 'Client',
+            id: project.client.id,
+            code: project.client.code,
+            name: project.client.name,
+          },
+        },
+        category: {
+          __typename: 'Category',
+          id: category.id,
+          code: category.code,
+          name: category.name,
+        },
+      });
+    });
+
+    it('should throw if not found appointment', async () => {
+      const out = makeOut({ code: `${randWord()}_${project.id}` });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'Nenhum apontamento foi encontrado',
+      });
+    });
   });
 
   describe('updateAppointment', () => {

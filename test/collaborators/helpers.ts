@@ -71,14 +71,22 @@ export const shouldThrowHelper = ({
 
   switch (predictedError) {
     case 'Bad Request':
-      expect(message).toBe('Bad Request Exception');
       expect(statusCode).toBe(400);
       expect(error).toBe('Bad Request');
 
-      messages.forEach((message) => expect(errorMessages).toContain(message));
+      if (Array.isArray(errorMessages)) {
+        expect(message).toBe('Bad Request Exception');
 
-      if (errorMessages.length !== messages.length) {
-        errorMessages.forEach((message) => expect(messages).toContain(message));
+        messages.forEach((message) => expect(errorMessages).toContain(message));
+
+        if (errorMessages.length !== messages.length) {
+          errorMessages.forEach((message) =>
+            expect(messages).toContain(message),
+          );
+        }
+      } else {
+        expect(message).toBe(messages[0]);
+        expect(errorMessages).toBe(messages[0]);
       }
 
       break;
