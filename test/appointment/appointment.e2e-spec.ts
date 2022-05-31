@@ -2,6 +2,7 @@ import { Appointment } from '@/appointment/appointment.entity';
 import { CreateAppointmentInput } from '@/appointment/dto/create-appointment.input';
 import { DeleteAppointmentInput } from '@/appointment/dto/delete-appointment.input';
 import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
+import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
 import { Category } from '@/category/category.entity';
 import { Client } from '@/client/client.entity';
 import { Project } from '@/project/project.entity';
@@ -625,7 +626,38 @@ describe('Graphql Appointment Module (e2e)', () => {
   });
 
   describe('updateAppointment', () => {
+    let appointment: Appointment;
+
+    const makeOut = async (input: Partial<UpdateAppointmentInput>) =>
+      api.mutation<{ getAppointment: Appointment }>(
+        makeUpdateAppointmentMutation(input),
+      );
+
+    beforeEach(async () => {
+      const input = makeCreateAppointmentInput();
+
+      input.userId = user.id;
+      input.projectId = project.id;
+      input.categoryId = category.id;
+
+      const {
+        data: { createAppointment },
+      } = await api.mutation<{ createAppointment: Appointment }>(
+        makeCreateAppointmentMutation(input),
+      );
+
+      appointment = createAppointment;
+    });
+
     shouldThrowIfUnauthenticated('mutation', makeUpdateAppointmentMutation({}));
+
+    it('should throw if enter a empty id', async () => {
+      const out = makeOut({ id: '' });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowIfEnterAEmptyParam('id', graphQLErrors);
+    });
   });
 
   describe('deleteAppointment', () => {

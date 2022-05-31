@@ -136,7 +136,7 @@ export class AppointmentService {
     const appointment = await this.getAppointment({ id: input.id });
 
     if (!appointment) {
-      throw new NotFoundException('O projeto informado não existe!');
+      throw new NotFoundException('O apontamento informado não existe!');
     }
 
     if (input.code) {
