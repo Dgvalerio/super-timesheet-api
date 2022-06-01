@@ -27,6 +27,7 @@ export class UpdateAppointmentInput implements Partial<Appointment> {
 
   @IsString()
   @IsOptional()
+  @IsNotEmpty()
   code?: Appointment['code'];
 
   @IsDate()

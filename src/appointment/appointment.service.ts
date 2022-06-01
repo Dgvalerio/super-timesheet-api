@@ -139,7 +139,7 @@ export class AppointmentService {
       throw new NotFoundException('O apontamento informado não existe!');
     }
 
-    if (input.code) {
+    if (input.code && input.code !== appointment.code) {
       const haveCodeConflict = await this.getAppointment({ code: input.code });
 
       if (haveCodeConflict) {

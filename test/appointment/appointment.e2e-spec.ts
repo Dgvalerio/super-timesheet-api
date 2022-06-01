@@ -670,6 +670,18 @@ describe('Graphql Appointment Module (e2e)', () => {
         messages: 'O apontamento informado não existe!',
       });
     });
+
+    it('should throw if enter a empty code', async () => {
+      const out = makeOut({ id: appointment.id, code: '' });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['code should not be empty'],
+      });
+    });
   });
 
   describe('deleteAppointment', () => {
