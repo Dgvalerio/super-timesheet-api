@@ -935,6 +935,38 @@ describe('Graphql Appointment Module (e2e)', () => {
       });
     });
 
+    it('should update appointment project (with id)', async () => {
+      const {
+        data: { createClient },
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(makeCreateClientInput()),
+      );
+
+      const {
+        data: { createProject },
+      } = await api.mutation<{ createProject: Project }>(
+        makeCreateProjectMutation({
+          ...makeCreateProjectInput(),
+          clientId: createClient.id,
+        }),
+      );
+
+      delete createProject.categories;
+
+      const { data } = await makeOut({
+        id: appointment.id,
+        projectId: createProject.id,
+      });
+
+      expect(data).toHaveProperty('updateAppointment');
+
+      expect(data.updateAppointment).toEqual({
+        __typename: 'Appointment',
+        ...appointment,
+        project: createProject,
+      });
+    });
+
     // Category
     it('should throw if enter a invalid categoryId', async () => {
       const out = makeOut({ id: appointment.id, categoryId: randId() });
