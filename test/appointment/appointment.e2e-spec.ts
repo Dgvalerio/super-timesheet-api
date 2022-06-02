@@ -684,6 +684,32 @@ describe('Graphql Appointment Module (e2e)', () => {
       });
     });
 
+    it('should throw if enter a code that has already been registered', async () => {
+      const input = makeCreateAppointmentInput();
+
+      input.userId = user.id;
+      input.projectId = project.id;
+      input.categoryId = category.id;
+
+      const {
+        data: {
+          createAppointment: { code },
+        },
+      } = await api.mutation<{ createAppointment: Appointment }>(
+        makeCreateAppointmentMutation(input),
+      );
+
+      const out = makeOut({ id: appointment.id, code });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Conflict',
+        messages: 'Esse código já foi utilizado!',
+      });
+    });
+
     it('should update appointment date', async () => {
       const { date } = makeFakeAppointment();
 
