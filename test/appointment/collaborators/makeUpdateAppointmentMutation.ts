@@ -173,7 +173,7 @@ export const makeUpdateAppointmentMutation = (
       }
     `;
   }
-  if (input.notMonetize === true || input.notMonetize === false) {
+  if (typeof input.notMonetize === 'boolean') {
     return gql`
       mutation {
         updateAppointment(input: {

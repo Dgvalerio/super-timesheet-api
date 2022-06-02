@@ -215,7 +215,10 @@ export class AppointmentService {
       newData.endTime = input.endTime;
     }
 
-    if (input.notMonetize && input.notMonetize !== appointment.notMonetize) {
+    if (
+      typeof input.notMonetize === 'boolean' &&
+      input.notMonetize !== appointment.notMonetize
+    ) {
       newData.notMonetize = input.notMonetize;
     }
 
