@@ -785,6 +785,20 @@ describe('Graphql Appointment Module (e2e)', () => {
         startTime,
       });
     });
+
+    it('should throw if enter a invalid endTime', async () => {
+      const out = makeOut({ id: appointment.id, endTime: randWord() });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: [
+          'endTime must be a valid representation of military time in the format HH:MM',
+        ],
+      });
+    });
   });
 
   describe('deleteAppointment', () => {
