@@ -114,6 +114,7 @@ type Mutation {
   deleteProject(input: DeleteProjectInput!): Boolean!
   addCategory(input: AddCategoryInput!): Project!
   createClient(input: CreateClientInput!): Client!
+  deleteClient(input: DeleteClientInput!): Boolean!
   login(input: AuthInput!): AuthOutput!
   createCategory(input: CreateCategoryInput!): Category!
   deleteCategory(input: DeleteCategoryInput!): Boolean!
@@ -175,6 +176,11 @@ input AddCategoryInput {
 input CreateClientInput {
   code: String
   name: String!
+}
+
+input DeleteClientInput {
+  id: String
+  code: String
 }
 
 input AuthInput {

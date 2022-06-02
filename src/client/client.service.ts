@@ -3,11 +3,13 @@ import {
   InternalServerErrorException,
   ConflictException,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Client } from '@/client/client.entity';
 import { CreateClientInput } from '@/client/dto/create-client.input';
+import { DeleteClientInput } from '@/client/dto/delete-client.input';
 import { GetClientInput } from '@/client/dto/get-client.input';
 
 import { Repository } from 'typeorm';
@@ -71,5 +73,17 @@ export class ClientService {
       where,
       relations: { projects: true },
     });
+  }
+
+  async deleteClient(input: DeleteClientInput): Promise<boolean> {
+    const client = await this.getClient(input);
+
+    if (!client) {
+      throw new NotFoundException('O cliente informado não existe!');
+    }
+
+    const deleted = await this.clientRepository.delete(client.id);
+
+    return !!deleted;
   }
 }

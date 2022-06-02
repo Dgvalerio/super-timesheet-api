@@ -5,6 +5,7 @@ import { GqlAuthGuard } from '@/auth/auth.guard';
 import { Client } from '@/client/client.entity';
 import { ClientService } from '@/client/client.service';
 import { CreateClientInput } from '@/client/dto/create-client.input';
+import { DeleteClientInput } from '@/client/dto/delete-client.input';
 import { GetClientInput } from '@/client/dto/get-client.input';
 
 @Resolver()
@@ -33,5 +34,13 @@ export class ClientResolver {
     }
 
     return client;
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => Boolean)
+  async deleteClient(
+    @Args('input') input: DeleteClientInput,
+  ): Promise<boolean> {
+    return this.clientService.deleteClient(input);
   }
 }

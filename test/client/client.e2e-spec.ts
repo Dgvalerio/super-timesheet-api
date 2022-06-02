@@ -1,17 +1,21 @@
 import { Client } from '@/client/client.entity';
 import { CreateClientInput } from '@/client/dto/create-client.input';
+import { DeleteClientInput } from '@/client/dto/delete-client.input';
 import { GetClientInput } from '@/client/dto/get-client.input';
 import { randWord } from '@ngneat/falso';
 
 import { makeCreateClientInput } from '!/client/collaborators/makeCreateClientInput';
 import { makeCreateClientMutation } from '!/client/collaborators/makeCreateClientMutation';
+import { makeDeleteClientMutation } from '!/client/collaborators/makeDeleteClientMutation';
 import { makeGetAllClientsQuery } from '!/client/collaborators/makeGetAllClientsQuery';
 import { makeGetClientQuery } from '!/client/collaborators/makeGetClientQuery';
 import { ApolloClientHelper } from '!/collaborators/apolloClient';
 import {
+  shouldThrowHelper,
   shouldThrowIfEnterAEmptyParam,
   shouldThrowIfUnauthenticated,
 } from '!/collaborators/helpers';
+import { randCode } from '!/collaborators/randMore';
 
 describe('Graphql Client Module (e2e)', () => {
   const api = new ApolloClientHelper();
@@ -230,6 +234,65 @@ describe('Graphql Client Module (e2e)', () => {
 
       expect(response.statusCode).toBe(404);
       expect(response.error).toBe('Not Found');
+    });
+  });
+
+  describe('deleteClient', () => {
+    let client: Client;
+
+    const makeOut = async (input: Partial<DeleteClientInput>) =>
+      api.mutation<{ deleteClient: Client }>(makeDeleteClientMutation(input));
+
+    beforeEach(async () => {
+      const input = makeCreateClientInput();
+
+      const {
+        data: { createClient },
+      } = await api.mutation<{ createClient: Client }>(
+        makeCreateClientMutation(input),
+      );
+
+      client = createClient;
+    });
+
+    shouldThrowIfUnauthenticated('mutation', makeDeleteClientMutation({}));
+
+    it('should throw if no parameter as entered', async () => {
+      const out = makeOut({});
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['Nenhum parâmetro válido foi informado'],
+      });
+    });
+
+    it('should delete by id', async () => {
+      const { data } = await makeOut({ id: client.id });
+
+      expect(data).toHaveProperty('deleteClient');
+      expect(data.deleteClient).toBeTruthy();
+    });
+
+    it('should delete by code', async () => {
+      const { data } = await makeOut({ code: client.code });
+
+      expect(data).toHaveProperty('deleteClient');
+      expect(data.deleteClient).toBeTruthy();
+    });
+
+    it('should throw if not found client', async () => {
+      const out = makeOut({ code: randCode() });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'O cliente informado não existe!',
+      });
     });
   });
 });
