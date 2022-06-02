@@ -820,6 +820,98 @@ describe('Graphql Appointment Module (e2e)', () => {
       });
     });
 
+    it('should throw if enter a actual time in startTime', async () => {
+      const now = getNow();
+
+      await makeOut({ id: appointment.id, date: now });
+
+      const out = makeOut({
+        id: appointment.id,
+        startTime: format(now, 'HH:mm'),
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['O horário inicial precisa ser menor que o atual'],
+      });
+    });
+
+    it('should throw if enter a startTime longer than endTime', async () => {
+      const now = getNow();
+
+      await makeOut({
+        id: appointment.id,
+        date: now,
+      });
+
+      await makeOut({
+        id: appointment.id,
+        endTime: format(sub(now, { minutes: 2 }), 'HH:mm'),
+      });
+
+      const out = makeOut({
+        id: appointment.id,
+        startTime: format(sub(now, { minutes: 1 }), 'HH:mm'),
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['O horário inicial precisa ser menor que o final'],
+      });
+    });
+
+    it('should throw if enter a same time in startTime and endTime', async () => {
+      const now = getNow();
+      const time = format(sub(now, { minutes: 2 }), 'HH:mm');
+
+      await makeOut({ id: appointment.id, date: now });
+
+      await makeOut({ id: appointment.id, endTime: time });
+
+      const out = makeOut({ id: appointment.id, startTime: time });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['O horário inicial precisa ser menor que o final'],
+      });
+    });
+
+    it('should throw if enter a endTime longer than actual', async () => {
+      const now = getNow();
+
+      await makeOut({
+        id: appointment.id,
+        date: now,
+      });
+
+      await makeOut({
+        id: appointment.id,
+        startTime: format(sub(now, { minutes: 3 }), 'HH:mm'),
+      });
+
+      const out = makeOut({
+        id: appointment.id,
+        endTime: format(add(now, { minutes: 2 }), 'HH:mm'),
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['O horário final não deve ser maior que o atual'],
+      });
+    });
+
     it('should throw if enter a invalid startTime', async () => {
       const out = makeOut({ id: appointment.id, startTime: randWord() });
 
@@ -835,7 +927,10 @@ describe('Graphql Appointment Module (e2e)', () => {
     });
 
     it('should update appointment startTime', async () => {
-      const startTime = '12:34';
+      const startTime = format(sub(getNow(), { minutes: 3 }), 'HH:mm');
+      const endTime = format(getNow(), 'HH:mm');
+
+      await makeOut({ id: appointment.id, endTime });
 
       const { data } = await makeOut({ id: appointment.id, startTime });
 
@@ -844,6 +939,7 @@ describe('Graphql Appointment Module (e2e)', () => {
       expect(data.updateAppointment).toEqual({
         __typename: 'Appointment',
         ...appointment,
+        endTime,
         startTime,
       });
     });
@@ -863,7 +959,7 @@ describe('Graphql Appointment Module (e2e)', () => {
     });
 
     it('should update appointment endTime', async () => {
-      const endTime = '12:34';
+      const endTime = format(getNow(), 'HH:mm');
 
       const { data } = await makeOut({ id: appointment.id, endTime });
 

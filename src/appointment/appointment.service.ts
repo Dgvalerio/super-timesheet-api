@@ -172,6 +172,11 @@ export class AppointmentService {
       throw new NotFoundException('O apontamento informado não existe!');
     }
 
+    const now = getNow();
+
+    now.setSeconds(0);
+    now.setMilliseconds(0);
+
     if (input.code && input.code !== appointment.code) {
       const haveCodeConflict = await this.getAppointment({ code: input.code });
 
@@ -269,6 +274,38 @@ export class AppointmentService {
 
     if (Object.keys(newData).length === 0) {
       return appointment;
+    }
+
+    if (newData.startTime || newData.endTime || newData.date) {
+      const startTime = newData.startTime || appointment.startTime;
+      const endTime = newData.endTime || appointment.endTime;
+      const date = newData.date || appointment.date;
+
+      // Validations
+      if (isToday(date)) {
+        const today = format(getNow(), 'yyyy-MM-dd');
+
+        const startDate = `${today}T${startTime}:00.000Z`;
+        const endDate = `${today}T${endTime}:00.000Z`;
+
+        if (compareAsc(new Date(startDate), now) >= 0) {
+          throw new BadRequestException(
+            'O horário inicial precisa ser menor que o atual',
+          );
+        }
+
+        if (compareAsc(new Date(startDate), new Date(endDate)) >= 0) {
+          throw new BadRequestException(
+            'O horário inicial precisa ser menor que o final',
+          );
+        }
+
+        if (compareAsc(new Date(endDate), now) > 0) {
+          throw new BadRequestException(
+            'O horário final não deve ser maior que o atual',
+          );
+        }
+      }
     }
 
     await this.appointmentRepository.update(appointment, { ...newData });
