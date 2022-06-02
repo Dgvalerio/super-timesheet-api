@@ -902,6 +902,18 @@ describe('Graphql Appointment Module (e2e)', () => {
     });
 
     // Project
+    it('should throw if enter a invalid projectId', async () => {
+      const out = makeOut({ id: appointment.id, projectId: randId() });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'O projeto informado não existe!',
+      });
+    });
+
     // Category
   });
 
