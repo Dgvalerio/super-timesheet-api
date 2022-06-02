@@ -901,6 +901,27 @@ describe('Graphql Appointment Module (e2e)', () => {
       });
     });
 
+    it('should update appointment user (with id)', async () => {
+      const {
+        data: { createUser },
+      } = await api.mutation<{ createUser: User }>(
+        makeCreateUserMutation(makeCreateUserInput()),
+      );
+
+      const { data } = await makeOut({
+        id: appointment.id,
+        userId: createUser.id,
+      });
+
+      expect(data).toHaveProperty('updateAppointment');
+
+      expect(data.updateAppointment).toEqual({
+        __typename: 'Appointment',
+        ...appointment,
+        user: createUser,
+      });
+    });
+
     // Project
     it('should throw if enter a invalid projectId', async () => {
       const out = makeOut({ id: appointment.id, projectId: randId() });
