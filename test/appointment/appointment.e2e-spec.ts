@@ -979,6 +979,27 @@ describe('Graphql Appointment Module (e2e)', () => {
         messages: 'A categoria informada não existe!',
       });
     });
+
+    it('should update appointment category (with id)', async () => {
+      const {
+        data: { createCategory },
+      } = await api.mutation<{ createCategory: Category }>(
+        makeCreateCategoryMutation(makeCreateCategoryInput()),
+      );
+
+      const { data } = await makeOut({
+        id: appointment.id,
+        categoryId: createCategory.id,
+      });
+
+      expect(data).toHaveProperty('updateAppointment');
+
+      expect(data.updateAppointment).toEqual({
+        __typename: 'Appointment',
+        ...appointment,
+        category: createCategory,
+      });
+    });
   });
 
   describe('deleteAppointment', () => {
