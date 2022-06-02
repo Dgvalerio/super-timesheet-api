@@ -710,6 +710,20 @@ describe('Graphql Appointment Module (e2e)', () => {
       });
     });
 
+    it('should update appointment code', async () => {
+      const { code } = makeFakeAppointment();
+
+      const { data } = await makeOut({ id: appointment.id, code });
+
+      expect(data).toHaveProperty('updateAppointment');
+
+      expect(data.updateAppointment).toEqual({
+        __typename: 'Appointment',
+        ...appointment,
+        code,
+      });
+    });
+
     it('should update appointment date', async () => {
       const { date } = makeFakeAppointment();
 
