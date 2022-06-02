@@ -813,6 +813,20 @@ describe('Graphql Appointment Module (e2e)', () => {
         endTime,
       });
     });
+
+    it('should update appointment notMonetize', async () => {
+      const notMonetize = !appointment.notMonetize;
+
+      const { data } = await makeOut({ id: appointment.id, notMonetize });
+
+      expect(data).toHaveProperty('updateAppointment');
+
+      expect(data.updateAppointment).toEqual({
+        __typename: 'Appointment',
+        ...appointment,
+        notMonetize,
+      });
+    });
   });
 
   describe('deleteAppointment', () => {
