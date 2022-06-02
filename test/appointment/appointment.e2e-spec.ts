@@ -827,6 +827,20 @@ describe('Graphql Appointment Module (e2e)', () => {
         notMonetize,
       });
     });
+
+    it('should update appointment description', async () => {
+      const { description } = makeFakeAppointment();
+
+      const { data } = await makeOut({ id: appointment.id, description });
+
+      expect(data).toHaveProperty('updateAppointment');
+
+      expect(data.updateAppointment).toEqual({
+        __typename: 'Appointment',
+        ...appointment,
+        description,
+      });
+    });
   });
 
   describe('deleteAppointment', () => {
