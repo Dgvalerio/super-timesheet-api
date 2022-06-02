@@ -8,6 +8,7 @@ import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
 import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
 import { Category } from '@/category/category.entity';
 import { Client } from '@/client/client.entity';
+import { getNow } from '@/common/helpers/today';
 import { Project } from '@/project/project.entity';
 import { User } from '@/user/user.entity';
 import { randFutureDate, randWord } from '@ngneat/falso';
@@ -34,6 +35,8 @@ import { makeCreateProjectInput } from '!/project/collaborators/makeCreateProjec
 import { makeCreateProjectMutation } from '!/project/collaborators/makeCreateProjectMutation';
 import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
 import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
+
+import { add, format, sub } from 'date-fns';
 
 describe('Graphql Appointment Module (e2e)', () => {
   const api = new ApolloClientHelper();
@@ -104,6 +107,62 @@ describe('Graphql Appointment Module (e2e)', () => {
         messages: [
           'The date must not go beyond today (2022-06-02T23:59:59.999Z)',
         ],
+      });
+    });
+
+    it('should throw if enter a actual time in startTime', async () => {
+      const now = getNow();
+      const input = makeCreateAppointmentInput();
+
+      input.date = now;
+      input.startTime = format(now, 'HH:mm');
+
+      const out = makeOut(input);
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['O horário inicial precisa ser menor que o atual'],
+      });
+    });
+
+    it('should throw if enter a startTime longer than endTime', async () => {
+      const now = getNow();
+      const input = makeCreateAppointmentInput();
+
+      input.date = now;
+      input.startTime = format(sub(now, { minutes: 1 }), 'HH:mm');
+      input.endTime = format(sub(now, { minutes: 2 }), 'HH:mm');
+
+      const out = makeOut(input);
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['O horário inicial precisa ser menor que o final'],
+      });
+    });
+
+    it('should throw if enter a endTime longer than actual', async () => {
+      const now = getNow();
+      const input = makeCreateAppointmentInput();
+
+      input.date = now;
+      input.startTime = format(sub(now, { minutes: 1 }), 'HH:mm');
+      input.endTime = format(add(now, { minutes: 2 }), 'HH:mm');
+
+      const out = makeOut(input);
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['O horário final não deve ser maior que o atual'],
       });
     });
 

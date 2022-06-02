@@ -1,3 +1,5 @@
+import { utcToZonedTime } from 'date-fns-tz';
+
 export const today = (): Date => {
   const date = new Date();
 
@@ -8,3 +10,5 @@ export const today = (): Date => {
 
   return date;
 };
+
+export const getNow = () => utcToZonedTime(new Date(), 'America/Sao_Paulo');

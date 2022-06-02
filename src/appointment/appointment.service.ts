@@ -13,9 +13,11 @@ import { DeleteAppointmentInput } from '@/appointment/dto/delete-appointment.inp
 import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
 import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
 import { CategoryService } from '@/category/category.service';
+import { getNow } from '@/common/helpers/today';
 import { ProjectService } from '@/project/project.service';
 import { UserService } from '@/user/user.service';
 
+import { compareAsc, format, isToday } from 'date-fns';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
 @Injectable()
@@ -29,6 +31,37 @@ export class AppointmentService {
   ) {}
 
   async createAppointment(input: CreateAppointmentInput): Promise<Appointment> {
+    const now = getNow();
+
+    now.setSeconds(0);
+    now.setMilliseconds(0);
+
+    // Validations
+    if (isToday(input.date)) {
+      const today = format(getNow(), 'yyyy-MM-dd');
+
+      const startDate = `${today}T${input.startTime}:00.000Z`;
+      const endDate = `${today}T${input.endTime}:00.000Z`;
+
+      if (compareAsc(new Date(startDate), now) >= 0) {
+        throw new BadRequestException(
+          'O horário inicial precisa ser menor que o atual',
+        );
+      }
+
+      if (compareAsc(new Date(startDate), new Date(endDate)) >= 0) {
+        throw new BadRequestException(
+          'O horário inicial precisa ser menor que o final',
+        );
+      }
+
+      if (compareAsc(new Date(endDate), now) > 0) {
+        throw new BadRequestException(
+          'O horário final não deve ser maior que o atual',
+        );
+      }
+    }
+
     if (input.code) {
       const haveCodeConflict = await this.getAppointment({ code: input.code });
 
