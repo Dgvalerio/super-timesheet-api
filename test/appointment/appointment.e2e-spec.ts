@@ -887,6 +887,22 @@ describe('Graphql Appointment Module (e2e)', () => {
         status,
       });
     });
+
+    // User
+    it('should throw if enter a invalid userId', async () => {
+      const out = makeOut({ id: appointment.id, userId: randId() });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'O usuário informado não existe!',
+      });
+    });
+
+    // Project
+    // Category
   });
 
   describe('deleteAppointment', () => {
