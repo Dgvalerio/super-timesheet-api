@@ -89,7 +89,7 @@ describe('Graphql Appointment Module (e2e)', () => {
     it('should throw if enter a invalid date', async () => {
       const input = makeCreateAppointmentInput();
 
-      delete input.date;
+      input.date = new Date(randFutureDate());
 
       const out = makeOut(input);
 
@@ -98,7 +98,9 @@ describe('Graphql Appointment Module (e2e)', () => {
       shouldThrowHelper({
         graphQLErrors,
         predictedError: 'Bad Request',
-        messages: ['date must be a Date instance'],
+        messages: [
+          'The date must not go beyond today (2022-06-02T23:59:59.999Z)',
+        ],
       });
     });
 

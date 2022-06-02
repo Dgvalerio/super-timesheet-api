@@ -5,6 +5,7 @@ import {
   AppointmentStatus,
 } from '@/appointment/appointment.entity';
 import { Category } from '@/category/category.entity';
+import { today } from '@/common/helpers/today';
 import { Project } from '@/project/project.entity';
 import { User } from '@/user/user.entity';
 
@@ -17,6 +18,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  MaxDate,
   ValidateIf,
 } from 'class-validator';
 
@@ -28,6 +30,10 @@ export class CreateAppointmentInput implements Partial<Appointment> {
 
   @IsDate()
   @IsNotEmpty()
+  @MaxDate(today(), {
+    message: ({ constraints }) =>
+      `The date must not go beyond today (${constraints[0].toISOString()})`,
+  })
   date: Appointment['date'];
 
   @IsMilitaryTime()
