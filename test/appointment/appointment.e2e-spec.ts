@@ -7,7 +7,7 @@ import { Category } from '@/category/category.entity';
 import { Client } from '@/client/client.entity';
 import { Project } from '@/project/project.entity';
 import { User } from '@/user/user.entity';
-import { randWord } from '@ngneat/falso';
+import { randFutureDate, randWord } from '@ngneat/falso';
 
 import { makeCreateAppointmentInput } from '!/appointment/collaborators/makeCreateAppointmentInput';
 import { makeCreateAppointmentMutation } from '!/appointment/collaborators/makeCreateAppointmentMutation';
@@ -721,6 +721,22 @@ describe('Graphql Appointment Module (e2e)', () => {
         __typename: 'Appointment',
         ...appointment,
         code,
+      });
+    });
+
+    it('should throw if enter a invalid date', async () => {
+      const date = randFutureDate();
+
+      const out = makeOut({ id: appointment.id, date });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: [
+          'The date must not go beyond today (2022-06-02T23:59:59.999Z)',
+        ],
       });
     });
 
