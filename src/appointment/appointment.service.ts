@@ -145,6 +145,8 @@ export class AppointmentService {
       if (haveCodeConflict) {
         throw new ConflictException('Esse código já foi utilizado!');
       }
+
+      newData.code = input.code;
     }
 
     // User
