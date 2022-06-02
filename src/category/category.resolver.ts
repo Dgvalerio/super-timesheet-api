@@ -5,6 +5,7 @@ import { GqlAuthGuard } from '@/auth/auth.guard';
 import { Category } from '@/category/category.entity';
 import { CategoryService } from '@/category/category.service';
 import { CreateCategoryInput } from '@/category/dto/create-category.input';
+import { DeleteCategoryInput } from '@/category/dto/delete-category.input';
 import { GetCategoryInput } from '@/category/dto/get-category.input';
 
 @Resolver()
@@ -35,5 +36,13 @@ export class CategoryResolver {
     }
 
     return category;
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => Boolean)
+  async deleteCategory(
+    @Args('input') input: DeleteCategoryInput,
+  ): Promise<boolean> {
+    return this.categoryService.deleteCategory(input);
   }
 }

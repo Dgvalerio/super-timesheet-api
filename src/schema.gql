@@ -116,6 +116,7 @@ type Mutation {
   createClient(input: CreateClientInput!): Client!
   login(input: AuthInput!): AuthOutput!
   createCategory(input: CreateCategoryInput!): Category!
+  deleteCategory(input: DeleteCategoryInput!): Boolean!
   createAppointment(input: CreateAppointmentInput!): Appointment!
   updateAppointment(input: UpdateAppointmentInput!): Appointment!
   deleteAppointment(input: DeleteAppointmentInput!): Boolean!
@@ -184,6 +185,11 @@ input AuthInput {
 input CreateCategoryInput {
   code: String
   name: String!
+}
+
+input DeleteCategoryInput {
+  id: String
+  code: String
 }
 
 input CreateAppointmentInput {

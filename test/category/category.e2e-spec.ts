@@ -1,17 +1,21 @@
 import { Category } from '@/category/category.entity';
 import { CreateCategoryInput } from '@/category/dto/create-category.input';
+import { DeleteCategoryInput } from '@/category/dto/delete-category.input';
 import { GetCategoryInput } from '@/category/dto/get-category.input';
 import { randWord } from '@ngneat/falso';
 
 import { makeCreateCategoryInput } from '!/category/collaborators/makeCreateCategoryInput';
 import { makeCreateCategoryMutation } from '!/category/collaborators/makeCreateCategoryMutation';
+import { makeDeleteCategoryMutation } from '!/category/collaborators/makeDeleteCategoryMutation';
 import { makeGetAllCategoriesQuery } from '!/category/collaborators/makeGetAllCategoriesQuery';
 import { makeGetCategoryQuery } from '!/category/collaborators/makeGetCategoryQuery';
 import { ApolloClientHelper } from '!/collaborators/apolloClient';
 import {
+  shouldThrowHelper,
   shouldThrowIfEnterAEmptyParam,
   shouldThrowIfUnauthenticated,
 } from '!/collaborators/helpers';
+import { randCode } from '!/collaborators/randMore';
 
 describe('Graphql Category Module (e2e)', () => {
   const api = new ApolloClientHelper();
@@ -234,6 +238,67 @@ describe('Graphql Category Module (e2e)', () => {
 
       expect(response.statusCode).toBe(404);
       expect(response.error).toBe('Not Found');
+    });
+  });
+
+  describe('deleteCategory', () => {
+    let category: Category;
+
+    const makeOut = async (input: Partial<DeleteCategoryInput>) =>
+      api.mutation<{ deleteCategory: Category }>(
+        makeDeleteCategoryMutation(input),
+      );
+
+    beforeEach(async () => {
+      const input = makeCreateCategoryInput();
+
+      const {
+        data: { createCategory },
+      } = await api.mutation<{ createCategory: Category }>(
+        makeCreateCategoryMutation(input),
+      );
+
+      category = createCategory;
+    });
+
+    shouldThrowIfUnauthenticated('mutation', makeDeleteCategoryMutation({}));
+
+    it('should throw if no parameter as entered', async () => {
+      const out = makeOut({});
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['Nenhum parâmetro válido foi informado'],
+      });
+    });
+
+    it('should delete by id', async () => {
+      const { data } = await makeOut({ id: category.id });
+
+      expect(data).toHaveProperty('deleteCategory');
+      expect(data.deleteCategory).toBeTruthy();
+    });
+
+    it('should delete by code', async () => {
+      const { data } = await makeOut({ code: category.code });
+
+      expect(data).toHaveProperty('deleteCategory');
+      expect(data.deleteCategory).toBeTruthy();
+    });
+
+    it('should throw if not found category', async () => {
+      const out = makeOut({ code: randCode() });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'A categoria informada não existe!',
+      });
     });
   });
 });

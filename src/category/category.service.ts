@@ -3,11 +3,13 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Category } from '@/category/category.entity';
 import { CreateCategoryInput } from '@/category/dto/create-category.input';
+import { DeleteCategoryInput } from '@/category/dto/delete-category.input';
 import { GetCategoryInput } from '@/category/dto/get-category.input';
 
 import { Repository } from 'typeorm';
@@ -64,5 +66,17 @@ export class CategoryService {
     }
 
     return this.categoryRepository.findOneBy(search);
+  }
+
+  async deleteCategory(input: DeleteCategoryInput): Promise<boolean> {
+    const category = await this.getCategory(input);
+
+    if (!category) {
+      throw new NotFoundException('A categoria informada não existe!');
+    }
+
+    const deleted = await this.categoryRepository.delete(category.id);
+
+    return !!deleted;
   }
 }
