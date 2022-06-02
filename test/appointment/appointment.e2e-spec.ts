@@ -12,6 +12,7 @@ import { randWord } from '@ngneat/falso';
 import { makeCreateAppointmentInput } from '!/appointment/collaborators/makeCreateAppointmentInput';
 import { makeCreateAppointmentMutation } from '!/appointment/collaborators/makeCreateAppointmentMutation';
 import { makeDeleteAppointmentMutation } from '!/appointment/collaborators/makeDeleteAppointmentMutation';
+import { makeFakeAppointment } from '!/appointment/collaborators/makeFakeAppointment';
 import { makeGetAllAppointmentsQuery } from '!/appointment/collaborators/makeGetAllAppointmentsQuery';
 import { makeGetAppointmentQuery } from '!/appointment/collaborators/makeGetAppointmentQuery';
 import { makeUpdateAppointmentMutation } from '!/appointment/collaborators/makeUpdateAppointmentMutation';
@@ -629,7 +630,7 @@ describe('Graphql Appointment Module (e2e)', () => {
     let appointment: Appointment;
 
     const makeOut = async (input: Partial<UpdateAppointmentInput>) =>
-      api.mutation<{ getAppointment: Appointment }>(
+      api.mutation<{ updateAppointment: Appointment }>(
         makeUpdateAppointmentMutation(input),
       );
 
@@ -680,6 +681,22 @@ describe('Graphql Appointment Module (e2e)', () => {
         graphQLErrors,
         predictedError: 'Bad Request',
         messages: ['code should not be empty'],
+      });
+    });
+
+    it('should update appointment date', async () => {
+      const { date } = makeFakeAppointment();
+
+      const { data } = await makeOut({ id: appointment.id, date });
+
+      date.setMilliseconds(0);
+
+      expect(data).toHaveProperty('updateAppointment');
+
+      expect(data.updateAppointment).toEqual({
+        __typename: 'Appointment',
+        ...appointment,
+        date: date.toISOString(),
       });
     });
   });
