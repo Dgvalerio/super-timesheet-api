@@ -1,4 +1,7 @@
-import { Appointment } from '@/appointment/appointment.entity';
+import {
+  Appointment,
+  AppointmentStatus,
+} from '@/appointment/appointment.entity';
 import { CreateAppointmentInput } from '@/appointment/dto/create-appointment.input';
 import { DeleteAppointmentInput } from '@/appointment/dto/delete-appointment.input';
 import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
@@ -865,6 +868,23 @@ describe('Graphql Appointment Module (e2e)', () => {
         __typename: 'Appointment',
         ...appointment,
         commit,
+      });
+    });
+
+    it('should update appointment status', async () => {
+      const status =
+        appointment.status === AppointmentStatus.Draft
+          ? AppointmentStatus.Review
+          : AppointmentStatus.Draft;
+
+      const { data } = await makeOut({ id: appointment.id, status });
+
+      expect(data).toHaveProperty('updateAppointment');
+
+      expect(data.updateAppointment).toEqual({
+        __typename: 'Appointment',
+        ...appointment,
+        status,
       });
     });
   });
