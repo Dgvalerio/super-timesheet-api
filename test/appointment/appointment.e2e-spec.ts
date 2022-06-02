@@ -828,6 +828,18 @@ describe('Graphql Appointment Module (e2e)', () => {
       });
     });
 
+    it('should throw if enter a invalid description', async () => {
+      const out = makeOut({ id: appointment.id, description: '' });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['description should not be empty'],
+      });
+    });
+
     it('should update appointment description', async () => {
       const { description } = makeFakeAppointment();
 
