@@ -915,6 +915,17 @@ describe('Graphql Appointment Module (e2e)', () => {
     });
 
     // Category
+    it('should throw if enter a invalid categoryId', async () => {
+      const out = makeOut({ id: appointment.id, categoryId: randId() });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'A categoria informada não existe!',
+      });
+    });
   });
 
   describe('deleteAppointment', () => {
