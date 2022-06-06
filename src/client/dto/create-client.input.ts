@@ -8,9 +8,9 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class CreateClientInput implements Partial<Client> {
   @IsString()
   @IsOptional()
-  code?: string;
+  code?: Client['code'];
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name: Client['name'];
 }
