@@ -1,8 +1,8 @@
 {
   "name": "super-timesheet-api",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Super Timesheet API",
+  "author": "Davi <al.davigvalerio@gmail.com>",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
