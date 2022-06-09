@@ -5,6 +5,7 @@ import { gql } from 'apollo-boost';
 export const makeCreateUserMutation = ({
   name,
   email,
+  dailyHours,
   password,
   passwordConfirmation,
 }: Partial<CreateUserInput>) => gql`
@@ -12,6 +13,7 @@ export const makeCreateUserMutation = ({
     createUser(input: {
       name: "${name}"
       email: "${email}"
+      dailyHours: ${dailyHours}
       password: "${password}"
       passwordConfirmation: "${passwordConfirmation}"
     }) {
