@@ -31,7 +31,7 @@ describe('Graphql User Module (e2e)', () => {
     await api.authenticate();
   });
 
-  describe('createUser', () => {
+  describe.only('createUser', () => {
     const apiUnAuth = new ApolloClientHelper();
 
     const makeOut = async (input: Partial<CreateUserInput>) =>
@@ -64,6 +64,20 @@ describe('Graphql User Module (e2e)', () => {
       shouldThrowIfEnterAEmptyParam('password', graphQLErrors);
       expect(graphQLErrors[0].extensions.response.message[1]).toBe(
         'password must be longer than or equal to 8 characters',
+      );
+    });
+
+    it('should throw if enter a empty and invalid passwordConfirmation', async () => {
+      const out = makeOut({
+        ...makeCreateUserInput(),
+        passwordConfirmation: '',
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowIfEnterAEmptyParam('passwordConfirmation', graphQLErrors);
+      expect(graphQLErrors[0].extensions.response.message[1]).toBe(
+        'passwordConfirmation must be longer than or equal to 8 characters',
       );
     });
 

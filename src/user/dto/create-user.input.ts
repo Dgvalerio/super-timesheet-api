@@ -18,4 +18,10 @@ export class CreateUserInput {
   @MinLength(8)
   @IsNotEmpty()
   password: User['password'];
+
+  @IsString()
+  @MinLength(8)
+  @IsNotEmpty()
+  // @Equals((o) => o.password)
+  passwordConfirmation: User['password'];
 }

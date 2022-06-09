@@ -6,7 +6,11 @@ export const makeCreateUserInput = (): CreateUserInput => {
 
   createUserInput.name = randFullName();
   createUserInput.email = randEmail();
-  createUserInput.password = randPassword({ size: 8 });
+
+  const password = randPassword({ size: 8 });
+
+  createUserInput.password = password;
+  createUserInput.passwordConfirmation = password;
 
   return createUserInput;
 };
