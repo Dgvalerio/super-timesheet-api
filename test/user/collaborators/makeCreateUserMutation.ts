@@ -6,12 +6,14 @@ export const makeCreateUserMutation = ({
   name,
   email,
   password,
+  passwordConfirmation,
 }: Partial<CreateUserInput>) => gql`
   mutation {
     createUser(input: {
       name: "${name}"
       email: "${email}"
       password: "${password}"
+      passwordConfirmation: "${passwordConfirmation}"
     }) {
       id
       email

@@ -11,6 +11,7 @@ import { makeCreateClientInput } from '!/client/collaborators/makeCreateClientIn
 import { makeCreateClientMutation } from '!/client/collaborators/makeCreateClientMutation';
 import { ApolloClientHelper } from '!/collaborators/apolloClient';
 import {
+  shouldThrowHelper,
   shouldThrowIfEnterAEmptyParam,
   shouldThrowIfUnauthenticated,
 } from '!/collaborators/helpers';
@@ -67,6 +68,36 @@ describe('Graphql User Module (e2e)', () => {
       );
     });
 
+    it('should throw if enter a empty and invalid passwordConfirmation', async () => {
+      const out = makeOut({
+        ...makeCreateUserInput(),
+        passwordConfirmation: '',
+      });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowIfEnterAEmptyParam('passwordConfirmation', graphQLErrors);
+      expect(graphQLErrors[0].extensions.response.message[1]).toBe(
+        'passwordConfirmation must be longer than or equal to 8 characters',
+      );
+    });
+
+    it('should throw if enter a passwordConfirmation different of password', async () => {
+      const input = makeCreateUserInput();
+
+      input.passwordConfirmation = input.password + randWord();
+
+      const out = makeOut(input);
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['A confirmação de senha deve ser igual à senha!'],
+      });
+    });
+
     it('should create an user', async () => {
       const createUserInput = makeCreateUserInput();
 
@@ -97,13 +128,11 @@ describe('Graphql User Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Esse email já foi utilizado!');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(409);
-      expect(response.error).toBe('Conflict');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Conflict',
+        messages: 'Esse email já foi utilizado!',
+      });
     });
   });
 

@@ -8,7 +8,7 @@ import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
 import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
 import { Category } from '@/category/category.entity';
 import { Client } from '@/client/client.entity';
-import { getNow } from '@/common/helpers/today';
+import { getNow, today } from '@/common/helpers/today';
 import { Project } from '@/project/project.entity';
 import { User } from '@/user/user.entity';
 import { randFutureDate, randWord } from '@ngneat/falso';
@@ -105,7 +105,9 @@ describe('Graphql Appointment Module (e2e)', () => {
         graphQLErrors,
         predictedError: 'Bad Request',
         messages: [
-          'The date must not go beyond today (2022-06-02T23:59:59.999Z)',
+          `The date must not go beyond today (${sub(today(), {
+            hours: 3,
+          }).toISOString()})`,
         ],
       });
     });
@@ -799,7 +801,9 @@ describe('Graphql Appointment Module (e2e)', () => {
         graphQLErrors,
         predictedError: 'Bad Request',
         messages: [
-          'The date must not go beyond today (2022-06-02T23:59:59.999Z)',
+          `The date must not go beyond today (${sub(today(), {
+            hours: 3,
+          }).toISOString()})`,
         ],
       });
     });
