@@ -31,7 +31,7 @@ export class UserService {
       throw new ConflictException('Esse email já foi utilizado!');
     }
 
-    const created = await this.userRepository.create(input);
+    const created = this.userRepository.create({ ...input, projects: [] });
     const saved = await this.userRepository.save(created);
 
     if (!saved) {
