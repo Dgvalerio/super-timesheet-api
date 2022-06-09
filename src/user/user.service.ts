@@ -25,6 +25,12 @@ export class UserService {
   ) {}
 
   async createUser(input: CreateUserInput): Promise<User> {
+    if (input.password !== input.passwordConfirmation) {
+      throw new BadRequestException(
+        'A confirmação de senha deve ser igual à senha!',
+      );
+    }
+
     const conflicting = await this.getUser({ email: input.email });
 
     if (conflicting) {

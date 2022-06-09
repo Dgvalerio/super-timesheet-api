@@ -22,6 +22,5 @@ export class CreateUserInput {
   @IsString()
   @MinLength(8)
   @IsNotEmpty()
-  // @Equals((o) => o.password)
   passwordConfirmation: User['password'];
 }

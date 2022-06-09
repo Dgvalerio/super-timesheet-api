@@ -6,6 +6,7 @@ import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutat
 
 import {
   ApolloClient,
+  ApolloError,
   DocumentNode,
   HttpLink,
   InMemoryCache,
@@ -40,22 +41,27 @@ export class ApolloClientHelper {
   public async authenticate() {
     const createUserInput = makeCreateUserInput();
 
-    await apolloClient.mutate({
-      mutation: makeCreateUserMutation(createUserInput),
-    });
+    try {
+      await apolloClient.mutate({
+        mutation: makeCreateUserMutation(createUserInput),
+      });
 
-    const {
-      data: {
-        login: { token },
-      },
-    } = await apolloClient.mutate<{ login: AuthOutput }>({
-      mutation: makeLoginMutation({
-        email: createUserInput.email,
-        password: createUserInput.password,
-      }),
-    });
+      const {
+        data: {
+          login: { token },
+        },
+      } = await apolloClient.mutate<{ login: AuthOutput }>({
+        mutation: makeLoginMutation({
+          email: createUserInput.email,
+          password: createUserInput.password,
+        }),
+      });
 
-    this.client = apolloAuthorizedClient(token);
+      this.client = apolloAuthorizedClient(token);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log((<ApolloError>e).graphQLErrors[0].extensions);
+    }
   }
 
   async mutation<Return>(mutationNode: DocumentNode) {
