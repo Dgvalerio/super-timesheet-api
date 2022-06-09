@@ -46,6 +46,30 @@ describe('Graphql User Module (e2e)', () => {
       shouldThrowIfEnterAEmptyParam('name', graphQLErrors);
     });
 
+    it('should throw if enter dailyHours less than 1', async () => {
+      const out = makeOut({ ...makeCreateUserInput(), dailyHours: 0 });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['dailyHours must not be less than 1'],
+      });
+    });
+
+    it('should throw if enter dailyHours greater than 24', async () => {
+      const out = makeOut({ ...makeCreateUserInput(), dailyHours: 25 });
+
+      const { graphQLErrors } = await out.catch((e) => e);
+
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['dailyHours must not be greater than 24'],
+      });
+    });
+
     it('should throw if enter a empty and invalid email', async () => {
       const out = makeOut({ ...makeCreateUserInput(), email: '' });
 

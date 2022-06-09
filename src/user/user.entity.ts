@@ -1,4 +1,4 @@
-import { Field, HideField, ID, ObjectType } from '@nestjs/graphql';
+import { Field, HideField, ID, Int, ObjectType } from '@nestjs/graphql';
 
 import { hashPasswordTransform } from '@/common/helpers/cryptography';
 import { Project } from '@/project/project.entity';
@@ -27,6 +27,10 @@ export class User {
   @Column({ transformer: hashPasswordTransform })
   @HideField()
   password: string;
+
+  @Column({ type: 'int', comment: 'Number of hours worked per day.' })
+  @Field(() => Int)
+  dailyHours: number;
 
   @ManyToMany(() => Project, { cascade: false })
   @JoinTable()
