@@ -46,6 +46,21 @@ describe('Graphql User Module (e2e)', () => {
       shouldThrowIfEnterAEmptyParam('name', graphQLErrors);
     });
 
+    it('should throw if enter a empty dailyHours', async () => {
+      const input = makeCreateUserInput();
+
+      delete input.dailyHours;
+
+      const out = makeOut(input);
+
+      const { statusCode, result } = await out.catch((e) => e.networkError);
+
+      expect(statusCode).toBe(400);
+      expect(result.errors[0].message).toBe(
+        'Float cannot represent non numeric value: undefined',
+      );
+    });
+
     it('should throw if enter dailyHours less than 1', async () => {
       const out = makeOut({ ...makeCreateUserInput(), dailyHours: 0 });
 
