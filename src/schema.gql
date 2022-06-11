@@ -264,6 +264,8 @@ input DeleteAppointmentInput {
 input CreateAzureInfosInput {
   login: String!
   password: String!
+  userId: String
+  userEmail: String
 }
 
 input UpdateAzureInfosInput {

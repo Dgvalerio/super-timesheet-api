@@ -4,9 +4,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 import { AzureInfosResolver } from '@/azure-infos/azure-infos.resolver';
 import { AzureInfosService } from '@/azure-infos/azure-infos.service';
+import { UserModule } from '@/user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AzureInfos])],
+  imports: [UserModule, TypeOrmModule.forFeature([AzureInfos])],
   providers: [AzureInfosService, AzureInfosResolver],
   exports: [AzureInfosService],
 })
