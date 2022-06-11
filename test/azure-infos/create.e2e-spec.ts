@@ -5,6 +5,7 @@ import { makeCreateAzureInfosInput } from '!/azure-infos/collaborators/makeCreat
 import { makeCreateAzureInfosMutation } from '!/azure-infos/collaborators/makeCreateAzureInfosMutation';
 import { ApolloClientHelper } from '!/collaborators/apolloClient';
 import {
+  shouldThrowHelper,
   shouldThrowIfEnterAEmptyParam,
   shouldThrowIfUnauthenticated,
 } from '!/collaborators/helpers';
@@ -43,5 +44,27 @@ describe('[E2E] Azure Infos > Create', () => {
     const { graphQLErrors } = await out.catch((e) => e);
 
     shouldThrowIfEnterAEmptyParam('password', graphQLErrors);
+  });
+
+  it('should throw if enter a empty userId and userEmail', async () => {
+    const input = makeCreateAzureInfosInput();
+
+    input.userId = '';
+    input.userEmail = '';
+
+    const out = makeOut(input);
+
+    const { graphQLErrors } = await out.catch((e) => e);
+
+    shouldThrowHelper({
+      graphQLErrors,
+      predictedError: 'Bad Request',
+      messages: [
+        'userId should not be empty',
+        'userId must be a string',
+        'userEmail should not be empty',
+        'userEmail must be a string',
+      ],
+    });
   });
 });
