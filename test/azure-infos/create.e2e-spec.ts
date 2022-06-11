@@ -32,4 +32,16 @@ describe('[E2E] Azure Infos > Create', () => {
 
     shouldThrowIfEnterAEmptyParam('login', graphQLErrors);
   });
+
+  it('should throw if enter a empty password', async () => {
+    const input = makeCreateAzureInfosInput();
+
+    input.password = '';
+
+    const out = makeOut(input);
+
+    const { graphQLErrors } = await out.catch((e) => e);
+
+    shouldThrowIfEnterAEmptyParam('password', graphQLErrors);
+  });
 });
