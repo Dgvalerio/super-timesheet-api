@@ -1,5 +1,6 @@
 import { Field, HideField, ID, Int, ObjectType } from '@nestjs/graphql';
 
+import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 import { hashPasswordTransform } from '@/common/helpers/cryptography';
 import { Project } from '@/project/project.entity';
 
@@ -8,6 +9,7 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -35,4 +37,7 @@ export class User {
   @ManyToMany(() => Project, { cascade: false })
   @JoinTable()
   projects: Project[];
+
+  @OneToOne(() => AzureInfos, (azureInfos) => azureInfos.user)
+  azureInfos?: AzureInfos;
 }

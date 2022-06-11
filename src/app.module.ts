@@ -8,6 +8,7 @@ import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
 import { AppointmentModule } from '@/appointment/appointment.module';
 import { AuthModule } from '@/auth/auth.module';
+import { AzureInfosModule } from '@/azure-infos/azure-infos.module';
 import { CategoryModule } from '@/category/category.module';
 import { ClientModule } from '@/client/client.module';
 import { ProjectModule } from '@/project/project.module';
@@ -29,6 +30,7 @@ import { join } from 'path';
     ProjectModule,
     CategoryModule,
     AppointmentModule,
+    AzureInfosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

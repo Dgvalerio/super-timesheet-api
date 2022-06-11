@@ -8,10 +8,6 @@ export const makeGetAllClientsQuery = () => gql`
       name
       projects {
         id
-        code
-        name
-        startDate
-        endDate
       }
     }
   }

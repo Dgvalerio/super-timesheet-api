@@ -14,8 +14,6 @@ export const makeGetProjectQuery = (input: GetProjectInput) => {
           endDate
           client {
             id
-            name
-            code
           }
         }
       }
@@ -31,8 +29,6 @@ export const makeGetProjectQuery = (input: GetProjectInput) => {
           endDate
           client {
             id
-            name
-            code
           }
         }
       }
@@ -48,8 +44,6 @@ export const makeGetProjectQuery = (input: GetProjectInput) => {
         endDate
         client {
           id
-          name
-          code
         }
       }
     }

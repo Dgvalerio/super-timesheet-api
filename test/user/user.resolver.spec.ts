@@ -5,6 +5,7 @@ import { GetUserInput } from '@/user/dto/get-user.input';
 import { UserResolver } from '@/user/user.resolver';
 import { UserService } from '@/user/user.service';
 
+import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
 import { makeFakeUser } from '!/user/collaborators/makeFakeUser';
 import { makeUserServiceStub } from '!/user/user.service.stub';
 
@@ -43,11 +44,7 @@ describe('UserResolver', () => {
   describe('createUser', () => {
     it('should call userService and return a user', async () => {
       const fakeUser = makeFakeUser();
-      const input: CreateUserInput = {
-        email: fakeUser.email,
-        name: fakeUser.name,
-        password: fakeUser.password,
-      };
+      const input: CreateUserInput = makeCreateUserInput();
 
       const { userResolver, userService } = await makeSut(fakeUser);
 

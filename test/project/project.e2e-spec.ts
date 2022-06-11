@@ -16,6 +16,7 @@ import { makeCreateClientInput } from '!/client/collaborators/makeCreateClientIn
 import { makeCreateClientMutation } from '!/client/collaborators/makeCreateClientMutation';
 import { ApolloClientHelper } from '!/collaborators/apolloClient';
 import {
+  shouldThrowHelper,
   shouldThrowIfEnterAEmptyParam,
   shouldThrowIfUnauthenticated,
 } from '!/collaborators/helpers';
@@ -61,14 +62,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.message[0]).toBe('startDate must be a Date instance');
-      expect(response.error).toBe('Bad Request');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['startDate must be a Date instance'],
+      });
     });
 
     it('should throw if enter a invalid endDate', async () => {
@@ -80,14 +78,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.message[0]).toBe('endDate must be a Date instance');
-      expect(response.error).toBe('Bad Request');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['endDate must be a Date instance'],
+      });
     });
 
     it('should throw if enter a empty clientId and clientCode', async () => {
@@ -99,17 +94,16 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Bad Request Exception');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.message[0]).toBe('clientId should not be empty');
-      expect(response.message[1]).toBe('clientId must be a string');
-      expect(response.message[2]).toBe('clientCode should not be empty');
-      expect(response.message[3]).toBe('clientCode must be a string');
-      expect(response.error).toBe('Bad Request');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: [
+          'clientId should not be empty',
+          'clientId must be a string',
+          'clientCode should not be empty',
+          'clientCode must be a string',
+        ],
+      });
     });
 
     it('should throw if enter a invalid client', async () => {
@@ -128,13 +122,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('O cliente informado não existe!');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(404);
-      expect(response.error).toBe('Not Found');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'O cliente informado não existe!',
+      });
     });
 
     it('should create an project (with client id) (without project code)', async () => {
@@ -164,7 +156,7 @@ describe('Graphql Project Module (e2e)', () => {
         name: createProjectInput.name,
         startDate: createProjectInput.startDate.toISOString(),
         endDate: createProjectInput.endDate.toISOString(),
-        client: createClient,
+        client: { __typename: 'Client', id: createClient.id },
         categories: [],
       });
     });
@@ -196,7 +188,7 @@ describe('Graphql Project Module (e2e)', () => {
         name: createProjectInput.name,
         startDate: createProjectInput.startDate.toISOString(),
         endDate: createProjectInput.endDate.toISOString(),
-        client: createClient,
+        client: { __typename: 'Client', id: createClient.id },
         categories: [],
       });
     });
@@ -228,7 +220,7 @@ describe('Graphql Project Module (e2e)', () => {
         name: createProjectInput.name,
         startDate: createProjectInput.startDate.toISOString(),
         endDate: createProjectInput.endDate.toISOString(),
-        client: createClient,
+        client: { __typename: 'Client', id: createClient.id },
         categories: [],
       });
     });
@@ -260,7 +252,7 @@ describe('Graphql Project Module (e2e)', () => {
         name: createProjectInput.name,
         startDate: createProjectInput.startDate.toISOString(),
         endDate: createProjectInput.endDate.toISOString(),
-        client: createClient,
+        client: { __typename: 'Client', id: createClient.id },
         categories: [],
       });
     });
@@ -286,13 +278,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Esse código já foi utilizado!');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(409);
-      expect(response.error).toBe('Conflict');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Conflict',
+        messages: 'Esse código já foi utilizado!',
+      });
     });
   });
 
@@ -380,15 +370,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe(
-        'Nenhum parâmetro válido foi informado',
-      );
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.error).toBe('Bad Request');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['Nenhum parâmetro válido foi informado'],
+      });
     });
 
     it('should get and show by id', async () => {
@@ -426,13 +412,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Nenhum projeto foi encontrado');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(404);
-      expect(response.error).toBe('Not Found');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'Nenhum projeto foi encontrado',
+      });
     });
   });
 
@@ -485,13 +469,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('O projeto informado não existe!');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(404);
-      expect(response.error).toBe('Not Found');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'O projeto informado não existe!',
+      });
     });
 
     it('should throw if enter a empty code', async () => {
@@ -528,13 +510,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('Esse código já foi utilizado!');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(409);
-      expect(response.error).toBe('Conflict');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Conflict',
+        messages: 'Esse código já foi utilizado!',
+      });
     });
 
     it('should update the code', async () => {
@@ -633,13 +613,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('O cliente informado não existe!');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(404);
-      expect(response.error).toBe('Not Found');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'O cliente informado não existe!',
+      });
     });
 
     it('should throw if enter a empty clientCode', async () => {
@@ -658,13 +636,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('O cliente informado não existe!');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(404);
-      expect(response.error).toBe('Not Found');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'O cliente informado não existe!',
+      });
     });
 
     it('should update the client (with client id)', async () => {
@@ -686,7 +662,7 @@ describe('Graphql Project Module (e2e)', () => {
       expect(data.updateProject).toEqual({
         __typename: 'Project',
         ...project,
-        client: createClient,
+        client: { __typename: 'Client', id: createClient.id },
       });
     });
 
@@ -709,7 +685,7 @@ describe('Graphql Project Module (e2e)', () => {
       expect(data.updateProject).toEqual({
         __typename: 'Project',
         ...project,
-        client: createClient,
+        client: { __typename: 'Client', id: createClient.id },
       });
     });
 
@@ -745,8 +721,8 @@ describe('Graphql Project Module (e2e)', () => {
       expect(step1.updateProject).toEqual({
         __typename: 'Project',
         ...project,
-        client: createClient,
-        categories: [createCategory],
+        client: { __typename: 'Client', id: createClient.id },
+        categories: [{ __typename: 'Category', id: createCategory.id }],
       });
 
       const newName = `${randWord()}_${createClient.name}`;
@@ -761,9 +737,9 @@ describe('Graphql Project Module (e2e)', () => {
       expect(step2.updateProject).toEqual({
         __typename: 'Project',
         ...project,
-        client: createClient,
         name: newName,
-        categories: [createCategory],
+        client: { __typename: 'Client', id: createClient.id },
+        categories: [{ __typename: 'Category', id: createCategory.id }],
       });
     });
   });
@@ -805,15 +781,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe(
-        'Nenhum parâmetro válido foi informado',
-      );
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.error).toBe('Bad Request');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['Nenhum parâmetro válido foi informado'],
+      });
     });
 
     it('should delete by id', async () => {
@@ -835,13 +807,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('O projeto informado não existe!');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(404);
-      expect(response.error).toBe('Not Found');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'O projeto informado não existe!',
+      });
     });
   });
 
@@ -891,15 +861,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe(
-        'Nenhum parâmetro válido foi informado',
-      );
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(400);
-      expect(response.error).toBe('Bad Request');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Bad Request',
+        messages: ['Nenhum parâmetro válido foi informado'],
+      });
     });
 
     it('should throw if not found project', async () => {
@@ -907,13 +873,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe('O projeto informado não existe!');
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(404);
-      expect(response.error).toBe('Not Found');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'O projeto informado não existe!',
+      });
     });
 
     it('should throw if not found category', async () => {
@@ -924,15 +888,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe(
-        'A categoria informada não existe!',
-      );
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(404);
-      expect(response.error).toBe('Not Found');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Not Found',
+        messages: 'A categoria informada não existe!',
+      });
     });
 
     it('should add category to some project', async () => {
@@ -946,7 +906,7 @@ describe('Graphql Project Module (e2e)', () => {
       expect(data.addCategory).toEqual({
         __typename: 'Project',
         ...project,
-        categories: [category],
+        categories: [{ __typename: 'Category', id: category.id }],
       });
     });
 
@@ -961,7 +921,7 @@ describe('Graphql Project Module (e2e)', () => {
       expect(data.addCategory).toEqual({
         __typename: 'Project',
         ...project,
-        categories: [category],
+        categories: [{ __typename: 'Category', id: category.id }],
       });
 
       const out = makeOut({
@@ -971,15 +931,11 @@ describe('Graphql Project Module (e2e)', () => {
 
       const { graphQLErrors } = await out.catch((e) => e);
 
-      expect(graphQLErrors[0].message).toBe(
-        'Essa categoria já foi adicionada a esse projeto!',
-      );
-      expect(graphQLErrors[0].extensions).toHaveProperty('response');
-
-      const { response } = graphQLErrors[0].extensions;
-
-      expect(response.statusCode).toBe(409);
-      expect(response.error).toBe('Conflict');
+      shouldThrowHelper({
+        graphQLErrors,
+        predictedError: 'Conflict',
+        messages: 'Essa categoria já foi adicionada a esse projeto!',
+      });
     });
   });
 });

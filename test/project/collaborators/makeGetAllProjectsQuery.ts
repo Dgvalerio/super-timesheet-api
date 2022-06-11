@@ -10,8 +10,6 @@ export const makeGetAllProjectsQuery = () => gql`
       endDate
       client {
         id
-        name
-        code
       }
     }
   }
