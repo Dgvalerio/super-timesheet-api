@@ -113,4 +113,24 @@ describe('[E2E] Azure Infos > Create', () => {
       },
     });
   });
+
+  it('should fail if login already been registered', async () => {
+    const createUser = await makeCreateUser(api);
+
+    const input = makeCreateAzureInfosInput();
+
+    input.userId = createUser.id;
+
+    await makeOut(input);
+
+    const out = makeOut(input);
+
+    const { graphQLErrors } = await out.catch((e) => e);
+
+    shouldThrowHelper({
+      graphQLErrors,
+      predictedError: 'Conflict',
+      messages: 'Esse login já foi salvo!',
+    });
+  });
 });
