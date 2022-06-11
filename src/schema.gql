@@ -35,6 +35,7 @@ type AzureInfos {
   login: String!
   content: String!
   iv: String!
+  user: User!
 }
 
 type User {
@@ -43,7 +44,7 @@ type User {
   name: String!
   email: String!
   projects: [Project!]!
-  profile: AzureInfos
+  azureInfos: AzureInfos
 }
 
 type Appointment {

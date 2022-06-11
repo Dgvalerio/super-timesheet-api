@@ -1,6 +1,14 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from '@/user/user.entity';
+
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @ObjectType()
 @Entity()
@@ -17,4 +25,8 @@ export class AzureInfos {
 
   @Column()
   iv: string;
+
+  @OneToOne(() => User, (user) => user.azureInfos)
+  @JoinColumn()
+  user: User;
 }

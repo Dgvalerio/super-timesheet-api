@@ -12,6 +12,7 @@ import { CreateAzureInfosInput } from '@/azure-infos/dto/create-azure-infos.inpu
 import { DeleteAzureInfosInput } from '@/azure-infos/dto/delete-azure-infos.input';
 import { GetAzureInfosInput } from '@/azure-infos/dto/get-azure-infos.input';
 import { UpdateAzureInfosInput } from '@/azure-infos/dto/update-azure-infos.input';
+import { UserService } from '@/user/user.service';
 
 import { randomBytes, createCipheriv, scrypt } from 'crypto';
 import { Repository } from 'typeorm';
@@ -27,6 +28,7 @@ export class AzureInfosService {
   constructor(
     @InjectRepository(AzureInfos)
     private azureInfosRepository: Repository<AzureInfos>,
+    private userService: UserService,
   ) {}
 
   private static async encryptPassword(text: string): Promise<CryptoHash> {
@@ -48,6 +50,14 @@ export class AzureInfosService {
   }
 
   async createAzureInfos(input: CreateAzureInfosInput): Promise<AzureInfos> {
+    const user = await this.userService.getUser(
+      input.userId ? { id: input.userId } : { email: input.userEmail },
+    );
+
+    if (!user) {
+      throw new NotFoundException('O usuário informado não existe!');
+    }
+
     const conflicting = await this.getAzureInfos({ login: input.login });
 
     if (conflicting) {
@@ -71,7 +81,7 @@ export class AzureInfosService {
       );
     }
 
-    return saved;
+    return this.getAzureInfos({ id: saved.id });
   }
 
   async getAzureInfos(params: GetAzureInfosInput): Promise<AzureInfos | null> {

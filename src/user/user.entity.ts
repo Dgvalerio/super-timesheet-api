@@ -7,7 +7,6 @@ import { Project } from '@/project/project.entity';
 import {
   Column,
   Entity,
-  JoinColumn,
   JoinTable,
   ManyToMany,
   OneToOne,
@@ -39,7 +38,6 @@ export class User {
   @JoinTable()
   projects: Project[];
 
-  @OneToOne(() => AzureInfos)
-  @JoinColumn()
-  profile?: AzureInfos;
+  @OneToOne(() => AzureInfos, (azureInfos) => azureInfos.user)
+  azureInfos?: AzureInfos;
 }
