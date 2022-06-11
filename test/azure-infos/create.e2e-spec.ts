@@ -1,6 +1,5 @@
 import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 import { CreateAzureInfosInput } from '@/azure-infos/dto/create-azure-infos.input';
-import { User } from '@/user/user.entity';
 
 import { makeCreateAzureInfosInput } from '!/azure-infos/collaborators/makeCreateAzureInfosInput';
 import { makeCreateAzureInfosMutation } from '!/azure-infos/collaborators/makeCreateAzureInfosMutation';
@@ -10,16 +9,7 @@ import {
   shouldThrowIfEnterAEmptyParam,
   shouldThrowIfUnauthenticated,
 } from '!/collaborators/helpers';
-import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
-import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
-
-const makeCreateUser = async (api: ApolloClientHelper) => {
-  const { data } = await api.mutation<{ createUser: User }>(
-    makeCreateUserMutation(makeCreateUserInput()),
-  );
-
-  return data.createUser;
-};
+import { makeCreateUser } from '!/collaborators/mutations';
 
 describe('[E2E] Azure Infos > Create', () => {
   const api = new ApolloClientHelper();
