@@ -1,5 +1,6 @@
 import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 import { CreateAzureInfosInput } from '@/azure-infos/dto/create-azure-infos.input';
+import { User } from '@/user/user.entity';
 
 import { makeCreateAzureInfosInput } from '!/azure-infos/collaborators/makeCreateAzureInfosInput';
 import { makeCreateAzureInfosMutation } from '!/azure-infos/collaborators/makeCreateAzureInfosMutation';
@@ -9,6 +10,9 @@ import {
   shouldThrowIfEnterAEmptyParam,
   shouldThrowIfUnauthenticated,
 } from '!/collaborators/helpers';
+import { randId } from '!/collaborators/randMore';
+import { makeCreateUserInput } from '!/user/collaborators/makeCreateUserInput';
+import { makeCreateUserMutation } from '!/user/collaborators/makeCreateUserMutation';
 
 describe('[E2E] Azure Infos > Create', () => {
   const api = new ApolloClientHelper();
@@ -65,6 +69,28 @@ describe('[E2E] Azure Infos > Create', () => {
         'userEmail should not be empty',
         'userEmail must be a string',
       ],
+    });
+  });
+
+  it('should throw if enter a invalid user', async () => {
+    const {
+      data: { createUser },
+    } = await api.mutation<{ createUser: User }>(
+      makeCreateUserMutation(makeCreateUserInput()),
+    );
+
+    const input = makeCreateAzureInfosInput();
+
+    input.userId = randId() + createUser.id;
+
+    const out = makeOut(input);
+
+    const { graphQLErrors } = await out.catch((e) => e);
+
+    shouldThrowHelper({
+      graphQLErrors,
+      predictedError: 'Not Found',
+      messages: 'O usuário informado não existe!',
     });
   });
 });
