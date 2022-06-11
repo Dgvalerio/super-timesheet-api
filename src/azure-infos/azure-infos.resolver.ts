@@ -13,6 +13,7 @@ import { UpdateAzureInfosInput } from '@/azure-infos/dto/update-azure-infos.inpu
 export class AzureInfosResolver {
   constructor(private azureInfosService: AzureInfosService) {}
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => AzureInfos)
   async createAzureInfos(
     @Args('input') input: CreateAzureInfosInput,
