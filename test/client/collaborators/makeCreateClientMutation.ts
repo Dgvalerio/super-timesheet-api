@@ -15,10 +15,6 @@ export const makeCreateClientMutation = (input: Partial<CreateClientInput>) => {
           name
           projects {
             id
-            code
-            name
-            startDate
-            endDate
           }
         }
       }
@@ -33,10 +29,6 @@ export const makeCreateClientMutation = (input: Partial<CreateClientInput>) => {
         name
         projects {
           id
-          code
-          name
-          startDate
-          endDate
         }
       }
     }

@@ -72,6 +72,7 @@ export class AzureInfosService {
       login: input.login,
       iv,
       content,
+      user,
     });
     const saved = await this.azureInfosRepository.save(created);
 
@@ -90,12 +91,15 @@ export class AzureInfosService {
     if (params.id) {
       where = { id: params.id };
     } else if (params.login) {
-      where = { email: params.login };
+      where = { login: params.login };
     } else {
       throw new BadRequestException('Nenhum parâmetro válido foi informado');
     }
 
-    return this.azureInfosRepository.findOne({ where });
+    return this.azureInfosRepository.findOne({
+      where,
+      relations: { user: true },
+    });
   }
 
   async updateAzureInfos(input: UpdateAzureInfosInput): Promise<AzureInfos> {

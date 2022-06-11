@@ -19,13 +19,9 @@ export const makeUpdateProjectMutation = (
           endDate
           client {
             id
-            code
-            name
           }
           categories {
             id
-            code
-            name
           }
         }
       }
@@ -44,13 +40,9 @@ export const makeUpdateProjectMutation = (
           endDate
           client {
             id
-            code
-            name
           }
           categories {
             id
-            code
-            name
           }
         }
       }
@@ -69,13 +61,9 @@ export const makeUpdateProjectMutation = (
           endDate
           client {
             id
-            code
-            name
           }
           categories {
             id
-            code
-            name
           }
         }
       }
@@ -94,13 +82,9 @@ export const makeUpdateProjectMutation = (
           endDate
           client {
             id
-            code
-            name
           }
           categories {
             id
-            code
-            name
           }
         }
       }
@@ -119,13 +103,9 @@ export const makeUpdateProjectMutation = (
           endDate
           client {
             id
-            code
-            name
           }
           categories {
             id
-            code
-            name
           }
         }
       }
@@ -144,13 +124,9 @@ export const makeUpdateProjectMutation = (
           endDate
           client {
             id
-            code
-            name
           }
           categories {
             id
-            code
-            name
           }
         }
       }
@@ -168,13 +144,9 @@ export const makeUpdateProjectMutation = (
         endDate
         client {
           id
-          code
-          name
         }
         categories {
           id
-          code
-          name
         }
       }
     }

@@ -18,13 +18,9 @@ export const makeAddCategoryMutation = (input: Partial<AddCategoryInput>) => {
             endDate
             client {
               id
-              code
-              name
             }
             categories {
               id
-              code
-              name
             }
           }
         }
@@ -43,13 +39,9 @@ export const makeAddCategoryMutation = (input: Partial<AddCategoryInput>) => {
             endDate
             client {
               id
-              code
-              name
             }
             categories {
               id
-              code
-              name
             }
           }
         }
@@ -68,13 +60,9 @@ export const makeAddCategoryMutation = (input: Partial<AddCategoryInput>) => {
             endDate
             client {
               id
-              code
-              name
             }
             categories {
               id
-              code
-              name
             }
           }
         }
@@ -92,13 +80,9 @@ export const makeAddCategoryMutation = (input: Partial<AddCategoryInput>) => {
             endDate
             client {
               id
-              code
-              name
             }
             categories {
               id
-              code
-              name
             }
           }
         }
@@ -119,13 +103,9 @@ export const makeAddCategoryMutation = (input: Partial<AddCategoryInput>) => {
             endDate
             client {
               id
-              code
-              name
             }
             categories {
               id
-              code
-              name
             }
           }
         }
@@ -144,13 +124,9 @@ export const makeAddCategoryMutation = (input: Partial<AddCategoryInput>) => {
             endDate
             client {
               id
-              code
-              name
             }
             categories {
               id
-              code
-              name
             }
           }
         }
@@ -169,13 +145,9 @@ export const makeAddCategoryMutation = (input: Partial<AddCategoryInput>) => {
             endDate
             client {
               id
-              code
-              name
             }
             categories {
               id
-              code
-              name
             }
           }
         }
@@ -193,13 +165,9 @@ export const makeAddCategoryMutation = (input: Partial<AddCategoryInput>) => {
             endDate
             client {
               id
-              code
-              name
             }
             categories {
               id
-              code
-              name
             }
           }
         }
@@ -217,13 +185,9 @@ export const makeAddCategoryMutation = (input: Partial<AddCategoryInput>) => {
         endDate
         client {
           id
-          code
-          name
         }
         categories {
           id
-          code
-          name
         }
       }
     }

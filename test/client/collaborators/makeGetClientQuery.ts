@@ -12,10 +12,6 @@ export const makeGetClientQuery = (input: GetClientInput) => {
           name
           projects {
             id
-            code
-            name
-            startDate
-            endDate
           }
         }
       }
@@ -29,10 +25,6 @@ export const makeGetClientQuery = (input: GetClientInput) => {
           name
           projects {
             id
-            code
-            name
-            startDate
-            endDate
           }
         }
       }
@@ -46,10 +38,6 @@ export const makeGetClientQuery = (input: GetClientInput) => {
           name
           projects {
             id
-            code
-            name
-            startDate
-            endDate
           }
         }
       }
@@ -63,10 +51,6 @@ export const makeGetClientQuery = (input: GetClientInput) => {
         name
         projects {
           id
-          code
-          name
-          startDate
-          endDate
         }
       }
     }

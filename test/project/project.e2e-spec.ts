@@ -164,7 +164,7 @@ describe('Graphql Project Module (e2e)', () => {
         name: createProjectInput.name,
         startDate: createProjectInput.startDate.toISOString(),
         endDate: createProjectInput.endDate.toISOString(),
-        client: createClient,
+        client: { __typename: 'Client', id: createClient.id },
         categories: [],
       });
     });
@@ -196,7 +196,7 @@ describe('Graphql Project Module (e2e)', () => {
         name: createProjectInput.name,
         startDate: createProjectInput.startDate.toISOString(),
         endDate: createProjectInput.endDate.toISOString(),
-        client: createClient,
+        client: { __typename: 'Client', id: createClient.id },
         categories: [],
       });
     });
@@ -228,7 +228,7 @@ describe('Graphql Project Module (e2e)', () => {
         name: createProjectInput.name,
         startDate: createProjectInput.startDate.toISOString(),
         endDate: createProjectInput.endDate.toISOString(),
-        client: createClient,
+        client: { __typename: 'Client', id: createClient.id },
         categories: [],
       });
     });
@@ -260,7 +260,7 @@ describe('Graphql Project Module (e2e)', () => {
         name: createProjectInput.name,
         startDate: createProjectInput.startDate.toISOString(),
         endDate: createProjectInput.endDate.toISOString(),
-        client: createClient,
+        client: { __typename: 'Client', id: createClient.id },
         categories: [],
       });
     });
@@ -686,7 +686,7 @@ describe('Graphql Project Module (e2e)', () => {
       expect(data.updateProject).toEqual({
         __typename: 'Project',
         ...project,
-        client: createClient,
+        client: { __typename: 'Client', id: createClient.id },
       });
     });
 
@@ -709,7 +709,7 @@ describe('Graphql Project Module (e2e)', () => {
       expect(data.updateProject).toEqual({
         __typename: 'Project',
         ...project,
-        client: createClient,
+        client: { __typename: 'Client', id: createClient.id },
       });
     });
 
@@ -745,8 +745,8 @@ describe('Graphql Project Module (e2e)', () => {
       expect(step1.updateProject).toEqual({
         __typename: 'Project',
         ...project,
-        client: createClient,
-        categories: [createCategory],
+        client: { __typename: 'Client', id: createClient.id },
+        categories: [{ __typename: 'Category', id: createCategory.id }],
       });
 
       const newName = `${randWord()}_${createClient.name}`;
@@ -761,9 +761,9 @@ describe('Graphql Project Module (e2e)', () => {
       expect(step2.updateProject).toEqual({
         __typename: 'Project',
         ...project,
-        client: createClient,
         name: newName,
-        categories: [createCategory],
+        client: { __typename: 'Client', id: createClient.id },
+        categories: [{ __typename: 'Category', id: createCategory.id }],
       });
     });
   });
@@ -946,7 +946,7 @@ describe('Graphql Project Module (e2e)', () => {
       expect(data.addCategory).toEqual({
         __typename: 'Project',
         ...project,
-        categories: [category],
+        categories: [{ __typename: 'Category', id: category.id }],
       });
     });
 
@@ -961,7 +961,7 @@ describe('Graphql Project Module (e2e)', () => {
       expect(data.addCategory).toEqual({
         __typename: 'Project',
         ...project,
-        categories: [category],
+        categories: [{ __typename: 'Category', id: category.id }],
       });
 
       const out = makeOut({

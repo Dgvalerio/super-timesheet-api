@@ -7,50 +7,44 @@ export const makeCreateAzureInfosMutation = (
 ) => {
   if (input.userId) {
     return gql`
-    mutation {
-      createAzureInfos(input: {
-        login: "${input.login}"
-        password: "${input.password}"
+      mutation {
+        createAzureInfos(input: {
+          login: "${input.login}"
+          password: "${input.password}"
 
-        userId: "${input.userId}"
-      }) {
-        id
-        login
-        iv
-        content
-        user {
+          userId: "${input.userId}"
+        }) {
           id
-          email
-          name
-          dailyHours
+          login
+          iv
+          content
+          user {
+            id
+          }
         }
       }
-    }
-  `;
+    `;
   }
 
   if (input.userEmail) {
     return gql`
-    mutation {
-      createAzureInfos(input: {
-        login: "${input.login}"
-        password: "${input.password}"
+      mutation {
+        createAzureInfos(input: {
+          login: "${input.login}"
+          password: "${input.password}"
 
-        userEmail: "${input.userEmail}"
-      }) {
-        id
-        login
-        iv
-        content
-        user {
+          userEmail: "${input.userEmail}"
+        }) {
           id
-          email
-          name
-          dailyHours
+          login
+          iv
+          content
+          user {
+            id
+          }
         }
       }
-    }
-  `;
+    `;
   }
 
   return gql`
@@ -65,9 +59,6 @@ export const makeCreateAzureInfosMutation = (
         content
         user {
           id
-          email
-          name
-          dailyHours
         }
       }
     }

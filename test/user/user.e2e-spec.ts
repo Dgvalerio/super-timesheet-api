@@ -149,6 +149,7 @@ describe('Graphql User Module (e2e)', () => {
         id: expect.anything(),
         name: createUserInput.name,
         email: createUserInput.email,
+        dailyHours: createUserInput.dailyHours,
       });
     });
 
@@ -451,7 +452,7 @@ describe('Graphql User Module (e2e)', () => {
       expect(data.addProject).toEqual({
         __typename: 'User',
         ...user,
-        projects: [project],
+        projects: [{ __typename: 'Project', id: project.id }],
       });
     });
 
@@ -466,7 +467,7 @@ describe('Graphql User Module (e2e)', () => {
       expect(data.addProject).toEqual({
         __typename: 'User',
         ...user,
-        projects: [project],
+        projects: [{ __typename: 'Project', id: project.id }],
       });
 
       const out = makeOut({

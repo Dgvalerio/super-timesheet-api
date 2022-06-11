@@ -14,12 +14,9 @@ export const makeAddProjectMutation = (input: Partial<AddProjectInput>) => {
             id
             name
             email
+            dailyHours
             projects {
               id
-              code
-              name
-              startDate
-              endDate
             }
           }
         }
@@ -34,12 +31,9 @@ export const makeAddProjectMutation = (input: Partial<AddProjectInput>) => {
             id
             name
             email
+            dailyHours
             projects {
               id
-              code
-              name
-              startDate
-              endDate
             }
           }
         }
@@ -53,12 +47,9 @@ export const makeAddProjectMutation = (input: Partial<AddProjectInput>) => {
             id
             name
             email
+            dailyHours
             projects {
               id
-              code
-              name
-              startDate
-              endDate
             }
           }
         }
@@ -75,12 +66,9 @@ export const makeAddProjectMutation = (input: Partial<AddProjectInput>) => {
             id
             name
             email
+            dailyHours
             projects {
               id
-              code
-              name
-              startDate
-              endDate
             }
           }
         }
@@ -95,12 +83,9 @@ export const makeAddProjectMutation = (input: Partial<AddProjectInput>) => {
             id
             name
             email
+            dailyHours
             projects {
               id
-              code
-              name
-              startDate
-              endDate
             }
           }
         }
@@ -114,12 +99,9 @@ export const makeAddProjectMutation = (input: Partial<AddProjectInput>) => {
             id
             name
             email
+            dailyHours
             projects {
               id
-              code
-              name
-              startDate
-              endDate
             }
           }
         }
@@ -133,12 +115,9 @@ export const makeAddProjectMutation = (input: Partial<AddProjectInput>) => {
         id
         name
         email
+        dailyHours
         projects {
           id
-          code
-          name
-          startDate
-          endDate
         }
       }
     }

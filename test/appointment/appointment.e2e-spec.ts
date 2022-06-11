@@ -361,32 +361,9 @@ describe('Graphql Appointment Module (e2e)', () => {
         description: input.description,
         commit: input.commit,
         status: input.status,
-        user: {
-          __typename: 'User',
-          id: user.id,
-          name: user.name,
-          email: user.email,
-        },
-        project: {
-          __typename: 'Project',
-          id: project.id,
-          code: project.code,
-          name: project.name,
-          startDate: project.startDate,
-          endDate: project.endDate,
-          client: {
-            __typename: 'Client',
-            id: project.client.id,
-            code: project.client.code,
-            name: project.client.name,
-          },
-        },
-        category: {
-          __typename: 'Category',
-          id: category.id,
-          code: category.code,
-          name: category.name,
-        },
+        user: { __typename: 'User', id: user.id },
+        project: { __typename: 'Project', id: project.id },
+        category: { __typename: 'Category', id: category.id },
       });
     });
 
@@ -416,32 +393,9 @@ describe('Graphql Appointment Module (e2e)', () => {
         description: input.description,
         commit: input.commit,
         status: input.status,
-        user: {
-          __typename: 'User',
-          id: user.id,
-          name: user.name,
-          email: user.email,
-        },
-        project: {
-          __typename: 'Project',
-          id: project.id,
-          code: project.code,
-          name: project.name,
-          startDate: project.startDate,
-          endDate: project.endDate,
-          client: {
-            __typename: 'Client',
-            id: project.client.id,
-            code: project.client.code,
-            name: project.client.name,
-          },
-        },
-        category: {
-          __typename: 'Category',
-          id: category.id,
-          code: category.code,
-          name: category.name,
-        },
+        user: { __typename: 'User', id: user.id },
+        project: { __typename: 'Project', id: project.id },
+        category: { __typename: 'Category', id: category.id },
       });
     });
 
@@ -469,32 +423,9 @@ describe('Graphql Appointment Module (e2e)', () => {
         description: input.description,
         commit: input.commit,
         status: input.status,
-        user: {
-          __typename: 'User',
-          id: user.id,
-          name: user.name,
-          email: user.email,
-        },
-        project: {
-          __typename: 'Project',
-          id: project.id,
-          code: project.code,
-          name: project.name,
-          startDate: project.startDate,
-          endDate: project.endDate,
-          client: {
-            __typename: 'Client',
-            id: project.client.id,
-            code: project.client.code,
-            name: project.client.name,
-          },
-        },
-        category: {
-          __typename: 'Category',
-          id: category.id,
-          code: category.code,
-          name: category.name,
-        },
+        user: { __typename: 'User', id: user.id },
+        project: { __typename: 'Project', id: project.id },
+        category: { __typename: 'Category', id: category.id },
       });
 
       const out = makeOut(input);
@@ -606,32 +537,9 @@ describe('Graphql Appointment Module (e2e)', () => {
         description: appointment.description,
         commit: appointment.commit,
         status: appointment.status,
-        user: {
-          __typename: 'User',
-          id: user.id,
-          name: user.name,
-          email: user.email,
-        },
-        project: {
-          __typename: 'Project',
-          id: project.id,
-          code: project.code,
-          name: project.name,
-          startDate: project.startDate,
-          endDate: project.endDate,
-          client: {
-            __typename: 'Client',
-            id: project.client.id,
-            code: project.client.code,
-            name: project.client.name,
-          },
-        },
-        category: {
-          __typename: 'Category',
-          id: category.id,
-          code: category.code,
-          name: category.name,
-        },
+        user: { __typename: 'User', id: user.id },
+        project: { __typename: 'Project', id: project.id },
+        category: { __typename: 'Category', id: category.id },
       });
     });
 
@@ -650,32 +558,9 @@ describe('Graphql Appointment Module (e2e)', () => {
         description: appointment.description,
         commit: appointment.commit,
         status: appointment.status,
-        user: {
-          __typename: 'User',
-          id: user.id,
-          name: user.name,
-          email: user.email,
-        },
-        project: {
-          __typename: 'Project',
-          id: project.id,
-          code: project.code,
-          name: project.name,
-          startDate: project.startDate,
-          endDate: project.endDate,
-          client: {
-            __typename: 'Client',
-            id: project.client.id,
-            code: project.client.code,
-            name: project.client.name,
-          },
-        },
-        category: {
-          __typename: 'Category',
-          id: category.id,
-          code: category.code,
-          name: category.name,
-        },
+        user: { __typename: 'User', id: user.id },
+        project: { __typename: 'Project', id: project.id },
+        category: { __typename: 'Category', id: category.id },
       });
     });
 
@@ -1077,7 +962,7 @@ describe('Graphql Appointment Module (e2e)', () => {
       expect(data.updateAppointment).toEqual({
         __typename: 'Appointment',
         ...appointment,
-        user: createUser,
+        user: { __typename: 'User', id: createUser.id },
       });
     });
 
@@ -1122,7 +1007,7 @@ describe('Graphql Appointment Module (e2e)', () => {
       expect(data.updateAppointment).toEqual({
         __typename: 'Appointment',
         ...appointment,
-        project: createProject,
+        project: { __typename: 'Project', id: createProject.id },
       });
     });
 
@@ -1156,7 +1041,7 @@ describe('Graphql Appointment Module (e2e)', () => {
       expect(data.updateAppointment).toEqual({
         __typename: 'Appointment',
         ...appointment,
-        category: createCategory,
+        category: { __typename: 'Category', id: createCategory.id },
       });
     });
   });

@@ -20,6 +20,7 @@ export const makeCreateUserMutation = ({
       id
       email
       name
+      dailyHours
     }
   }
 `;

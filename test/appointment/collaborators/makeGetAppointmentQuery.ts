@@ -18,25 +18,12 @@ export const makeGetAppointmentQuery = (input: GetProjectInput) => {
           status
           user {
             id
-            name
-            email
           }
           project {
             id
-            code
-            name
-            startDate
-            endDate
-            client {
-              id
-              code
-              name
-            }
           }
           category {
             id
-            code
-            name
           }
         }
       }
@@ -56,25 +43,12 @@ export const makeGetAppointmentQuery = (input: GetProjectInput) => {
           status
           user {
             id
-            name
-            email
           }
           project {
             id
-            code
-            name
-            startDate
-            endDate
-            client {
-              id
-              code
-              name
-            }
           }
           category {
             id
-            code
-            name
           }
         }
       }
@@ -94,25 +68,12 @@ export const makeGetAppointmentQuery = (input: GetProjectInput) => {
         status
         user {
           id
-          name
-          email
         }
         project {
           id
-          code
-          name
-          startDate
-          endDate
-          client {
-            id
-            code
-            name
-          }
         }
         category {
           id
-          code
-          name
         }
       }
     }

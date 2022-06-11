@@ -23,13 +23,9 @@ export const makeCreateProjectMutation = (
             endDate
             client {
               id
-              code
-              name
             }
             categories {
               id
-              code
-              name
             }
           }
         }
@@ -51,13 +47,9 @@ export const makeCreateProjectMutation = (
             endDate
             client {
               id
-              code
-              name
             }
             categories {
               id
-              code
-              name
             }
           }
         }
@@ -95,13 +87,9 @@ export const makeCreateProjectMutation = (
           endDate
           client {
             id
-            code
-            name
           }
           categories {
             id
-            code
-            name
           }
         }
       }
@@ -121,13 +109,9 @@ export const makeCreateProjectMutation = (
           endDate
           client {
             id
-            code
-            name
           }
           categories {
             id
-            code
-            name
           }
         }
       }
@@ -146,8 +130,6 @@ export const makeCreateProjectMutation = (
         endDate
         categories {
           id
-          code
-          name
         }
       }
     }
