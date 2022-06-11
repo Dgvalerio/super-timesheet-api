@@ -155,7 +155,7 @@ export class AzureInfosService {
     const azureInfos = await this.getAzureInfos(input);
 
     if (!azureInfos) {
-      throw new NotFoundException('Os informações solicitadas não existem!');
+      throw new NotFoundException('As informações solicitadas não existem!');
     }
 
     const deleted = await this.azureInfosRepository.delete(azureInfos.id);
