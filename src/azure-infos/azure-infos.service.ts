@@ -107,7 +107,7 @@ export class AzureInfosService {
     const azureInfos = await this.getAzureInfos({ id: input.id });
 
     if (!azureInfos) {
-      throw new NotFoundException('Os informações solicitadas não existem!');
+      throw new NotFoundException('As informações solicitadas não existem!');
     }
 
     if (input.login && input.login !== azureInfos.login) {
