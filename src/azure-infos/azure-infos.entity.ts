@@ -26,6 +26,9 @@ export class AzureInfos {
   @Column()
   iv: string;
 
+  @Column({ default: '00:00' })
+  currentMonthWorkedTime: string;
+
   @OneToOne(() => User, (user) => user.azureInfos)
   @JoinColumn()
   user: User;

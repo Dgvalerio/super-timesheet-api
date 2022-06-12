@@ -35,6 +35,7 @@ type AzureInfos {
   login: String!
   content: String!
   iv: String!
+  currentMonthWorkedTime: String!
   user: User!
 }
 
@@ -271,6 +272,7 @@ input CreateAzureInfosInput {
 input UpdateAzureInfosInput {
   id: String!
   login: String
+  currentMonthWorkedTime: String
   password: String
 }
 

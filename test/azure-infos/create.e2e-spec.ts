@@ -97,6 +97,7 @@ describe('[E2E] Azure Infos > Create', () => {
       iv: expect.anything(),
       content: expect.anything(),
       login: input.login,
+      currentMonthWorkedTime: '00:00',
       user: {
         __typename: 'User',
         id: createUser.id,

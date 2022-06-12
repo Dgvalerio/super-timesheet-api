@@ -2,7 +2,13 @@ import { InputType } from '@nestjs/graphql';
 
 import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsMilitaryTime,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 @InputType()
 export class UpdateAzureInfosInput implements Partial<AzureInfos> {
@@ -14,6 +20,11 @@ export class UpdateAzureInfosInput implements Partial<AzureInfos> {
   @IsOptional()
   @IsNotEmpty()
   login?: AzureInfos['login'];
+
+  @IsMilitaryTime()
+  @IsOptional()
+  @IsNotEmpty()
+  currentMonthWorkedTime?: AzureInfos['currentMonthWorkedTime'];
 
   @IsString()
   @IsOptional()

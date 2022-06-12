@@ -11,6 +11,7 @@ export const makeGetAzureInfosQuery = (input: GetAzureInfosInput) => {
           login
           iv
           content
+          currentMonthWorkedTime
           user {
             id
           }
@@ -25,6 +26,7 @@ export const makeGetAzureInfosQuery = (input: GetAzureInfosInput) => {
           login
           iv
           content
+          currentMonthWorkedTime
           user {
             id
           }
@@ -39,6 +41,7 @@ export const makeGetAzureInfosQuery = (input: GetAzureInfosInput) => {
         login
         iv
         content
+        currentMonthWorkedTime
         user {
           id
         }

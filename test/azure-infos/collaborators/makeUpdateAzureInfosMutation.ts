@@ -16,6 +16,7 @@ export const makeUpdateAzureInfosMutation = (
           login
           iv
           content
+          currentMonthWorkedTime
           user {
             id
           }
@@ -34,6 +35,26 @@ export const makeUpdateAzureInfosMutation = (
           login
           iv
           content
+          currentMonthWorkedTime
+          user {
+            id
+          }
+        }
+      }
+    `;
+  }
+  if (input.currentMonthWorkedTime || input.currentMonthWorkedTime === '') {
+    return gql`
+      mutation {
+        updateAzureInfos(input: {
+          id: "${input.id}"
+          currentMonthWorkedTime: "${input.currentMonthWorkedTime}"
+        }) {
+          id
+          login
+          iv
+          content
+          currentMonthWorkedTime
           user {
             id
           }
@@ -51,6 +72,7 @@ export const makeUpdateAzureInfosMutation = (
         login
         iv
         content
+        currentMonthWorkedTime
         user {
           id
         }

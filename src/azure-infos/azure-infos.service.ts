@@ -131,6 +131,13 @@ export class AzureInfosService {
       }
     }
 
+    if (
+      input.currentMonthWorkedTime &&
+      input.currentMonthWorkedTime !== azureInfos.currentMonthWorkedTime
+    ) {
+      newData.currentMonthWorkedTime = input.currentMonthWorkedTime;
+    }
+
     if (Object.keys(newData).length === 0) {
       return azureInfos;
     }

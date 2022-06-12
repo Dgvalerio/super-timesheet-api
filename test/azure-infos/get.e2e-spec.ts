@@ -62,6 +62,7 @@ describe('[E2E] Azure Infos > Get', () => {
       login: azureInfos.login,
       iv: azureInfos.iv,
       content: azureInfos.content,
+      currentMonthWorkedTime: '00:00',
       user: { __typename: 'User', id: azureInfos.user.id },
     });
   });
@@ -76,6 +77,7 @@ describe('[E2E] Azure Infos > Get', () => {
       login: azureInfos.login,
       iv: azureInfos.iv,
       content: azureInfos.content,
+      currentMonthWorkedTime: '00:00',
       user: { __typename: 'User', id: azureInfos.user.id },
     });
   });

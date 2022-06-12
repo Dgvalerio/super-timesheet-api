@@ -18,6 +18,7 @@ export const makeCreateAzureInfosMutation = (
           login
           iv
           content
+          currentMonthWorkedTime
           user {
             id
           }
@@ -39,6 +40,7 @@ export const makeCreateAzureInfosMutation = (
           login
           iv
           content
+          currentMonthWorkedTime
           user {
             id
           }
@@ -57,6 +59,7 @@ export const makeCreateAzureInfosMutation = (
         login
         iv
         content
+        currentMonthWorkedTime
         user {
           id
         }

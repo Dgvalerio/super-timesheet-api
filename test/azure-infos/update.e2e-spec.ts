@@ -1,7 +1,8 @@
 import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 import { UpdateAzureInfosInput } from '@/azure-infos/dto/update-azure-infos.input';
-import { randEmail } from '@ngneat/falso';
+import { randEmail, randPassword, randWord } from '@ngneat/falso';
 
+import { makeFakeAzureInfos } from '!/azure-infos/collaborators/makeFakeAzureInfos';
 import { makeUpdateAzureInfosMutation } from '!/azure-infos/collaborators/makeUpdateAzureInfosMutation';
 import { ApolloClientHelper } from '!/collaborators/apolloClient';
 import {
@@ -71,15 +72,7 @@ describe('[E2E] Azure Infos > Update', () => {
     });
   });
 
-  it('should throw if enter a empty password', async () => {
-    const out = makeOut({ id: azureInfos.id, password: '' });
-
-    const { graphQLErrors } = await out.catch((e) => e);
-
-    shouldThrowIfEnterAEmptyParam('password', graphQLErrors);
-  });
-
-  it('should update azure infos', async () => {
+  it('should update login of azure infos', async () => {
     const login = randEmail();
 
     const { data } = await makeOut({ id: azureInfos.id, login });
@@ -90,7 +83,76 @@ describe('[E2E] Azure Infos > Update', () => {
       id: expect.anything(),
       iv: azureInfos.iv,
       content: azureInfos.content,
+      currentMonthWorkedTime: azureInfos.currentMonthWorkedTime,
       login,
+      user: {
+        __typename: 'User',
+        id: azureInfos.user.id,
+      },
+    });
+  });
+
+  it('should throw if enter a empty password', async () => {
+    const out = makeOut({ id: azureInfos.id, password: '' });
+
+    const { graphQLErrors } = await out.catch((e) => e);
+
+    shouldThrowIfEnterAEmptyParam('password', graphQLErrors);
+  });
+
+  it('should update password of azure infos', async () => {
+    const password = randPassword();
+
+    const { data } = await makeOut({ id: azureInfos.id, password });
+
+    expect(data).toHaveProperty('updateAzureInfos');
+    expect(data.updateAzureInfos).toEqual({
+      __typename: 'AzureInfos',
+      id: expect.anything(),
+      iv: expect.not.stringContaining(azureInfos.iv),
+      content: expect.not.stringContaining(azureInfos.content),
+      currentMonthWorkedTime: azureInfos.currentMonthWorkedTime,
+      login: azureInfos.login,
+      user: {
+        __typename: 'User',
+        id: azureInfos.user.id,
+      },
+    });
+  });
+
+  it('should throw if enter a invalid startTime', async () => {
+    const out = makeOut({
+      id: azureInfos.id,
+      currentMonthWorkedTime: randWord(),
+    });
+
+    const { graphQLErrors } = await out.catch((e) => e);
+
+    shouldThrowHelper({
+      graphQLErrors,
+      predictedError: 'Bad Request',
+      messages: [
+        'currentMonthWorkedTime must be a valid representation of military time in the format HH:MM',
+      ],
+    });
+  });
+
+  it('should update currentMonthWorkedTime of azure infos', async () => {
+    const { currentMonthWorkedTime } = makeFakeAzureInfos();
+
+    const { data } = await makeOut({
+      id: azureInfos.id,
+      currentMonthWorkedTime,
+    });
+
+    expect(data).toHaveProperty('updateAzureInfos');
+    expect(data.updateAzureInfos).toEqual({
+      __typename: 'AzureInfos',
+      id: expect.anything(),
+      iv: azureInfos.iv,
+      content: azureInfos.content,
+      currentMonthWorkedTime,
+      login: azureInfos.login,
       user: {
         __typename: 'User',
         id: azureInfos.user.id,
