@@ -37,6 +37,7 @@ type AzureInfos {
   iv: String!
   currentMonthWorkedTime: String!
   user: User!
+  updatedDate: DateTime!
 }
 
 type User {

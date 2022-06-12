@@ -13,4 +13,5 @@ export const makeFakeAzureInfos = (): AzureInfos => ({
   content: String(randAlphaNumeric()),
   iv: String(randAlphaNumeric()),
   currentMonthWorkedTime: format(randRecentDate(), 'HH:mm'),
+  updatedDate: randRecentDate(),
 });

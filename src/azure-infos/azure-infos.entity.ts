@@ -8,6 +8,7 @@ import {
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @ObjectType()
@@ -32,4 +33,7 @@ export class AzureInfos {
   @OneToOne(() => User, (user) => user.azureInfos)
   @JoinColumn()
   user: User;
+
+  @UpdateDateColumn()
+  updatedDate: Date;
 }
