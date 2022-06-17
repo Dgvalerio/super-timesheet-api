@@ -132,7 +132,7 @@ describe('[E2E] Azure Infos > Update', () => {
       graphQLErrors,
       predictedError: 'Bad Request',
       messages: [
-        'currentMonthWorkedTime must be a valid representation of military time in the format HH:MM',
+        'currentMonthWorkedTime must match /\\d+:\\d+/ regular expression',
       ],
     });
   });

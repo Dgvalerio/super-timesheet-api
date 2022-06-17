@@ -4,10 +4,10 @@ import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 
 import {
   IsEmail,
-  IsMilitaryTime,
   IsNotEmpty,
   IsOptional,
   IsString,
+  Matches,
 } from 'class-validator';
 
 @InputType()
@@ -21,7 +21,7 @@ export class UpdateAzureInfosInput implements Partial<AzureInfos> {
   @IsNotEmpty()
   login?: AzureInfos['login'];
 
-  @IsMilitaryTime()
+  @Matches(/\d+:\d+/)
   @IsOptional()
   @IsNotEmpty()
   currentMonthWorkedTime?: AzureInfos['currentMonthWorkedTime'];

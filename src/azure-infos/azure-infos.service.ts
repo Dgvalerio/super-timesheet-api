@@ -12,16 +12,13 @@ import { CreateAzureInfosInput } from '@/azure-infos/dto/create-azure-infos.inpu
 import { DeleteAzureInfosInput } from '@/azure-infos/dto/delete-azure-infos.input';
 import { GetAzureInfosInput } from '@/azure-infos/dto/get-azure-infos.input';
 import { UpdateAzureInfosInput } from '@/azure-infos/dto/update-azure-infos.input';
+import { CryptoHash } from '@/common/interfaces/crypto-hash';
+import { ScrapperService } from '@/scrapper/scrapper.service';
 import { UserService } from '@/user/user.service';
 
-import { randomBytes, createCipheriv, scrypt } from 'crypto';
+import { randomBytes, createCipheriv, scrypt, createDecipheriv } from 'crypto';
 import { Repository } from 'typeorm';
 import { promisify } from 'util';
-
-interface CryptoHash {
-  iv: string;
-  content: string;
-}
 
 @Injectable()
 export class AzureInfosService {
@@ -29,6 +26,7 @@ export class AzureInfosService {
     @InjectRepository(AzureInfos)
     private azureInfosRepository: Repository<AzureInfos>,
     private userService: UserService,
+    private scrapperService: ScrapperService,
   ) {}
 
   private static async encryptPassword(text: string): Promise<CryptoHash> {
@@ -49,6 +47,27 @@ export class AzureInfosService {
     };
   }
 
+  private static async decryptPassword(hash: CryptoHash): Promise<string> {
+    const key: Buffer = (await promisify(scrypt)(
+      `${process.env.AZURE_SECRET}`,
+      'salt',
+      32,
+    )) as Buffer;
+
+    const decipher = createDecipheriv(
+      'aes-256-ctr',
+      key,
+      Buffer.from(hash.iv, 'hex'),
+    );
+
+    const decrypted = Buffer.concat([
+      decipher.update(Buffer.from(hash.content, 'hex')),
+      decipher.final(),
+    ]);
+
+    return decrypted.toString();
+  }
+
   async createAzureInfos(input: CreateAzureInfosInput): Promise<AzureInfos> {
     const user = await this.userService.getUser(
       input.userId ? { id: input.userId } : { email: input.userEmail },
@@ -62,6 +81,16 @@ export class AzureInfosService {
 
     if (conflicting) {
       throw new ConflictException('Esse login já foi salvo!');
+    }
+
+    const validAuth = await this.scrapperService.verifyAuth({
+      user,
+      login: input.login,
+      password: input.password,
+    });
+
+    if (!validAuth) {
+      throw new BadRequestException('Autenticação inválida!');
     }
 
     const { iv, content } = await AzureInfosService.encryptPassword(
@@ -81,6 +110,12 @@ export class AzureInfosService {
         'Houve um problema ao cadastrar suas informações',
       );
     }
+
+    this.scrapperService.seed({
+      user,
+      login: input.login,
+      password: input.password,
+    });
 
     return this.getAzureInfos({ id: saved.id });
   }
@@ -140,6 +175,28 @@ export class AzureInfosService {
 
     if (Object.keys(newData).length === 0) {
       return azureInfos;
+    }
+
+    if (newData.iv || newData.content || newData.login) {
+      const params = {
+        user: azureInfos.user,
+        login: newData.login ? input.login : azureInfos.login,
+        password:
+          newData.iv || newData.content
+            ? input.password
+            : await AzureInfosService.decryptPassword({
+                iv: azureInfos.iv,
+                content: azureInfos.content,
+              }),
+      };
+
+      const validAuth = await this.scrapperService.verifyAuth(params);
+
+      if (!validAuth) {
+        throw new BadRequestException('Autenticação inválida!');
+      }
+
+      this.scrapperService.seed(params);
     }
 
     await this.azureInfosRepository.update(azureInfos, { ...newData });
