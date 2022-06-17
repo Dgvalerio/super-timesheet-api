@@ -16,7 +16,7 @@ import { CryptoHash } from '@/common/interfaces/crypto-hash';
 import { ScrapperService } from '@/scrapper/scrapper.service';
 import { UserService } from '@/user/user.service';
 
-import { randomBytes, createCipheriv, scrypt } from 'crypto';
+import { randomBytes, createCipheriv, scrypt, createDecipheriv } from 'crypto';
 import { Repository } from 'typeorm';
 import { promisify } from 'util';
 
@@ -45,6 +45,27 @@ export class AzureInfosService {
       iv: iv.toString('hex'),
       content: encrypted.toString('hex'),
     };
+  }
+
+  private static async decryptPassword(hash: CryptoHash): Promise<string> {
+    const key: Buffer = (await promisify(scrypt)(
+      `${process.env.AZURE_SECRET}`,
+      'salt',
+      32,
+    )) as Buffer;
+
+    const decipher = createDecipheriv(
+      'aes-256-ctr',
+      key,
+      Buffer.from(hash.iv, 'hex'),
+    );
+
+    const decrypted = Buffer.concat([
+      decipher.update(Buffer.from(hash.content, 'hex')),
+      decipher.final(),
+    ]);
+
+    return decrypted.toString();
   }
 
   async createAzureInfos(input: CreateAzureInfosInput): Promise<AzureInfos> {
@@ -154,6 +175,28 @@ export class AzureInfosService {
 
     if (Object.keys(newData).length === 0) {
       return azureInfos;
+    }
+
+    if (newData.iv || newData.content || newData.login) {
+      const params = {
+        user: azureInfos.user,
+        login: newData.login ? input.login : azureInfos.login,
+        password:
+          newData.iv || newData.content
+            ? input.password
+            : await AzureInfosService.decryptPassword({
+                iv: azureInfos.iv,
+                content: azureInfos.content,
+              }),
+      };
+
+      const validAuth = await this.scrapperService.verifyAuth(params);
+
+      if (!validAuth) {
+        throw new BadRequestException('Autenticação inválida!');
+      }
+
+      this.scrapperService.seed(params);
     }
 
     await this.azureInfosRepository.update(azureInfos, { ...newData });
