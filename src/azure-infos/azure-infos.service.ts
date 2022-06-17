@@ -12,16 +12,13 @@ import { CreateAzureInfosInput } from '@/azure-infos/dto/create-azure-infos.inpu
 import { DeleteAzureInfosInput } from '@/azure-infos/dto/delete-azure-infos.input';
 import { GetAzureInfosInput } from '@/azure-infos/dto/get-azure-infos.input';
 import { UpdateAzureInfosInput } from '@/azure-infos/dto/update-azure-infos.input';
+import { CryptoHash } from '@/common/interfaces/crypto-hash';
+import { ScrapperService } from '@/scrapper/scrapper.service';
 import { UserService } from '@/user/user.service';
 
 import { randomBytes, createCipheriv, scrypt } from 'crypto';
 import { Repository } from 'typeorm';
 import { promisify } from 'util';
-
-interface CryptoHash {
-  iv: string;
-  content: string;
-}
 
 @Injectable()
 export class AzureInfosService {
@@ -29,6 +26,7 @@ export class AzureInfosService {
     @InjectRepository(AzureInfos)
     private azureInfosRepository: Repository<AzureInfos>,
     private userService: UserService,
+    private scrapperService: ScrapperService,
   ) {}
 
   private static async encryptPassword(text: string): Promise<CryptoHash> {
@@ -64,6 +62,16 @@ export class AzureInfosService {
       throw new ConflictException('Esse login já foi salvo!');
     }
 
+    const validAuth = await this.scrapperService.verifyAuth({
+      user,
+      login: input.login,
+      password: input.password,
+    });
+
+    if (!validAuth) {
+      throw new BadRequestException('Autenticação inválida!');
+    }
+
     const { iv, content } = await AzureInfosService.encryptPassword(
       input.password,
     );
@@ -81,6 +89,12 @@ export class AzureInfosService {
         'Houve um problema ao cadastrar suas informações',
       );
     }
+
+    this.scrapperService.seed({
+      user,
+      login: input.login,
+      password: input.password,
+    });
 
     return this.getAzureInfos({ id: saved.id });
   }

@@ -23,5 +23,6 @@ import { UserModule } from '@/user/user.module';
     }),
   ],
   providers: [AuthService, AuthResolver, JwtStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}
