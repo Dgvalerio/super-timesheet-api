@@ -43,7 +43,7 @@ export class Appointment {
   @Column()
   description: string;
 
-  @Column()
+  @Column({ nullable: true })
   commit?: string;
 
   @Column({
