@@ -6,6 +6,7 @@ import { AppointmentResolver } from '@/appointment/appointment.resolver';
 import { AppointmentService } from '@/appointment/appointment.service';
 import { CategoryModule } from '@/category/category.module';
 import { ProjectModule } from '@/project/project.module';
+import { ScrapperModule } from '@/scrapper/scrapper.module';
 import { UserModule } from '@/user/user.module';
 
 @Module({
@@ -13,6 +14,7 @@ import { UserModule } from '@/user/user.module';
     UserModule,
     ProjectModule,
     CategoryModule,
+    ScrapperModule,
     TypeOrmModule.forFeature([Appointment]),
   ],
   providers: [AppointmentService, AppointmentResolver],

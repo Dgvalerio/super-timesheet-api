@@ -7,14 +7,21 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Appointment } from '@/appointment/appointment.entity';
+import {
+  Appointment,
+  AppointmentStatus,
+} from '@/appointment/appointment.entity';
 import { CreateAppointmentInput } from '@/appointment/dto/create-appointment.input';
 import { DeleteAppointmentInput } from '@/appointment/dto/delete-appointment.input';
+import { GetAllAppointmentsInput } from '@/appointment/dto/get-all-appointments.input';
 import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
 import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
+import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 import { CategoryService } from '@/category/category.service';
 import { getNow } from '@/common/helpers/today';
 import { ProjectService } from '@/project/project.service';
+import { SaveAppointmentOutput } from '@/scrapper/dto/save-appointment.output';
+import { ScrapperService } from '@/scrapper/scrapper.service';
 import { UserService } from '@/user/user.service';
 
 import { compareAsc, format, isToday } from 'date-fns';
@@ -28,6 +35,7 @@ export class AppointmentService {
     private userService: UserService,
     private projectService: ProjectService,
     private categoryService: CategoryService,
+    private scrapperService: ScrapperService,
   ) {}
 
   async createAppointment(input: CreateAppointmentInput): Promise<Appointment> {
@@ -142,7 +150,7 @@ export class AppointmentService {
   }
 
   async getAllAppointments(
-    params: GetAppointmentInput,
+    params: GetAllAppointmentsInput,
   ): Promise<Appointment[]> {
     const options: FindManyOptions<Appointment> = {
       where: {},
@@ -157,6 +165,8 @@ export class AppointmentService {
       options.where = { id: params.id };
     } else if (params.code) {
       options.where = { code: params.code };
+    } else if (params.status) {
+      options.where = { status: params.status };
     } else {
       delete options.where;
     }
@@ -334,5 +344,37 @@ export class AppointmentService {
     const deleted = await this.appointmentRepository.delete(appointment.id);
 
     return !!deleted;
+  }
+
+  async sendAppointments(
+    azureInfos: AzureInfos,
+  ): Promise<SaveAppointmentOutput[]> {
+    const appointments = await this.getAllAppointments({
+      status: AppointmentStatus.Draft,
+    });
+
+    if (appointments.length <= 0) return [];
+
+    const saveAppointmentOutputs = await this.scrapperService.saveAppointments({
+      azureInfos,
+      appointments,
+    });
+
+    if (saveAppointmentOutputs.length <= 0) return saveAppointmentOutputs;
+
+    const promise = saveAppointmentOutputs.map(async (output) => {
+      const { appointment } = output;
+
+      const updated = await this.updateAppointment({
+        id: appointment.id,
+        code: appointment.code,
+        status: appointment.status,
+        commit: appointment.commit,
+      });
+
+      return { ...output, appointment: updated };
+    });
+
+    return await Promise.all(promise);
   }
 }

@@ -7,10 +7,12 @@ import { User } from '@/user/user.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum AppointmentStatus {
+  PreApproved = 'PreApproved',
   Approved = 'Approved',
   Review = 'Review',
   Unapproved = 'Unapproved',
   Draft = 'Draft',
+  Unknown = 'Unknown',
 }
 
 registerEnumType(AppointmentStatus, {

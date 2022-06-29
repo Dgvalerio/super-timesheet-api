@@ -66,10 +66,18 @@ type Appointment {
 
 """Current status of appointment."""
 enum AppointmentStatus {
+  PreApproved
   Approved
   Review
   Unapproved
   Draft
+  Unknown
+}
+
+type SaveAppointmentOutput {
+  appointment: Appointment
+  saved: Boolean!
+  message: String!
 }
 
 type AuthOutput {
@@ -88,6 +96,7 @@ type Query {
   getCategory(input: GetCategoryInput!): Category!
   getAllAppointments: [Appointment!]!
   getAppointment(input: GetAppointmentInput!): Appointment!
+  sendAppointments: [SaveAppointmentOutput!]!
   getAzureInfos(input: GetAzureInfosInput!): AzureInfos!
 }
 
