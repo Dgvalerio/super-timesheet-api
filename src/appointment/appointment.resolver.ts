@@ -1,5 +1,5 @@
 import { NotFoundException, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { Appointment } from '@/appointment/appointment.entity';
 import { AppointmentService } from '@/appointment/appointment.service';
@@ -8,6 +8,10 @@ import { DeleteAppointmentInput } from '@/appointment/dto/delete-appointment.inp
 import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
 import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
 import { GqlAuthGuard } from '@/auth/auth.guard';
+import { SaveAppointmentOutput } from '@/scrapper/dto/save-appointment.output';
+import { User } from '@/user/user.entity';
+
+import { IncomingMessage } from 'http';
 
 @Resolver()
 export class AppointmentResolver {
@@ -55,5 +59,13 @@ export class AppointmentResolver {
     @Args('input') input: DeleteAppointmentInput,
   ): Promise<boolean> {
     return this.appointmentService.deleteAppointment(input);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [SaveAppointmentOutput])
+  async sendAppointments(
+    @Context() { req }: { req: IncomingMessage & { user: User } },
+  ): Promise<SaveAppointmentOutput[]> {
+    return this.appointmentService.sendAppointments(req.user.azureInfos);
   }
 }
