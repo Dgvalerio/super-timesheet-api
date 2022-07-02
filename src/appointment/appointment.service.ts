@@ -11,7 +11,7 @@ import {
   Appointment,
   AppointmentStatus,
 } from '@/appointment/appointment.entity';
-import { CreateAppointmentInput } from '@/appointment/dto/create-appointment.input';
+import { CreateAppointmentDto } from '@/appointment/dto/create-appointment.dto';
 import { DeleteAppointmentInput } from '@/appointment/dto/delete-appointment.input';
 import { GetAllAppointmentsInput } from '@/appointment/dto/get-all-appointments.input';
 import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
@@ -38,18 +38,18 @@ export class AppointmentService {
     private scrapperService: ScrapperService,
   ) {}
 
-  async createAppointment(input: CreateAppointmentInput): Promise<Appointment> {
+  async createAppointment(data: CreateAppointmentDto): Promise<Appointment> {
     const now = getNow();
 
     now.setSeconds(0);
     now.setMilliseconds(0);
 
     // Validations
-    if (isToday(input.date)) {
+    if (isToday(data.date)) {
       const today = format(getNow(), 'yyyy-MM-dd');
 
-      const startDate = `${today}T${input.startTime}:00.000Z`;
-      const endDate = `${today}T${input.endTime}:00.000Z`;
+      const startDate = `${today}T${data.startTime}:00.000Z`;
+      const endDate = `${today}T${data.endTime}:00.000Z`;
 
       if (compareAsc(new Date(startDate), now) >= 0) {
         throw new BadRequestException(
@@ -70,8 +70,8 @@ export class AppointmentService {
       }
     }
 
-    if (input.code) {
-      const haveCodeConflict = await this.getAppointment({ code: input.code });
+    if (data.code) {
+      const haveCodeConflict = await this.getAppointment({ code: data.code });
 
       if (haveCodeConflict) {
         throw new ConflictException('Esse código já foi utilizado!');
@@ -79,10 +79,7 @@ export class AppointmentService {
     }
 
     // User
-    const user = await this.userService.getUser({
-      id: input.userId,
-      email: input.userEmail,
-    });
+    const user = await this.userService.getUser({ id: data.userId });
 
     if (!user) {
       throw new NotFoundException('O usuário informado não existe!');
@@ -90,8 +87,8 @@ export class AppointmentService {
 
     // Project
     const project = await this.projectService.getProject({
-      id: input.projectId,
-      code: input.projectCode,
+      id: data.projectId,
+      code: data.projectCode,
     });
 
     if (!project) {
@@ -100,9 +97,9 @@ export class AppointmentService {
 
     // Category
     const category = await this.categoryService.getCategory({
-      id: input.categoryId,
-      code: input.categoryCode,
-      name: input.categoryName,
+      id: data.categoryId,
+      code: data.categoryCode,
+      name: data.categoryName,
     });
 
     if (!category) {
@@ -110,7 +107,7 @@ export class AppointmentService {
     }
 
     const created = this.appointmentRepository.create({
-      ...input,
+      ...data,
       user,
       project,
       category,
