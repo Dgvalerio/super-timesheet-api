@@ -39,7 +39,9 @@ export class Appointment {
   @Column()
   endTime: string;
 
-  @Column()
+  @Column({
+    default: false,
+  })
   notMonetize: boolean;
 
   @Column()

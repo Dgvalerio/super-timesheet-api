@@ -230,7 +230,7 @@ input CreateAppointmentInput {
   date: DateTime!
   startTime: String!
   endTime: String!
-  notMonetize: Boolean!
+  notMonetize: Boolean
   description: String!
   commit: String
   status: AppointmentStatus

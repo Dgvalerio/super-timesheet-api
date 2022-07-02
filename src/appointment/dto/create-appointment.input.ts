@@ -44,7 +44,8 @@ export class CreateAppointmentInput implements Partial<Appointment> {
 
   @IsBoolean()
   @IsNotEmpty()
-  notMonetize: Appointment['notMonetize'];
+  @IsOptional()
+  notMonetize?: Appointment['notMonetize'];
 
   @IsString()
   @IsNotEmpty()

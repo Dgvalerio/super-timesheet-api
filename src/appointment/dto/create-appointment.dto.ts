@@ -8,7 +8,7 @@ export interface CreateAppointmentDto {
   date: Appointment['date'];
   startTime: Appointment['startTime'];
   endTime: Appointment['endTime'];
-  notMonetize: Appointment['notMonetize'];
+  notMonetize?: Appointment['notMonetize'];
   description: Appointment['description'];
   commit?: Appointment['commit'];
   status?: Appointment['status'];
