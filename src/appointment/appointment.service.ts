@@ -13,7 +13,6 @@ import {
 } from '@/appointment/appointment.entity';
 import { CreateAppointmentDto } from '@/appointment/dto/create-appointment.dto';
 import { DeleteAppointmentInput } from '@/appointment/dto/delete-appointment.input';
-import { GetAllAppointmentsInput } from '@/appointment/dto/get-all-appointments.input';
 import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
 import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
 import { AzureInfos } from '@/azure-infos/azure-infos.entity';
@@ -24,8 +23,15 @@ import { SaveAppointmentOutput } from '@/scrapper/dto/save-appointment.output';
 import { ScrapperService } from '@/scrapper/scrapper.service';
 import { UserService } from '@/user/user.service';
 
-import { compareAsc, format, isToday } from 'date-fns';
+import {
+  areIntervalsOverlapping,
+  compareAsc,
+  format,
+  isToday,
+  set,
+} from 'date-fns';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
+import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
 @Injectable()
 export class AppointmentService {
@@ -68,6 +74,28 @@ export class AppointmentService {
           'O horário final não deve ser maior que o atual',
         );
       }
+    }
+
+    const appointmentsWithTheSameDay = await this.getAllAppointments({
+      date: data.date,
+    });
+
+    const toDate = (time: string): Date => {
+      const [hours, minutes] = time.split(':');
+
+      return set(data.date, { hours: Number(hours), minutes: Number(minutes) });
+    };
+
+    const timeConflict = appointmentsWithTheSameDay.find(
+      ({ startTime, endTime }) =>
+        areIntervalsOverlapping(
+          { start: toDate(startTime), end: toDate(endTime) },
+          { start: toDate(data.startTime), end: toDate(data.endTime) },
+        ),
+    );
+
+    if (timeConflict) {
+      throw new ConflictException('Esse horário já foi utilizado!');
     }
 
     if (data.code) {
@@ -147,10 +175,9 @@ export class AppointmentService {
   }
 
   async getAllAppointments(
-    params: GetAllAppointmentsInput,
+    params: FindOptionsWhere<Appointment>,
   ): Promise<Appointment[]> {
     const options: FindManyOptions<Appointment> = {
-      where: {},
       relations: {
         user: true,
         project: { client: true },
@@ -158,14 +185,8 @@ export class AppointmentService {
       },
     };
 
-    if (params.id) {
-      options.where = { id: params.id };
-    } else if (params.code) {
-      options.where = { code: params.code };
-    } else if (params.status) {
-      options.where = { status: params.status };
-    } else {
-      delete options.where;
+    if (params) {
+      options.where = { ...params };
     }
 
     return this.appointmentRepository.find(options);
