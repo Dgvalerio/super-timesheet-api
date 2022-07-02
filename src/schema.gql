@@ -97,7 +97,7 @@ type Query {
   getAllAppointments: [Appointment!]!
   getAppointment(input: GetAppointmentInput!): Appointment!
   sendAppointments: [SaveAppointmentOutput!]!
-  getAzureInfos(input: GetAzureInfosInput!): AzureInfos!
+  getAzureInfos: AzureInfos!
 }
 
 input GetUserInput {
@@ -125,11 +125,6 @@ input GetCategoryInput {
 input GetAppointmentInput {
   id: String
   code: String
-}
-
-input GetAzureInfosInput {
-  id: String
-  login: String
 }
 
 type Mutation {

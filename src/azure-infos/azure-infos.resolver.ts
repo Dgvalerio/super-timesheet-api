@@ -1,13 +1,15 @@
 import { NotFoundException, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { GqlAuthGuard } from '@/auth/auth.guard';
 import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 import { AzureInfosService } from '@/azure-infos/azure-infos.service';
 import { CreateAzureInfosInput } from '@/azure-infos/dto/create-azure-infos.input';
 import { DeleteAzureInfosInput } from '@/azure-infos/dto/delete-azure-infos.input';
-import { GetAzureInfosInput } from '@/azure-infos/dto/get-azure-infos.input';
 import { UpdateAzureInfosInput } from '@/azure-infos/dto/update-azure-infos.input';
+import { User } from '@/user/user.entity';
+
+import { IncomingMessage } from 'http';
 
 @Resolver()
 export class AzureInfosResolver {
@@ -24,9 +26,11 @@ export class AzureInfosResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => AzureInfos)
   async getAzureInfos(
-    @Args('input') input: GetAzureInfosInput,
+    @Context() { req }: { req: IncomingMessage & { user: User } },
   ): Promise<AzureInfos> {
-    const azureInfos = await this.azureInfosService.getAzureInfos(input);
+    const azureInfos = await this.azureInfosService.getAzureInfos({
+      login: req.user.azureInfos.login,
+    });
 
     if (!azureInfos) {
       throw new NotFoundException('Nenhuma informação foi encontrada');
