@@ -29,6 +29,7 @@ import {
   format,
   isToday,
   set,
+  intervalToDuration,
 } from 'date-fns';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
@@ -49,6 +50,12 @@ export class AppointmentService {
 
     now.setSeconds(0);
     now.setMilliseconds(0);
+
+    const toDate = (time: string): Date => {
+      const [hours, minutes] = time.split(':');
+
+      return set(data.date, { hours: Number(hours), minutes: Number(minutes) });
+    };
 
     // Validations
     // Today validations
@@ -82,12 +89,6 @@ export class AppointmentService {
       date: data.date,
     });
 
-    const toDate = (time: string): Date => {
-      const [hours, minutes] = time.split(':');
-
-      return set(data.date, { hours: Number(hours), minutes: Number(minutes) });
-    };
-
     const timeConflict = appointmentsWithTheSameDay.find(
       ({ startTime, endTime }) =>
         areIntervalsOverlapping(
@@ -98,6 +99,16 @@ export class AppointmentService {
 
     if (timeConflict) {
       throw new ConflictException('Esse horário já foi utilizado!');
+    }
+
+    // Verify duration
+    const duration = intervalToDuration({
+      start: toDate(data.startTime),
+      end: toDate(data.endTime),
+    });
+
+    if (duration.hours === 0 && duration.minutes === 0) {
+      throw new BadRequestException('A duração deve ser maior que 1 minuto!');
     }
 
     // Verify code conflict
