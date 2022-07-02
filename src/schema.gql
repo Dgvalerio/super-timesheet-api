@@ -233,7 +233,7 @@ input CreateAppointmentInput {
   notMonetize: Boolean!
   description: String!
   commit: String
-  status: AppointmentStatus!
+  status: AppointmentStatus
   projectId: String
   projectCode: String
   categoryId: String

@@ -56,7 +56,8 @@ export class CreateAppointmentInput implements Partial<Appointment> {
 
   @IsEnum(AppointmentStatus)
   @IsNotEmpty()
-  status: Appointment['status'];
+  @IsOptional()
+  status?: Appointment['status'];
 
   // Relations
   // Project

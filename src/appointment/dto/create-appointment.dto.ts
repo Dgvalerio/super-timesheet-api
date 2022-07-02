@@ -11,7 +11,7 @@ export interface CreateAppointmentDto {
   notMonetize: Appointment['notMonetize'];
   description: Appointment['description'];
   commit?: Appointment['commit'];
-  status: Appointment['status'];
+  status?: Appointment['status'];
 
   // Relations
   // User
