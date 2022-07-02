@@ -30,6 +30,7 @@ import {
   isToday,
   set,
   intervalToDuration,
+  add,
 } from 'date-fns';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
@@ -92,8 +93,14 @@ export class AppointmentService {
     const timeConflict = appointmentsWithTheSameDay.find(
       ({ startTime, endTime }) =>
         areIntervalsOverlapping(
-          { start: toDate(startTime), end: toDate(endTime) },
-          { start: toDate(data.startTime), end: toDate(data.endTime) },
+          {
+            start: toDate(startTime),
+            end: add(toDate(endTime), { minutes: 1 }),
+          },
+          {
+            start: toDate(data.startTime),
+            end: add(toDate(data.endTime), { minutes: 1 }),
+          },
         ),
     );
 
