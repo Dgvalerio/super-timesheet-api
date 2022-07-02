@@ -51,6 +51,7 @@ export class AppointmentService {
     now.setMilliseconds(0);
 
     // Validations
+    // Today validations
     if (isToday(data.date)) {
       const today = format(getNow(), 'yyyy-MM-dd');
 
@@ -76,6 +77,7 @@ export class AppointmentService {
       }
     }
 
+    // Verify overlapping
     const appointmentsWithTheSameDay = await this.getAllAppointments({
       date: data.date,
     });
@@ -98,6 +100,7 @@ export class AppointmentService {
       throw new ConflictException('Esse horário já foi utilizado!');
     }
 
+    // Verify code conflict
     if (data.code) {
       const haveCodeConflict = await this.getAppointment({ code: data.code });
 
