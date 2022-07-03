@@ -62,7 +62,10 @@ export class UserService {
 
     return this.userRepository.findOne({
       where,
-      relations: { projects: true, azureInfos: true },
+      relations: {
+        projects: { categories: true, client: true },
+        azureInfos: true,
+      },
     });
   }
 
