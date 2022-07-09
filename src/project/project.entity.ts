@@ -2,6 +2,7 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 import { Category } from '@/category/category.entity';
 import { Client } from '@/client/client.entity';
+import { User } from '@/user/user.entity';
 
 import {
   Column,
@@ -37,4 +38,7 @@ export class Project {
   @ManyToMany(() => Category, { cascade: false })
   @JoinTable()
   categories: Category[];
+
+  @ManyToMany(() => User, (user) => user.projects)
+  users: User[];
 }

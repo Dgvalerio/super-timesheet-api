@@ -6,7 +6,7 @@ import { User } from '@/user/user.entity';
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 @InputType()
-export class AddProjectInput {
+export class AddProjectToUserInput {
   @IsString()
   @IsNotEmpty()
   @IsOptional()

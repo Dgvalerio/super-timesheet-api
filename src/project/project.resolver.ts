@@ -10,14 +10,17 @@ import {
   DeleteProjectInput,
 } from '@/project/dto';
 import { AddCategoryInput } from '@/project/dto/add-category.input';
+import { AddProjectToUserInput } from '@/project/dto/add-project-to-user.input';
 import { Project } from '@/project/project.entity';
 import { ProjectService } from '@/project/project.service';
+import { UserService } from '@/user/user.service';
 
 @Resolver()
 export class ProjectResolver {
   constructor(
     private projectService: ProjectService,
     private categoryService: CategoryService,
+    private userService: UserService,
   ) {}
 
   @UseGuards(GqlAuthGuard)
@@ -87,6 +90,35 @@ export class ProjectResolver {
     return this.projectService.addCategory({
       projectId: project.id,
       categoryId: category.id,
+    });
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => Project)
+  async addProjectToUser(
+    @Args('input') input: AddProjectToUserInput,
+  ): Promise<Project> {
+    const user = await this.userService.getUser({
+      id: input.userId,
+      email: input.userEmail,
+    });
+
+    if (!user) {
+      throw new NotFoundException('O usuário informado não existe!');
+    }
+
+    const project = await this.projectService.getProject({
+      id: input.projectId,
+      code: input.projectCode,
+    });
+
+    if (!project) {
+      throw new NotFoundException('O projeto informado não existe!');
+    }
+
+    return this.projectService.addProjectToUser({
+      userId: user.id,
+      projectId: project.id,
     });
   }
 }

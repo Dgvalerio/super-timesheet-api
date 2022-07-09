@@ -34,7 +34,7 @@ export class User {
   @Field(() => Int)
   dailyHours: number;
 
-  @ManyToMany(() => Project, { cascade: false })
+  @ManyToMany(() => Project, (project) => project.users, { cascade: false })
   @JoinTable()
   projects: Project[];
 

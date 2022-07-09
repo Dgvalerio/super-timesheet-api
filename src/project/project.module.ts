@@ -8,9 +8,14 @@ import { ClientService } from '@/client/client.service';
 import { Project } from '@/project/project.entity';
 import { ProjectResolver } from '@/project/project.resolver';
 import { ProjectService } from '@/project/project.service';
+import { User } from '@/user/user.entity';
+import { UserModule } from '@/user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Project, Client, Category])],
+  imports: [
+    UserModule,
+    TypeOrmModule.forFeature([User, Project, Client, Category]),
+  ],
   providers: [ProjectService, ProjectResolver, ClientService, CategoryService],
   exports: [ProjectService],
 })

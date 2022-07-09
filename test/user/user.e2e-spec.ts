@@ -1,6 +1,6 @@
 import { Client } from '@/client/client.entity';
+import { AddProjectToUserInput } from '@/project/dto/add-project-to-user.input';
 import { Project } from '@/project/project.entity';
-import { AddProjectInput } from '@/user/dto/add-project.input';
 import { CreateUserInput } from '@/user/dto/create-user.input';
 import { DeleteUserInput } from '@/user/dto/delete-user.input';
 import { GetUserInput } from '@/user/dto/get-user.input';
@@ -353,12 +353,12 @@ describe('Graphql User Module (e2e)', () => {
     });
   });
 
-  describe('addProject', () => {
+  describe('addProjectToUser', () => {
     let project: Project;
     let user: User;
 
-    const makeOut = async (input: Partial<AddProjectInput>) =>
-      api.mutation<{ addProject: User }>(makeAddProjectMutation(input));
+    const makeOut = async (input: Partial<AddProjectToUserInput>) =>
+      api.mutation<{ addProjectToUser: User }>(makeAddProjectMutation(input));
 
     beforeEach(async () => {
       const {
@@ -447,9 +447,9 @@ describe('Graphql User Module (e2e)', () => {
         projectCode: project.code,
       });
 
-      expect(data).toHaveProperty('addProject');
+      expect(data).toHaveProperty('addProjectToUser');
 
-      expect(data.addProject).toEqual({
+      expect(data.addProjectToUser).toEqual({
         __typename: 'User',
         ...user,
         projects: [{ __typename: 'Project', id: project.id }],
@@ -462,9 +462,9 @@ describe('Graphql User Module (e2e)', () => {
         projectCode: project.code,
       });
 
-      expect(data).toHaveProperty('addProject');
+      expect(data).toHaveProperty('addProjectToUser');
 
-      expect(data.addProject).toEqual({
+      expect(data.addProjectToUser).toEqual({
         __typename: 'User',
         ...user,
         projects: [{ __typename: 'Project', id: project.id }],

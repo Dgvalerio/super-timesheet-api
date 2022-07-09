@@ -1,56 +1,40 @@
-import { AddProjectInput } from '@/user/dto/add-project.input';
+import { AddProjectToUserInput } from '@/project/dto/add-project-to-user.input';
 
 import { gql } from 'apollo-boost';
 
-export const makeAddProjectMutation = (input: Partial<AddProjectInput>) => {
+export const makeAddProjectMutation = (
+  input: Partial<AddProjectToUserInput>,
+) => {
   if (input.userId) {
     if (input.projectId) {
       return gql`
         mutation {
-          addProject(input: {
+          addProjectToUser(input: {
             userId: "${input.userId}"
             projectId: "${input.projectId}"
           }) {
             id
-            name
-            email
-            dailyHours
-            projects {
-              id
-            }
           }
         }
       `;
     } else if (input.projectCode) {
       return gql`
         mutation {
-          addProject(input: {
+          addProjectToUser(input: {
             userId: "${input.userId}"
             projectCode: "${input.projectCode}"
           }) {
             id
-            name
-            email
-            dailyHours
-            projects {
-              id
-            }
           }
         }
       `;
     } else {
       return gql`
         mutation {
-          addProject(input: {
+          addProjectToUser(input: {
             userId: "${input.userId}"
           }) {
             id
-            name
-            email
-            dailyHours
-            projects {
-              id
-            }
           }
         }
       `;
@@ -59,50 +43,32 @@ export const makeAddProjectMutation = (input: Partial<AddProjectInput>) => {
     if (input.projectId) {
       return gql`
         mutation {
-          addProject(input: {
+          addProjectToUser(input: {
             userEmail: "${input.userEmail}"
             projectId: "${input.projectId}"
           }) {
             id
-            name
-            email
-            dailyHours
-            projects {
-              id
-            }
           }
         }
       `;
     } else if (input.projectCode) {
       return gql`
         mutation {
-          addProject(input: {
+          addProjectToUser(input: {
             userEmail: "${input.userEmail}"
             projectCode: "${input.projectCode}"
           }) {
             id
-            name
-            email
-            dailyHours
-            projects {
-              id
-            }
           }
         }
       `;
     } else {
       return gql`
         mutation {
-          addProject(input: {
+          addProjectToUser(input: {
             userEmail: "${input.userEmail}"
           }) {
             id
-            name
-            email
-            dailyHours
-            projects {
-              id
-            }
           }
         }
       `;
@@ -111,14 +77,8 @@ export const makeAddProjectMutation = (input: Partial<AddProjectInput>) => {
 
   return gql`
     mutation {
-      addProject(input: {}) {
+      addProjectToUser(input: {}) {
         id
-        name
-        email
-        dailyHours
-        projects {
-          id
-        }
       }
     }
   `;

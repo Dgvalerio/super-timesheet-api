@@ -16,7 +16,9 @@ import {
   UpdateProjectInput,
 } from '@/project/dto';
 import { AddCategoryInput } from '@/project/dto/add-category.input';
+import { AddProjectToUserInput } from '@/project/dto/add-project-to-user.input';
 import { Project } from '@/project/project.entity';
+import { UserService } from '@/user/user.service';
 
 import { Repository } from 'typeorm';
 
@@ -27,6 +29,7 @@ export class ProjectService {
     private projectRepository: Repository<Project>,
     private clientService: ClientService,
     private categoryService: CategoryService,
+    private userService: UserService,
   ) {}
 
   private async verifyConflicts<ValueType = string>(
@@ -88,19 +91,17 @@ export class ProjectService {
   }
 
   async getProject(params: GetProjectInput): Promise<Project | null> {
-    let search = {};
-
-    if (params.id) {
-      search = { id: params.id };
-    } else if (params.code) {
-      search = { code: params.code };
-    } else {
+    if (Object.keys(params).length <= 0) {
       throw new BadRequestException('Nenhum parâmetro válido foi informado');
     }
 
     return this.projectRepository.findOne({
-      where: search,
-      relations: { client: true, categories: true },
+      where: params,
+      relations: {
+        client: true,
+        categories: true,
+        users: true,
+      },
     });
   }
 
@@ -202,5 +203,36 @@ export class ProjectService {
     }
 
     return this.getProject({ id: project.id });
+  }
+
+  async addProjectToUser(
+    input: Pick<AddProjectToUserInput, 'userId' | 'projectId'>,
+  ): Promise<Project> {
+    const user = await this.userService.getUser({
+      id: input.userId,
+    });
+
+    const project = await this.getProject({
+      id: input.projectId,
+    });
+
+    if (project.users.find(({ id }) => id === user.id)) {
+      throw new ConflictException(
+        `Esse projeto já foi adicionado a esse usuário!`,
+      );
+    }
+
+    const saved = await this.projectRepository.save({
+      ...project,
+      users: [...project.users, user],
+    });
+
+    if (!saved) {
+      throw new InternalServerErrorException(
+        'Houve um problema ao adicionar o projeto ao usuário',
+      );
+    }
+
+    return this.getProject({ id: user.id });
   }
 }

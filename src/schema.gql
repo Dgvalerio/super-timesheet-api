@@ -23,6 +23,7 @@ type Project {
   endDate: DateTime!
   client: Client!
   categories: [Category!]!
+  users: [User!]!
 }
 
 """
@@ -88,10 +89,10 @@ type AuthOutput {
 type Query {
   getAllUsers: [User!]!
   getUser(input: GetUserInput!): User!
-  getAllProjects: [Project!]!
-  getProject(input: GetProjectInput!): Project!
   getAllClients: [Client!]!
   getClient(input: GetClientInput!): Client!
+  getAllProjects: [Project!]!
+  getProject(input: GetProjectInput!): Project!
   getAllCategories: [Category!]!
   getCategory(input: GetCategoryInput!): Category!
   getAllAppointments: [Appointment!]!
@@ -105,14 +106,14 @@ input GetUserInput {
   email: String
 }
 
-input GetProjectInput {
-  id: String
-  code: String
-}
-
 input GetClientInput {
   id: String
   name: String
+  code: String
+}
+
+input GetProjectInput {
+  id: String
   code: String
 }
 
@@ -130,14 +131,14 @@ input GetAppointmentInput {
 type Mutation {
   createUser(input: CreateUserInput!): User!
   deleteUser(input: DeleteUserInput!): Boolean!
-  addProject(input: AddProjectInput!): User!
+  createClient(input: CreateClientInput!): Client!
+  deleteClient(input: DeleteClientInput!): Boolean!
+  login(input: AuthInput!): AuthOutput!
   createProject(input: CreateProjectInput!): Project!
   updateProject(input: UpdateProjectInput!): Project!
   deleteProject(input: DeleteProjectInput!): Boolean!
   addCategory(input: AddCategoryInput!): Project!
-  createClient(input: CreateClientInput!): Client!
-  deleteClient(input: DeleteClientInput!): Boolean!
-  login(input: AuthInput!): AuthOutput!
+  addProjectToUser(input: AddProjectToUserInput!): Project!
   createCategory(input: CreateCategoryInput!): Category!
   deleteCategory(input: DeleteCategoryInput!): Boolean!
   createAppointment(input: CreateAppointmentInput!): Appointment!
@@ -161,11 +162,19 @@ input DeleteUserInput {
   email: String
 }
 
-input AddProjectInput {
-  userId: String
-  userEmail: String
-  projectId: String
-  projectCode: String
+input CreateClientInput {
+  code: String
+  name: String!
+}
+
+input DeleteClientInput {
+  id: String
+  code: String
+}
+
+input AuthInput {
+  email: String!
+  password: String!
 }
 
 input CreateProjectInput {
@@ -200,19 +209,11 @@ input AddCategoryInput {
   categoryCode: String
 }
 
-input CreateClientInput {
-  code: String
-  name: String!
-}
-
-input DeleteClientInput {
-  id: String
-  code: String
-}
-
-input AuthInput {
-  email: String!
-  password: String!
+input AddProjectToUserInput {
+  userId: String
+  userEmail: String
+  projectId: String
+  projectCode: String
 }
 
 input CreateCategoryInput {
