@@ -31,8 +31,12 @@ export class AppointmentResolver {
 
   @UseGuards(GqlAuthGuard)
   @Query(() => [Appointment])
-  async getAllAppointments(): Promise<Appointment[]> {
-    return this.appointmentService.getAllAppointments({});
+  async getAllAppointments(
+    @Context() { req }: { req: IncomingMessage & { user: User } },
+  ): Promise<Appointment[]> {
+    return this.appointmentService.getAllAppointments({
+      user: { id: req.user.id },
+    });
   }
 
   @UseGuards(GqlAuthGuard)
