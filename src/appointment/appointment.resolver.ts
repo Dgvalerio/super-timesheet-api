@@ -5,6 +5,7 @@ import { Appointment } from '@/appointment/appointment.entity';
 import { AppointmentService } from '@/appointment/appointment.service';
 import { CreateAppointmentInput } from '@/appointment/dto/create-appointment.input';
 import { DeleteAppointmentInput } from '@/appointment/dto/delete-appointment.input';
+import { GetAllAppointmentsInput } from '@/appointment/dto/get-all-appointments.input';
 import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
 import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
 import { GqlAuthGuard } from '@/auth/auth.guard';
@@ -33,9 +34,11 @@ export class AppointmentResolver {
   @Query(() => [Appointment])
   async getAllAppointments(
     @Context() { req }: { req: IncomingMessage & { user: User } },
+    @Args('input') input: GetAllAppointmentsInput,
   ): Promise<Appointment[]> {
     return this.appointmentService.getAllAppointments({
       user: { id: req.user.id },
+      ...input,
     });
   }
 

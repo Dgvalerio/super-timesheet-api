@@ -95,7 +95,7 @@ type Query {
   getProject(input: GetProjectInput!): Project!
   getAllCategories: [Category!]!
   getCategory(input: GetCategoryInput!): Category!
-  getAllAppointments: [Appointment!]!
+  getAllAppointments(input: GetAllAppointmentsInput!): [Appointment!]!
   getAppointment(input: GetAppointmentInput!): Appointment!
   sendAppointments: [SaveAppointmentOutput!]!
   getAzureInfos: AzureInfos!
@@ -121,6 +121,13 @@ input GetCategoryInput {
   id: String
   name: String
   code: String
+}
+
+input GetAllAppointmentsInput {
+  id: String
+  code: String
+  status: AppointmentStatus
+  date: DateTime
 }
 
 input GetAppointmentInput {

@@ -1,8 +1,15 @@
 import { InputType } from '@nestjs/graphql';
 
 import { Appointment } from '@/appointment/appointment.entity';
+import { today } from '@/common/helpers/today';
 
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsDate,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxDate,
+} from 'class-validator';
 
 @InputType()
 export class GetAllAppointmentsInput implements Partial<Appointment> {
@@ -20,4 +27,13 @@ export class GetAllAppointmentsInput implements Partial<Appointment> {
   @IsNotEmpty()
   @IsOptional()
   status?: Appointment['status'];
+
+  @IsDate()
+  @IsNotEmpty()
+  @MaxDate(today(), {
+    message: ({ constraints }) =>
+      `The date must not go beyond today (${constraints[0].toISOString()})`,
+  })
+  @IsOptional()
+  date?: Appointment['date'];
 }
