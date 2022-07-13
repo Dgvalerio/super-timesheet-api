@@ -98,6 +98,7 @@ type Query {
   getAllAppointments(input: GetAllAppointmentsInput!): [Appointment!]!
   getAppointment(input: GetAppointmentInput!): Appointment!
   sendAppointments: [SaveAppointmentOutput!]!
+  getCurrentMonthWorkedTime: String!
   getAzureInfos: AzureInfos!
 }
 

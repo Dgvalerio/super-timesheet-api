@@ -17,7 +17,7 @@ import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
 import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
 import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 import { CategoryService } from '@/category/category.service';
-import { getNow } from '@/common/helpers/today';
+import { formatMinutesToTime, getNow } from '@/common/helpers/today';
 import { ProjectService } from '@/project/project.service';
 import { SaveAppointmentOutput } from '@/scrapper/dto/save-appointment.output';
 import { ScrapperService } from '@/scrapper/scrapper.service';
@@ -31,8 +31,10 @@ import {
   set,
   intervalToDuration,
   add,
+  endOfMonth,
+  differenceInMinutes,
 } from 'date-fns';
-import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
+import { Between, FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
 @Injectable()
@@ -415,5 +417,42 @@ export class AppointmentService {
     });
 
     return await Promise.all(promise);
+  }
+
+  async getCurrentMonthWorkedTime(
+    params: Pick<FindOptionsWhere<Appointment>, 'user'>,
+  ): Promise<string> {
+    const first = set(new Date(), {
+      date: 1,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 0,
+    });
+    const last = endOfMonth(first);
+
+    const options: FindManyOptions<Appointment> = {
+      where: { ...params, date: Between<Date>(first, last) },
+      relations: { user: true, project: { client: true }, category: true },
+    };
+
+    const appointments = await this.appointmentRepository.find(options);
+
+    const workedMinutes = appointments.reduce(
+      (previousValue, { date, startTime, endTime }) => {
+        const simpleDate = format(new Date(date), 'yyyy-MM-dd');
+
+        return (
+          previousValue +
+          differenceInMinutes(
+            new Date(`${simpleDate}T${endTime}`),
+            new Date(`${simpleDate}T${startTime}`),
+          )
+        );
+      },
+      0,
+    );
+
+    return formatMinutesToTime(workedMinutes);
   }
 }

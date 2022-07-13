@@ -79,4 +79,14 @@ export class AppointmentResolver {
   ): Promise<SaveAppointmentOutput[]> {
     return this.appointmentService.sendAppointments(req.user.azureInfos);
   }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => String)
+  async getCurrentMonthWorkedTime(
+    @Context() { req }: { req: IncomingMessage & { user: User } },
+  ): Promise<string> {
+    return this.appointmentService.getCurrentMonthWorkedTime({
+      user: { id: req.user.id },
+    });
+  }
 }

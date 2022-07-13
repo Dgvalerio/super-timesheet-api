@@ -12,3 +12,15 @@ export const today = (): Date => {
 };
 
 export const getNow = () => utcToZonedTime(new Date(), 'America/Sao_Paulo');
+
+export const formatMinutesToTime = (totalMinutes: number): string => {
+  const aux = {
+    hours: Math.floor(totalMinutes / 60),
+    minutes: totalMinutes % 60,
+  };
+
+  const hours = String(aux.hours).padStart(2, '0');
+  const minutes = String(aux.minutes).padStart(2, '0');
+
+  return `${hours}:${minutes}`;
+};
