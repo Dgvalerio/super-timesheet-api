@@ -36,4 +36,9 @@ export class GetAllAppointmentsInput implements Partial<Appointment> {
   })
   @IsOptional()
   date?: Appointment['date'];
+
+  @IsDate()
+  @IsNotEmpty()
+  @IsOptional()
+  month?: Appointment['date'];
 }

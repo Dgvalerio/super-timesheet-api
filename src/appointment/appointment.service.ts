@@ -198,7 +198,7 @@ export class AppointmentService {
   }
 
   async getAllAppointments(
-    params: FindOptionsWhere<Appointment>,
+    params: FindOptionsWhere<Appointment & { month?: Appointment['date'] }>,
   ): Promise<Appointment[]> {
     const options: FindManyOptions<Appointment> = {
       relations: {
@@ -209,7 +209,20 @@ export class AppointmentService {
     };
 
     if (params) {
-      options.where = { ...params };
+      if (params.month) {
+        const { month, ...others } = params;
+
+        const first = set(month as Date, {
+          date: 1,
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+          milliseconds: 0,
+        });
+        const last = endOfMonth(first);
+
+        options.where = { ...others, date: Between<Date>(first, last) };
+      } else options.where = { ...params };
     }
 
     return this.appointmentRepository.find(options);

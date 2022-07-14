@@ -129,6 +129,7 @@ input GetAllAppointmentsInput {
   code: String
   status: AppointmentStatus
   date: DateTime
+  month: DateTime
 }
 
 input GetAppointmentInput {
