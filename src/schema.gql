@@ -97,7 +97,6 @@ type Query {
   getCategory(input: GetCategoryInput!): Category!
   getAllAppointments(input: GetAllAppointmentsInput!): [Appointment!]!
   getAppointment(input: GetAppointmentInput!): Appointment!
-  sendAppointments: [SaveAppointmentOutput!]!
   getCurrentMonthWorkedTime: String!
   getAzureInfos: AzureInfos!
 }
@@ -153,6 +152,7 @@ type Mutation {
   createAppointment(input: CreateAppointmentInput!): Appointment!
   updateAppointment(input: UpdateAppointmentInput!): Appointment!
   deleteAppointment(input: DeleteAppointmentInput!): Boolean!
+  sendAppointments: [SaveAppointmentOutput!]!
   createAzureInfos(input: CreateAzureInfosInput!): AzureInfos!
   updateAzureInfos(input: UpdateAzureInfosInput!): AzureInfos!
   deleteAzureInfos(input: DeleteAzureInfosInput!): Boolean!

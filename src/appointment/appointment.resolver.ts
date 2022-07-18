@@ -73,7 +73,7 @@ export class AppointmentResolver {
   }
 
   @UseGuards(GqlAuthGuard)
-  @Query(() => [SaveAppointmentOutput])
+  @Mutation(() => [SaveAppointmentOutput])
   async sendAppointments(
     @Context() { req }: { req: IncomingMessage & { user: User } },
   ): Promise<SaveAppointmentOutput[]> {
