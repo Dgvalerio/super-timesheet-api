@@ -13,7 +13,6 @@ import {
 } from '@/appointment/appointment.entity';
 import { CreateAppointmentDto } from '@/appointment/dto/create-appointment.dto';
 import { DeleteAppointmentInput } from '@/appointment/dto/delete-appointment.input';
-import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
 import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
 import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 import { CategoryService } from '@/category/category.service';
@@ -176,10 +175,9 @@ export class AppointmentService {
   }
 
   async getAppointment(
-    params: GetAppointmentInput,
+    params: FindOneOptions<Appointment>['where'],
   ): Promise<Appointment | null> {
     const options: FindOneOptions<Appointment> = {
-      where: {},
       relations: {
         user: true,
         project: { client: true },
@@ -187,13 +185,8 @@ export class AppointmentService {
       },
     };
 
-    if (params.id) {
-      options.where = { id: params.id };
-    } else if (params.code) {
-      options.where = { code: params.code };
-    } else {
-      throw new BadRequestException('Nenhum parâmetro válido foi informado');
-    }
+    if (params) options.where = { ...params };
+    else throw new BadRequestException('Nenhum parâmetro válido foi informado');
 
     return this.appointmentRepository.findOne(options);
   }

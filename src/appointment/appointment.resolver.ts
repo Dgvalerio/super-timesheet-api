@@ -37,17 +37,21 @@ export class AppointmentResolver {
     @Args('input') input: GetAllAppointmentsInput,
   ): Promise<Appointment[]> {
     return this.appointmentService.getAllAppointments({
-      user: { id: req.user.id },
       ...input,
+      user: { id: req.user.id },
     });
   }
 
   @UseGuards(GqlAuthGuard)
   @Query(() => Appointment)
   async getAppointment(
+    @Context() { req }: { req: IncomingMessage & { user: User } },
     @Args('input') input: GetAppointmentInput,
   ): Promise<Appointment> {
-    const appointment = await this.appointmentService.getAppointment(input);
+    const appointment = await this.appointmentService.getAppointment({
+      ...input,
+      user: { id: req.user.id },
+    });
 
     if (!appointment) {
       throw new NotFoundException('Nenhum apontamento foi encontrado');
