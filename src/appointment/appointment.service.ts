@@ -89,6 +89,7 @@ export class AppointmentService {
 
     // Verify overlapping
     const appointmentsWithTheSameDay = await this.getAllAppointments({
+      user: { id: data.userId },
       date: data.date,
     });
 
