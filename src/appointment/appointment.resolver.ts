@@ -81,7 +81,7 @@ export class AppointmentResolver {
   async sendAppointments(
     @Context() { req }: { req: IncomingMessage & { user: User } },
   ): Promise<SaveAppointmentOutput[]> {
-    return this.appointmentService.sendAppointments(req.user.azureInfos);
+    return this.appointmentService.sendAppointments(req.user);
   }
 
   @UseGuards(GqlAuthGuard)

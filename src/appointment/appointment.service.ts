@@ -14,12 +14,12 @@ import {
 import { CreateAppointmentDto } from '@/appointment/dto/create-appointment.dto';
 import { DeleteAppointmentInput } from '@/appointment/dto/delete-appointment.input';
 import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
-import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 import { CategoryService } from '@/category/category.service';
 import { formatMinutesToTime, getNow } from '@/common/helpers/today';
 import { ProjectService } from '@/project/project.service';
 import { SaveAppointmentOutput } from '@/scrapper/dto/save-appointment.output';
 import { ScrapperService } from '@/scrapper/scrapper.service';
+import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
 
 import {
@@ -394,18 +394,16 @@ export class AppointmentService {
     return !!deleted;
   }
 
-  async sendAppointments(
-    azureInfos: AzureInfos,
-  ): Promise<SaveAppointmentOutput[]> {
+  async sendAppointments(user: User): Promise<SaveAppointmentOutput[]> {
     const appointments = await this.getAllAppointments({
-      user: { id: azureInfos.user.id },
+      user: { id: user.id },
       status: AppointmentStatus.Draft,
     });
 
     if (appointments.length <= 0) return [];
 
     const saveAppointmentOutputs = await this.scrapperService.saveAppointments({
-      azureInfos,
+      azureInfos: user.azureInfos,
       appointments,
     });
 
