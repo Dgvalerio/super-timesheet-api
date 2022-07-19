@@ -405,6 +405,7 @@ export class AppointmentService {
     azureInfos: AzureInfos,
   ): Promise<SaveAppointmentOutput[]> {
     const appointments = await this.getAllAppointments({
+      user: { id: azureInfos.user.id },
       status: AppointmentStatus.Draft,
     });
 
