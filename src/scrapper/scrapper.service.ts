@@ -9,6 +9,7 @@ import {
 } from '@/scrapper/dto/save-appointment.output';
 import { SaveAppointmentsParams } from '@/scrapper/dto/save-appointments.params';
 import { SeedParams } from '@/scrapper/dto/seed.params';
+import { UpdateParams } from '@/scrapper/dto/update.params';
 import { VerifyAuthParams } from '@/scrapper/dto/verify-auth.params';
 
 import { AxiosError } from 'axios';
@@ -53,6 +54,29 @@ export class ScrapperService {
       );
     } catch (e) {
       console.log(e);
+    }
+  }
+
+  async update(input: UpdateParams): Promise<boolean> {
+    try {
+      const token = await this.authService.jwtToken(input.user);
+
+      await firstValueFrom(
+        this.httpService.post(`${process.env.AUTH_API}/scrapper/seed`, {
+          login: input.user.azureInfos.login,
+          password: await decryptPassword({
+            iv: input.user.azureInfos.iv,
+            content: input.user.azureInfos.content,
+          }),
+          token,
+        }),
+      );
+
+      return true;
+    } catch (e) {
+      console.log(e);
+
+      return false;
     }
   }
 
