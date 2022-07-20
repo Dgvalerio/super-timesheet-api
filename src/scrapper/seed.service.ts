@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { AuthService } from '@/auth/auth.service';
 import { ClientService } from '@/client/client.service';
@@ -50,7 +50,7 @@ export class SeedService {
     const token = await this.authService.jwtToken(user);
 
     if (!user.azureInfos)
-      throw new BadRequestException('Nenhum parâmetro válido foi informado');
+      throw new NotFoundException('Nenhuma informação da azure foi encontrada');
 
     const password = await decryptPassword({
       iv: user.azureInfos.iv,
