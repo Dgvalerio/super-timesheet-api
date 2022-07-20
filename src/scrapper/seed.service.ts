@@ -2,6 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { AuthService } from '@/auth/auth.service';
+import { CategoryService } from '@/category/category.service';
 import { ClientService } from '@/client/client.service';
 import { decryptPassword } from '@/common/helpers/cryptography';
 import { brDateToISO } from '@/common/helpers/today';
@@ -25,6 +26,7 @@ export class SeedService {
     private userService: UserService,
     private clientService: ClientService,
     private projectService: ProjectService,
+    private categoryService: CategoryService,
   ) {}
 
   requestFactory(cookies: Seed.AuthVerify['cookies']) {
@@ -194,9 +196,10 @@ export class SeedService {
 
       try {
         const { projects } = await this.userService.getUser({ id: userId });
-        const theProject = projects.find(({ code }) => code === String(Id));
 
-        if (!theProject) {
+        const inProjects = projects.find(({ code }) => code === String(Id));
+
+        if (!inProjects) {
           const project = await this.projectService.getProject({
             code: String(Id),
           });
@@ -221,12 +224,93 @@ export class SeedService {
     await saveProject(0);
   }
 
+  // Categories
+  async loadCategories(projects: Seed.Project[]): Promise<Seed.Category[]> {
+    let categories: Seed.Category[] = [];
+
+    const getProjectCategories = async (index: number) => {
+      try {
+        const { data } = await this.httpService.axiosRef.post<Seed.Category[]>(
+          '/Worksheet/ReadCategory',
+          `idproject=${projects[index].Id}`,
+          { ...this.request },
+        );
+
+        categories = categories.concat(data);
+      } catch (e) {
+        errorLog(`Error on "Get Categories [${index}]" process!`, e);
+      }
+
+      if (index < projects.length - 1) await getProjectCategories(index + 1);
+    };
+
+    await getProjectCategories(0);
+
+    if (categories.length <= 0) errorLog('Categories not loaded');
+
+    return categories;
+  }
+
+  async saveCategories(categories: Seed.Category[]): Promise<void> {
+    const saveCategory = async (index: number) => {
+      const { Id, Name, IdProject } = categories[index];
+
+      try {
+        const category = await this.categoryService.getCategory({
+          code: String(Id),
+        });
+
+        if (!category)
+          await this.categoryService.createCategory({
+            code: String(Id),
+            name: Name,
+          });
+      } catch (e) {
+        errorLog(
+          `Error on save category ${index + 1} of ${categories.length}: ${e}`,
+        );
+      }
+
+      try {
+        const project = await this.projectService.getProject({
+          code: String(IdProject),
+        });
+
+        const inCategories = project.categories.find(
+          ({ code }) => code === String(Id),
+        );
+
+        if (!inCategories) {
+          const category = await this.categoryService.getCategory({
+            code: String(Id),
+          });
+
+          if (category)
+            await this.projectService.addCategory({
+              categoryId: category.id,
+              projectId: project.id,
+            });
+        }
+      } catch (e) {
+        errorLog(
+          `Error on add category ${index + 1} of ${
+            categories.length
+          } to project: ${e}`,
+        );
+      }
+
+      if (index < categories.length - 1) await saveCategory(index + 1);
+    };
+
+    await saveCategory(0);
+  }
+
   async importUserData(user: User): Promise<string[]> {
     try {
       await this.loadCookies(user);
 
       // Clients
-      console.time('Clients');
+      console.time('clients');
 
       const clients = await this.loadClients();
 
@@ -234,10 +318,10 @@ export class SeedService {
 
       await this.saveClients(clients);
 
-      console.timeEnd('Clients');
+      console.timeEnd('clients');
 
       // Projects
-      console.time('Projects');
+      console.time('projects');
 
       const projects = await this.loadProjects(clients);
 
@@ -245,9 +329,20 @@ export class SeedService {
 
       await this.saveProjects(user.id, projects);
 
-      console.timeEnd('Projects');
+      console.timeEnd('projects');
 
-      return ['clients', 'projects'];
+      // Categories
+      console.time('categories');
+
+      const categories = await this.loadCategories(projects);
+
+      if (categories.length <= 0) return ['clients', 'projects'];
+
+      await this.saveCategories(categories);
+
+      console.timeEnd('categories');
+
+      return ['clients', 'projects', 'categories'];
     } catch (e) {
       errorLog({
         message: e.message,

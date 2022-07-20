@@ -20,7 +20,7 @@ import { AddProjectToUserInput } from '@/project/dto/add-project-to-user.input';
 import { Project } from '@/project/project.entity';
 import { UserService } from '@/user/user.service';
 
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 
 @Injectable()
 export class ProjectService {
@@ -90,19 +90,21 @@ export class ProjectService {
     });
   }
 
-  async getProject(params: GetProjectInput): Promise<Project | null> {
-    if (Object.keys(params).length <= 0) {
-      throw new BadRequestException('Nenhum parâmetro válido foi informado');
-    }
-
-    return this.projectRepository.findOne({
-      where: params,
+  async getProject(
+    params: FindOneOptions<Project>['where'],
+  ): Promise<Project | null> {
+    const options: FindOneOptions<Project> = {
       relations: {
         client: true,
         categories: true,
         users: true,
       },
-    });
+    };
+
+    if (params) options.where = { ...params };
+    else throw new BadRequestException('Nenhum parâmetro válido foi informado');
+
+    return this.projectRepository.findOne(options);
   }
 
   async updateProject(input: UpdateProjectInput): Promise<Project> {
