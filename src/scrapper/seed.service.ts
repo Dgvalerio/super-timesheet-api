@@ -4,8 +4,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { AuthService } from '@/auth/auth.service';
 import { ClientService } from '@/client/client.service';
 import { decryptPassword } from '@/common/helpers/cryptography';
+import { brDateToISO } from '@/common/helpers/today';
+import { ProjectService } from '@/project/project.service';
 import { Seed } from '@/scrapper/dto/seed.types';
 import { User } from '@/user/user.entity';
+import { UserService } from '@/user/user.service';
 
 import { AxiosRequestConfig } from 'axios';
 
@@ -19,7 +22,9 @@ export class SeedService {
   constructor(
     private httpService: HttpService,
     private authService: AuthService,
+    private userService: UserService,
     private clientService: ClientService,
+    private projectService: ProjectService,
   ) {}
 
   requestFactory(cookies: Seed.AuthVerify['cookies']) {
@@ -113,9 +118,7 @@ export class SeedService {
       errorLog('Error on "Get Clients" process!', e);
     }
 
-    if (clients.length <= 0) {
-      errorLog('Clients not loaded');
-    }
+    if (clients.length <= 0) errorLog('Clients not loaded');
 
     return clients;
   }
@@ -139,9 +142,91 @@ export class SeedService {
     await saveClient(0);
   }
 
+  // Projects
+  async loadProjects(clients: Seed.Client[]): Promise<Seed.Project[]> {
+    let projects: Seed.Project[] = [];
+
+    const getClientProjects = async (index: number) => {
+      const { id } = clients[index];
+
+      try {
+        const { data } = await this.httpService.axiosRef.post<
+          Omit<Seed.Project, 'progress'>[]
+        >('/Worksheet/ReadProject', `idcustomer=${id}`, { ...this.request });
+
+        projects = projects.concat(data);
+      } catch (e) {
+        errorLog(`Error on "Get Projects [${id}]" process!`, e);
+      }
+
+      if (index < clients.length - 1) await getClientProjects(index + 1);
+    };
+
+    await getClientProjects(0);
+
+    if (projects.length <= 0) errorLog('Projects not loaded');
+
+    return projects;
+  }
+
+  async saveProjects(userId: string, projects: Seed.Project[]): Promise<void> {
+    const saveProject = async (index: number) => {
+      const { Id, Name, EndDate, StartDate, IdCustomer } = projects[index];
+
+      try {
+        const project = await this.projectService.getProject({
+          code: String(Id),
+        });
+
+        if (!project)
+          await this.projectService.createProject({
+            code: String(Id),
+            name: Name,
+            startDate: new Date(brDateToISO(StartDate)),
+            endDate: new Date(brDateToISO(EndDate)),
+            clientCode: String(IdCustomer),
+          });
+      } catch (e) {
+        errorLog(
+          `Error on save project ${index + 1} of ${projects.length}: ${e}`,
+        );
+      }
+
+      try {
+        const { projects } = await this.userService.getUser({ id: userId });
+        const theProject = projects.find(({ code }) => code === String(Id));
+
+        if (!theProject) {
+          const project = await this.projectService.getProject({
+            code: String(Id),
+          });
+
+          if (project)
+            await this.projectService.addProjectToUser({
+              userId,
+              projectId: project.id,
+            });
+        }
+      } catch (e) {
+        errorLog(
+          `Error on add project ${index + 1} of ${
+            projects.length
+          } to user: ${e}`,
+        );
+      }
+
+      if (index < projects.length - 1) await saveProject(index + 1);
+    };
+
+    await saveProject(0);
+  }
+
   async importUserData(user: User): Promise<string[]> {
     try {
       await this.loadCookies(user);
+
+      // Clients
+      console.time('Clients');
 
       const clients = await this.loadClients();
 
@@ -149,7 +234,20 @@ export class SeedService {
 
       await this.saveClients(clients);
 
-      return ['clients'];
+      console.timeEnd('Clients');
+
+      // Projects
+      console.time('Projects');
+
+      const projects = await this.loadProjects(clients);
+
+      if (projects.length <= 0) return ['clients'];
+
+      await this.saveProjects(user.id, projects);
+
+      console.timeEnd('Projects');
+
+      return ['clients', 'projects'];
     } catch (e) {
       errorLog({
         message: e.message,
