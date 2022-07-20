@@ -154,6 +154,7 @@ type Mutation {
   deleteAppointment(input: DeleteAppointmentInput!): Boolean!
   sendAppointments: [SaveAppointmentOutput!]!
   updateData: Boolean!
+  importData: [String!]!
   createAzureInfos(input: CreateAzureInfosInput!): AzureInfos!
   updateAzureInfos(input: UpdateAzureInfosInput!): AzureInfos!
   deleteAzureInfos(input: DeleteAzureInfosInput!): Boolean!
