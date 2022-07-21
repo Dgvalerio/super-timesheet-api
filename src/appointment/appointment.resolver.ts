@@ -9,7 +9,6 @@ import { GetAllAppointmentsInput } from '@/appointment/dto/get-all-appointments.
 import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
 import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
 import { GqlAuthGuard } from '@/auth/auth.guard';
-import { SaveAppointmentOutput } from '@/scrapper/dto/save-appointment.output';
 import { User } from '@/user/user.entity';
 
 import { IncomingMessage } from 'http';
@@ -74,14 +73,6 @@ export class AppointmentResolver {
     @Args('input') input: DeleteAppointmentInput,
   ): Promise<boolean> {
     return this.appointmentService.deleteAppointment(input);
-  }
-
-  @UseGuards(GqlAuthGuard)
-  @Mutation(() => [SaveAppointmentOutput])
-  async sendAppointments(
-    @Context() { req }: { req: IncomingMessage & { user: User } },
-  ): Promise<SaveAppointmentOutput[]> {
-    return this.appointmentService.sendAppointments(req.user);
   }
 
   @UseGuards(GqlAuthGuard)

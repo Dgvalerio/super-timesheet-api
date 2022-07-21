@@ -75,15 +75,15 @@ enum AppointmentStatus {
   Unknown
 }
 
+type AuthOutput {
+  user: User!
+  token: String!
+}
+
 type SaveAppointmentOutput {
   appointment: Appointment
   saved: Boolean!
   message: String!
-}
-
-type AuthOutput {
-  user: User!
-  token: String!
 }
 
 type Query {
@@ -152,12 +152,12 @@ type Mutation {
   createAppointment(input: CreateAppointmentInput!): Appointment!
   updateAppointment(input: UpdateAppointmentInput!): Appointment!
   deleteAppointment(input: DeleteAppointmentInput!): Boolean!
-  sendAppointments: [SaveAppointmentOutput!]!
-  updateData: Boolean!
-  importData: [String!]!
   createAzureInfos(input: CreateAzureInfosInput!): AzureInfos!
   updateAzureInfos(input: UpdateAzureInfosInput!): AzureInfos!
   deleteAzureInfos(input: DeleteAzureInfosInput!): Boolean!
+  updateData: Boolean!
+  importData: [String!]!
+  sendAppointments: [SaveAppointmentOutput!]!
 }
 
 input CreateUserInput {

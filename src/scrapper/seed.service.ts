@@ -1,6 +1,9 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
+import { AppointmentStatus } from '@/appointment/appointment.entity';
+import { AppointmentService } from '@/appointment/appointment.service';
+import { CreateAppointmentDto } from '@/appointment/dto/create-appointment.dto';
 import { AuthService } from '@/auth/auth.service';
 import { CategoryService } from '@/category/category.service';
 import { ClientService } from '@/client/client.service';
@@ -16,6 +19,21 @@ import { AxiosRequestConfig } from 'axios';
 // eslint-disable-next-line no-console, @typescript-eslint/no-explicit-any
 export const errorLog = (...toLog: any) => console.error(...toLog);
 
+export const statusAdapter = (previous: string): AppointmentStatus => {
+  switch (previous) {
+    case 'Aprovada':
+      return AppointmentStatus.Approved;
+    case 'Pré-Aprovada':
+      return AppointmentStatus.PreApproved;
+    case 'Em análise':
+      return AppointmentStatus.Review;
+    case 'Reprovada':
+      return AppointmentStatus.Unapproved;
+    default:
+      return AppointmentStatus.Unknown;
+  }
+};
+
 @Injectable()
 export class SeedService {
   request: AxiosRequestConfig;
@@ -27,6 +45,7 @@ export class SeedService {
     private clientService: ClientService,
     private projectService: ProjectService,
     private categoryService: CategoryService,
+    private appointmentService: AppointmentService,
   ) {}
 
   requestFactory(cookies: Seed.AuthVerify['cookies']) {
@@ -305,6 +324,123 @@ export class SeedService {
     await saveCategory(0);
   }
 
+  // Appointments
+  async loadAppointments(): Promise<Seed.ToCreateAppointment[]> {
+    let appointments: Seed.ToCreateAppointment[] = [];
+
+    try {
+      const response = await this.httpService.axiosRef.get('/Worksheet/Read', {
+        ...this.request,
+      });
+
+      const html: string = response.data;
+
+      const regex = /(<tbody>)([\w\W]+?)(<\/tbody>)/gm;
+
+      const search: string = (html.match(regex) || [''])[0];
+
+      const cleanedSearch = search.split(/\r\n/gm).join('');
+
+      const rows = cleanedSearch.match(/tr>([\S\s]+?)<\/tr/g);
+
+      if (!rows) {
+        if (html.match('<div class="login-content">'))
+          console.error(`[${401}]: Cookies are invalid!`);
+        else console.error(`[${500}]: Options not found!`);
+
+        return [];
+      }
+
+      const appointmentsPromise = rows.map(
+        async (row): Promise<Seed.ToCreateAppointment> => {
+          const cols = row.split(/<\/td>([\S\s]+?)<td>/gm);
+
+          cols[0] = cols[0].replace(/tr>([\S\s]+?)<td>/gm, '');
+
+          cols[16] = (cols[16].match(/fff">([\S\s]+?)<\/span/gm) || [''])[0];
+          cols[16] = cols[16].replace(/fff">([\S\s]+?)<\/span/gm, '$1');
+
+          cols[18] = (cols[18].match(/id="([\S\s]+?)"/gm) || [''])[0];
+          cols[18] = cols[18].replace(/id="([\S\s]+?)"/gm, '$1');
+
+          const partial = { code: cols[18], status: statusAdapter(cols[16]) };
+
+          const {
+            data: {
+              IdProject,
+              IdCategory,
+              InformedDate,
+              StartTime,
+              EndTime,
+              NotMonetize,
+              Description,
+              CommitRepository,
+            },
+          } = await this.httpService.axiosRef.get<Seed.FullAppointment>(
+            `/Worksheet/Update?id=${partial.code}`,
+            { ...this.request },
+          );
+
+          return {
+            code: partial.code,
+            projectCode: String(IdProject),
+            categoryCode: String(IdCategory),
+            date: new Date(brDateToISO(InformedDate)),
+            startTime: StartTime,
+            endTime: EndTime,
+            description: Description,
+            notMonetize: NotMonetize,
+            status: partial.status,
+            commit: CommitRepository || '',
+          };
+        },
+      );
+
+      appointments = await Promise.all(appointmentsPromise);
+    } catch (e) {
+      console.error('Error on "Get Appointments" process!', e);
+    }
+
+    if (appointments.length <= 0) console.error('Appointments not loaded');
+
+    return appointments;
+  }
+
+  async saveAppointments(
+    appointments: Seed.ToCreateAppointment[],
+    userId: string,
+  ): Promise<void> {
+    const saveAppointment = async (index: number) => {
+      try {
+        const appointment = await this.appointmentService.getAppointment({
+          code: appointments[index].code,
+        });
+
+        if (appointment) {
+          await this.appointmentService.updateAppointment({
+            id: appointment.id,
+            ...appointments[index],
+          });
+        } else {
+          await this.appointmentService.createAppointment({
+            ...appointments[index],
+            userId,
+          });
+        }
+      } catch (e) {
+        errorLog(
+          `Error on create appointment ${index + 1} of ${
+            appointments.length
+          }: ${e}`,
+        );
+      }
+
+      if (index < appointments.length - 1) await saveAppointment(index + 1);
+    };
+
+    await saveAppointment(0);
+  }
+
   async importUserData(user: User): Promise<string[]> {
     try {
       await this.loadCookies(user);
@@ -366,7 +502,27 @@ export class SeedService {
 
       console.timeEnd('categories');
 
-      return ['clients', 'projects', 'categories'];
+      // Categories;
+      console.time('appointments');
+
+      console.time('loadAppointments');
+
+      const appointments = await this.loadAppointments();
+
+      console.timeEnd('loadAppointments');
+
+      if (appointments.length <= 0)
+        return ['clients', 'projects', 'categories'];
+
+      console.time('saveAppointments');
+
+      await this.saveAppointments(appointments, user.id);
+
+      console.timeEnd('saveAppointments');
+
+      console.timeEnd('appointments');
+
+      return ['clients', 'projects', 'categories', 'appointments'];
     } catch (e) {
       errorLog({
         message: e.message,

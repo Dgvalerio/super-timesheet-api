@@ -1,6 +1,7 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 
+import { AppointmentModule } from '@/appointment/appointment.module';
 import { AuthModule } from '@/auth/auth.module';
 import { CategoryModule } from '@/category/category.module';
 import { ClientModule } from '@/client/client.module';
@@ -18,6 +19,7 @@ import { UserModule } from '@/user/user.module';
     ProjectModule,
     UserModule,
     CategoryModule,
+    AppointmentModule,
   ],
   providers: [ScrapperService, ScrapperResolver, SeedService],
   exports: [ScrapperService],

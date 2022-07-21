@@ -91,11 +91,12 @@ export class AzureInfosService {
       );
     }
 
-    this.scrapperService.seed({
-      user,
-      login: input.login,
-      password: input.password,
-    });
+    // TODO: UNCOMMENT THIS
+    // this.scrapperService.seed({
+    //   user,
+    //   login: input.login,
+    //   password: input.password,
+    // });
 
     return this.getAzureInfos({ id: saved.id });
   }

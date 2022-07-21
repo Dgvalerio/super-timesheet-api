@@ -1,6 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 
+import { AppointmentStatus } from '@/appointment/appointment.entity';
+import { AppointmentService } from '@/appointment/appointment.service';
 import { AuthService } from '@/auth/auth.service';
 import { decryptPassword } from '@/common/helpers/cryptography';
 import {
@@ -11,6 +13,7 @@ import { SaveAppointmentsParams } from '@/scrapper/dto/save-appointments.params'
 import { SeedParams } from '@/scrapper/dto/seed.params';
 import { UpdateParams } from '@/scrapper/dto/update.params';
 import { VerifyAuthParams } from '@/scrapper/dto/verify-auth.params';
+import { User } from '@/user/user.entity';
 
 import { AxiosError } from 'axios';
 import { format } from 'date-fns';
@@ -21,6 +24,7 @@ export class ScrapperService {
   constructor(
     private httpService: HttpService,
     private authService: AuthService,
+    private appointmentService: AppointmentService,
   ) {}
 
   async verifyAuth(input: VerifyAuthParams): Promise<boolean> {
@@ -78,6 +82,37 @@ export class ScrapperService {
 
       return false;
     }
+  }
+
+  async sendAppointments(user: User): Promise<SaveAppointmentOutput[]> {
+    const appointments = await this.appointmentService.getAllAppointments({
+      user: { id: user.id },
+      status: AppointmentStatus.Draft,
+    });
+
+    if (appointments.length <= 0) return [];
+
+    const saveAppointmentOutputs = await this.saveAppointments({
+      azureInfos: user.azureInfos,
+      appointments,
+    });
+
+    if (saveAppointmentOutputs.length <= 0) return saveAppointmentOutputs;
+
+    const promise = saveAppointmentOutputs.map(async (output) => {
+      const { appointment } = output;
+
+      const updated = await this.appointmentService.updateAppointment({
+        id: appointment.id,
+        code: appointment.code,
+        status: appointment.status,
+        commit: appointment.commit,
+      });
+
+      return { ...output, appointment: updated };
+    });
+
+    return await Promise.all(promise);
   }
 
   async saveAppointments(

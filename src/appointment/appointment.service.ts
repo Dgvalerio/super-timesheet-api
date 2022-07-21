@@ -7,19 +7,13 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import {
-  Appointment,
-  AppointmentStatus,
-} from '@/appointment/appointment.entity';
+import { Appointment } from '@/appointment/appointment.entity';
 import { CreateAppointmentDto } from '@/appointment/dto/create-appointment.dto';
 import { DeleteAppointmentInput } from '@/appointment/dto/delete-appointment.input';
 import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
 import { CategoryService } from '@/category/category.service';
 import { formatMinutesToTime, getNow } from '@/common/helpers/today';
 import { ProjectService } from '@/project/project.service';
-import { SaveAppointmentOutput } from '@/scrapper/dto/save-appointment.output';
-import { ScrapperService } from '@/scrapper/scrapper.service';
-import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
 
 import {
@@ -44,7 +38,6 @@ export class AppointmentService {
     private userService: UserService,
     private projectService: ProjectService,
     private categoryService: CategoryService,
-    private scrapperService: ScrapperService,
   ) {}
 
   async createAppointment(data: CreateAppointmentDto): Promise<Appointment> {
@@ -392,37 +385,6 @@ export class AppointmentService {
     const deleted = await this.appointmentRepository.delete(appointment.id);
 
     return !!deleted;
-  }
-
-  async sendAppointments(user: User): Promise<SaveAppointmentOutput[]> {
-    const appointments = await this.getAllAppointments({
-      user: { id: user.id },
-      status: AppointmentStatus.Draft,
-    });
-
-    if (appointments.length <= 0) return [];
-
-    const saveAppointmentOutputs = await this.scrapperService.saveAppointments({
-      azureInfos: user.azureInfos,
-      appointments,
-    });
-
-    if (saveAppointmentOutputs.length <= 0) return saveAppointmentOutputs;
-
-    const promise = saveAppointmentOutputs.map(async (output) => {
-      const { appointment } = output;
-
-      const updated = await this.updateAppointment({
-        id: appointment.id,
-        code: appointment.code,
-        status: appointment.status,
-        commit: appointment.commit,
-      });
-
-      return { ...output, appointment: updated };
-    });
-
-    return await Promise.all(promise);
   }
 
   async getCurrentMonthWorkedTime(

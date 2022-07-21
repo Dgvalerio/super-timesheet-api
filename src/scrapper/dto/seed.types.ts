@@ -1,3 +1,7 @@
+import { Appointment } from '@/appointment/appointment.entity';
+import { Category as ECategory } from '@/category/category.entity';
+import { Project as EProject } from '@/project/project.entity';
+
 export namespace Seed {
   export interface Cookie {
     name: string;
@@ -81,18 +85,20 @@ export namespace Seed {
     IsEvaluatePreSelected: boolean;
   }
 
-  export interface Appointment {
-    id: string;
-    cliente: string;
-    projeto: string;
-    categoria: string;
-    data: string;
-    horaInicial: string;
-    horaFinal: string;
-    descricao: string;
-    naoContabilizado: boolean;
-    avaliacao: string;
-    commit: string;
+  export interface PartialAppointment {
+    code?: Appointment['code'];
+    status?: Appointment['status'];
+  }
+
+  export interface ToCreateAppointment extends PartialAppointment {
+    date: Appointment['date'];
+    startTime: Appointment['startTime'];
+    endTime: Appointment['endTime'];
+    notMonetize?: Appointment['notMonetize'];
+    description: Appointment['description'];
+    commit?: Appointment['commit'];
+    projectCode?: EProject['code'];
+    categoryCode?: ECategory['code'];
   }
 
   export interface Client {
@@ -112,25 +118,5 @@ export namespace Seed {
     Id: number;
     Name: string;
     IdProject: number;
-  }
-
-  export interface ProjectProgress {
-    Id: number;
-    IdCell: null;
-    CellName: null;
-    IdCustomer: number;
-    CustomerName: string;
-    IdProject: number;
-    ProjectName: string;
-    IsMaintenance: boolean;
-    HourLimitPerMonth: null;
-    Budget: number;
-    NotMonetize: boolean;
-    StartDate: string;
-    EndDate: string;
-    TotalTime: string;
-    TotalTimeMounth: string;
-    TotalTimeInProject: string;
-    ConsumedTimeInProject: string;
   }
 }
