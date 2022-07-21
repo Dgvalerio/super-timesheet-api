@@ -146,25 +146,24 @@ export class SeedService {
 
   // Projects
   async loadProjects(clients: Seed.Client[]): Promise<Seed.Project[]> {
-    let projects: Seed.Project[] = [];
-
-    const getClientProjects = async (index: number) => {
-      const { id } = clients[index];
-
+    const mapPromise = clients.map(async ({ id }) => {
       try {
         const { data } = await this.httpService.axiosRef.post<
           Omit<Seed.Project, 'progress'>[]
         >('/Worksheet/ReadProject', `idcustomer=${id}`, { ...this.request });
 
-        projects = projects.concat(data);
+        return data;
       } catch (e) {
         errorLog(`Error on "Get Projects [${id}]" process!`, e);
+
+        return [];
       }
+    });
 
-      if (index < clients.length - 1) await getClientProjects(index + 1);
-    };
-
-    await getClientProjects(0);
+    const mappedProjects = await Promise.all(mapPromise);
+    const projects: Seed.Project[] = mappedProjects.reduce((prev, current) =>
+      prev.concat(current),
+    );
 
     if (projects.length <= 0) errorLog('Projects not loaded');
 
@@ -312,33 +311,57 @@ export class SeedService {
       // Clients
       console.time('clients');
 
+      console.time('loadClients');
+
       const clients = await this.loadClients();
+
+      console.timeEnd('loadClients');
 
       if (clients.length <= 0) return [];
 
+      console.time('saveClients');
+
       await this.saveClients(clients);
+
+      console.timeEnd('saveClients');
 
       console.timeEnd('clients');
 
       // Projects
       console.time('projects');
 
+      console.time('loadProjects');
+
       const projects = await this.loadProjects(clients);
+
+      console.timeEnd('loadProjects');
 
       if (projects.length <= 0) return ['clients'];
 
+      console.time('saveProjects');
+
       await this.saveProjects(user.id, projects);
+
+      console.timeEnd('saveProjects');
 
       console.timeEnd('projects');
 
       // Categories
       console.time('categories');
 
+      console.time('loadCategories');
+
       const categories = await this.loadCategories(projects);
+
+      console.timeEnd('loadCategories');
 
       if (categories.length <= 0) return ['clients', 'projects'];
 
+      console.time('saveCategories');
+
       await this.saveCategories(categories);
+
+      console.timeEnd('saveCategories');
 
       console.timeEnd('categories');
 
