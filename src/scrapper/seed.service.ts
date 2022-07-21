@@ -225,25 +225,26 @@ export class SeedService {
 
   // Categories
   async loadCategories(projects: Seed.Project[]): Promise<Seed.Category[]> {
-    let categories: Seed.Category[] = [];
-
-    const getProjectCategories = async (index: number) => {
+    const mapPromise = projects.map(async ({ Id }) => {
       try {
         const { data } = await this.httpService.axiosRef.post<Seed.Category[]>(
           '/Worksheet/ReadCategory',
-          `idproject=${projects[index].Id}`,
+          `idproject=${Id}`,
           { ...this.request },
         );
 
-        categories = categories.concat(data);
+        return data;
       } catch (e) {
-        errorLog(`Error on "Get Categories [${index}]" process!`, e);
+        errorLog(`Error on "Get Categories [${Id}]" process!`, e);
+
+        return [];
       }
+    });
 
-      if (index < projects.length - 1) await getProjectCategories(index + 1);
-    };
-
-    await getProjectCategories(0);
+    const mappedCategories = await Promise.all(mapPromise);
+    const categories: Seed.Category[] = mappedCategories.reduce(
+      (prev, current) => prev.concat(current),
+    );
 
     if (categories.length <= 0) errorLog('Categories not loaded');
 
