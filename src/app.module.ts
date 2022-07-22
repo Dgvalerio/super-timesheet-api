@@ -1,5 +1,5 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { Module } from '@nestjs/common';
+import { Module, UnauthorizedException } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -15,6 +15,7 @@ import { ProjectModule } from '@/project/project.module';
 import { ScrapperModule } from '@/scrapper/scrapper.module';
 import { UserModule } from '@/user/user.module';
 
+import { Context } from 'graphql-ws';
 import { join } from 'path';
 
 @Module({
@@ -25,11 +26,23 @@ import { join } from 'path';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       subscriptions: {
-        'graphql-ws': true,
+        'graphql-ws': {
+          onConnect: (
+            context: Context<{ token: string }, { token: string }>,
+          ) => {
+            const { connectionParams, extra } = context;
+
+            if (!connectionParams.token || connectionParams.token === '')
+              throw new UnauthorizedException();
+
+            extra.token = connectionParams.token.split(' ')[1];
+          },
+        },
         'subscriptions-transport-ws': {
           onConnect: (connectionParams) => connectionParams,
         },
       },
+      context: ({ extra }) => extra,
     }),
     UserModule,
     ClientModule,

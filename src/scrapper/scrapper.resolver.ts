@@ -1,4 +1,4 @@
-import { UnauthorizedException, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { Context, Mutation, Resolver, Subscription } from '@nestjs/graphql';
 
 import { GqlAuthGuard } from '@/auth/auth.guard';
@@ -46,18 +46,12 @@ export class ScrapperResolver {
       variables,
       context,
     ) {
-      const [, token] = context.Authorization.split(' ');
-
-      const userId = this.authService.decodeToken(token);
+      const userId = this.authService.decodeToken(context.token);
 
       return payload.watchImportData.userId === userId;
     },
   })
-  watchImportData(
-    @Context() context: { Authorization?: string },
-  ): AsyncIterator<SeedOutput> {
-    if (!context.Authorization) throw new UnauthorizedException();
-
+  watchImportData(): AsyncIterator<SeedOutput> {
     return this.pubSub.asyncIterator<SeedOutput>('watchImportData');
   }
 
