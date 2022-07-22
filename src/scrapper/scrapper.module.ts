@@ -24,6 +24,6 @@ import { PubSub } from 'graphql-subscriptions';
     AppointmentModule,
   ],
   providers: [ScrapperService, ScrapperResolver, SeedService, PubSub],
-  exports: [ScrapperService],
+  exports: [ScrapperService, SeedService],
 })
 export class ScrapperModule {}

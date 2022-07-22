@@ -80,12 +80,6 @@ type AuthOutput {
   token: String!
 }
 
-type SaveAppointmentOutput {
-  appointment: Appointment
-  saved: Boolean!
-  message: String!
-}
-
 type SeedOutput {
   userId: String!
   login: SeedStatus!
@@ -102,6 +96,12 @@ enum SeedStatus {
   Save
   Ok
   Fail
+}
+
+type SaveAppointmentOutput {
+  appointment: Appointment
+  saved: Boolean!
+  message: String!
 }
 
 type Query {

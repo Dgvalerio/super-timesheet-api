@@ -15,6 +15,7 @@ import { UpdateAzureInfosInput } from '@/azure-infos/dto/update-azure-infos.inpu
 import { decryptPassword } from '@/common/helpers/cryptography';
 import { CryptoHash } from '@/common/interfaces/crypto-hash';
 import { ScrapperService } from '@/scrapper/scrapper.service';
+import { SeedService } from '@/scrapper/seed.service';
 import { UserService } from '@/user/user.service';
 
 import { randomBytes, createCipheriv, scrypt } from 'crypto';
@@ -28,6 +29,7 @@ export class AzureInfosService {
     private azureInfosRepository: Repository<AzureInfos>,
     private userService: UserService,
     private scrapperService: ScrapperService,
+    private seedService: SeedService,
   ) {}
 
   private static async encryptPassword(text: string): Promise<CryptoHash> {
@@ -91,12 +93,9 @@ export class AzureInfosService {
       );
     }
 
-    // TODO: UNCOMMENT THIS
-    // this.scrapperService.seed({
-    //   user,
-    //   login: input.login,
-    //   password: input.password,
-    // });
+    const updatedUser = await this.userService.getUser({ id: user.id });
+
+    await this.seedService.importUserData(updatedUser);
 
     return this.getAzureInfos({ id: saved.id });
   }
@@ -177,7 +176,11 @@ export class AzureInfosService {
         throw new BadRequestException('Autenticação inválida!');
       }
 
-      this.scrapperService.seed(params);
+      const updatedUser = await this.userService.getUser({
+        id: azureInfos.user.id,
+      });
+
+      await this.seedService.importUserData(updatedUser);
     }
 
     await this.azureInfosRepository.update(azureInfos, { ...newData });
