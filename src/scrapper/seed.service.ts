@@ -3,18 +3,19 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { AppointmentStatus } from '@/appointment/appointment.entity';
 import { AppointmentService } from '@/appointment/appointment.service';
-import { CreateAppointmentDto } from '@/appointment/dto/create-appointment.dto';
 import { AuthService } from '@/auth/auth.service';
 import { CategoryService } from '@/category/category.service';
 import { ClientService } from '@/client/client.service';
 import { decryptPassword } from '@/common/helpers/cryptography';
 import { brDateToISO } from '@/common/helpers/today';
 import { ProjectService } from '@/project/project.service';
+import { SeedOutput, SeedStatus } from '@/scrapper/dto/seed.output';
 import { Seed } from '@/scrapper/dto/seed.types';
 import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
 
 import { AxiosRequestConfig } from 'axios';
+import { PubSub } from 'graphql-subscriptions';
 
 // eslint-disable-next-line no-console, @typescript-eslint/no-explicit-any
 export const errorLog = (...toLog: any) => console.error(...toLog);
@@ -34,8 +35,7 @@ export const statusAdapter = (previous: string): AppointmentStatus => {
   }
 };
 
-@Injectable()
-export class SeedService {
+class ImportUserDataUtils {
   request: AxiosRequestConfig;
 
   constructor(
@@ -46,7 +46,27 @@ export class SeedService {
     private projectService: ProjectService,
     private categoryService: CategoryService,
     private appointmentService: AppointmentService,
-  ) {}
+    private pubSub: PubSub,
+  ) {
+    this.pubSub = pubSub;
+  }
+
+  progress: SeedOutput = {
+    userId: '',
+    login: SeedStatus.Wait,
+    clients: SeedStatus.Wait,
+    projects: SeedStatus.Wait,
+    categories: SeedStatus.Wait,
+    appointments: SeedStatus.Wait,
+  };
+
+  setProgress(newProgress: Partial<SeedOutput>) {
+    this.progress = { ...this.progress, ...newProgress };
+
+    return this.pubSub.publish('watchImportData', {
+      watchImportData: this.progress,
+    });
+  }
 
   requestFactory(cookies: Seed.AuthVerify['cookies']) {
     const cookie: string = cookies.reduce(
@@ -73,6 +93,8 @@ export class SeedService {
   }
 
   async loadCookies(user: User): Promise<void> {
+    await this.setProgress({ login: SeedStatus.Load });
+
     const token = await this.authService.jwtToken(user);
 
     if (!user.azureInfos)
@@ -93,10 +115,14 @@ export class SeedService {
     );
 
     this.requestFactory(res.data.cookies);
+
+    await this.setProgress({ login: SeedStatus.Ok });
   }
 
   // Clients
   async loadClients(): Promise<Seed.Client[]> {
+    await this.setProgress({ clients: SeedStatus.Load });
+
     const clients: Seed.Client[] = [];
 
     try {
@@ -145,6 +171,8 @@ export class SeedService {
   }
 
   async saveClients(clients: Seed.Client[]): Promise<void> {
+    await this.setProgress({ clients: SeedStatus.Save });
+
     const saveClient = async (index: number) => {
       const { id, title } = clients[index];
 
@@ -161,10 +189,14 @@ export class SeedService {
     };
 
     await saveClient(0);
+
+    await this.setProgress({ clients: SeedStatus.Ok });
   }
 
   // Projects
   async loadProjects(clients: Seed.Client[]): Promise<Seed.Project[]> {
+    await this.setProgress({ projects: SeedStatus.Load });
+
     const mapPromise = clients.map(async ({ id }) => {
       try {
         const { data } = await this.httpService.axiosRef.post<
@@ -190,6 +222,8 @@ export class SeedService {
   }
 
   async saveProjects(userId: string, projects: Seed.Project[]): Promise<void> {
+    await this.setProgress({ projects: SeedStatus.Save });
+
     const saveProject = async (index: number) => {
       const { Id, Name, EndDate, StartDate, IdCustomer } = projects[index];
 
@@ -240,10 +274,14 @@ export class SeedService {
     };
 
     await saveProject(0);
+
+    await this.setProgress({ projects: SeedStatus.Ok });
   }
 
   // Categories
   async loadCategories(projects: Seed.Project[]): Promise<Seed.Category[]> {
+    await this.setProgress({ categories: SeedStatus.Load });
+
     const mapPromise = projects.map(async ({ Id }) => {
       try {
         const { data } = await this.httpService.axiosRef.post<Seed.Category[]>(
@@ -271,6 +309,8 @@ export class SeedService {
   }
 
   async saveCategories(categories: Seed.Category[]): Promise<void> {
+    await this.setProgress({ categories: SeedStatus.Save });
+
     const saveCategory = async (index: number) => {
       const { Id, Name, IdProject } = categories[index];
 
@@ -322,10 +362,14 @@ export class SeedService {
     };
 
     await saveCategory(0);
+
+    await this.setProgress({ categories: SeedStatus.Ok });
   }
 
   // Appointments
   async loadAppointments(): Promise<Seed.ToCreateAppointment[]> {
+    await this.setProgress({ appointments: SeedStatus.Load });
+
     let appointments: Seed.ToCreateAppointment[] = [];
 
     try {
@@ -345,8 +389,8 @@ export class SeedService {
 
       if (!rows) {
         if (html.match('<div class="login-content">'))
-          console.error(`[${401}]: Cookies are invalid!`);
-        else console.error(`[${500}]: Options not found!`);
+          errorLog(`[${401}]: Cookies are invalid!`);
+        else errorLog(`[${500}]: Options not found!`);
 
         return [];
       }
@@ -398,10 +442,10 @@ export class SeedService {
 
       appointments = await Promise.all(appointmentsPromise);
     } catch (e) {
-      console.error('Error on "Get Appointments" process!', e);
+      errorLog('Error on "Get Appointments" process!', e);
     }
 
-    if (appointments.length <= 0) console.error('Appointments not loaded');
+    if (appointments.length <= 0) errorLog('Appointments not loaded');
 
     return appointments;
   }
@@ -410,6 +454,8 @@ export class SeedService {
     appointments: Seed.ToCreateAppointment[],
     userId: string,
   ): Promise<void> {
+    await this.setProgress({ appointments: SeedStatus.Save });
+
     const saveAppointment = async (index: number) => {
       try {
         const appointment = await this.appointmentService.getAppointment({
@@ -439,90 +485,86 @@ export class SeedService {
     };
 
     await saveAppointment(0);
-  }
 
-  async importUserData(user: User): Promise<string[]> {
+    await this.setProgress({ appointments: SeedStatus.Ok });
+  }
+}
+
+@Injectable()
+export class SeedService {
+  constructor(
+    private httpService: HttpService,
+    private authService: AuthService,
+    private userService: UserService,
+    private clientService: ClientService,
+    private projectService: ProjectService,
+    private categoryService: CategoryService,
+    private appointmentService: AppointmentService,
+    private pubSub: PubSub,
+  ) {}
+
+  async importUserData(user: User): Promise<void> {
+    const dataUtils = new ImportUserDataUtils(
+      this.httpService,
+      this.authService,
+      this.userService,
+      this.clientService,
+      this.projectService,
+      this.categoryService,
+      this.appointmentService,
+      this.pubSub,
+    );
+
+    await dataUtils.setProgress({ userId: user.id });
+
     try {
-      await this.loadCookies(user);
+      await dataUtils.loadCookies(user);
 
       // Clients
-      console.time('clients');
+      const clients = await dataUtils.loadClients();
 
-      console.time('loadClients');
+      if (clients.length <= 0)
+        return await dataUtils.setProgress({
+          clients: SeedStatus.Fail,
+          projects: SeedStatus.Fail,
+          categories: SeedStatus.Fail,
+          appointments: SeedStatus.Fail,
+        });
 
-      const clients = await this.loadClients();
-
-      console.timeEnd('loadClients');
-
-      if (clients.length <= 0) return [];
-
-      console.time('saveClients');
-
-      await this.saveClients(clients);
-
-      console.timeEnd('saveClients');
-
-      console.timeEnd('clients');
+      await dataUtils.saveClients(clients);
 
       // Projects
-      console.time('projects');
+      const projects = await dataUtils.loadProjects(clients);
 
-      console.time('loadProjects');
+      if (projects.length <= 0)
+        return await dataUtils.setProgress({
+          projects: SeedStatus.Fail,
+          categories: SeedStatus.Fail,
+          appointments: SeedStatus.Fail,
+        });
 
-      const projects = await this.loadProjects(clients);
-
-      console.timeEnd('loadProjects');
-
-      if (projects.length <= 0) return ['clients'];
-
-      console.time('saveProjects');
-
-      await this.saveProjects(user.id, projects);
-
-      console.timeEnd('saveProjects');
-
-      console.timeEnd('projects');
+      await dataUtils.saveProjects(user.id, projects);
 
       // Categories
-      console.time('categories');
+      const categories = await dataUtils.loadCategories(projects);
 
-      console.time('loadCategories');
+      if (categories.length <= 0)
+        return await dataUtils.setProgress({
+          categories: SeedStatus.Fail,
+          appointments: SeedStatus.Fail,
+        });
 
-      const categories = await this.loadCategories(projects);
-
-      console.timeEnd('loadCategories');
-
-      if (categories.length <= 0) return ['clients', 'projects'];
-
-      console.time('saveCategories');
-
-      await this.saveCategories(categories);
-
-      console.timeEnd('saveCategories');
-
-      console.timeEnd('categories');
+      await dataUtils.saveCategories(categories);
 
       // Categories;
-      console.time('appointments');
-
-      console.time('loadAppointments');
-
-      const appointments = await this.loadAppointments();
-
-      console.timeEnd('loadAppointments');
+      const appointments = await dataUtils.loadAppointments();
 
       if (appointments.length <= 0)
-        return ['clients', 'projects', 'categories'];
+        return await dataUtils.setProgress({
+          appointments: SeedStatus.Fail,
+        });
 
-      console.time('saveAppointments');
-
-      await this.saveAppointments(appointments, user.id);
-
-      console.timeEnd('saveAppointments');
-
-      console.timeEnd('appointments');
-
-      return ['clients', 'projects', 'categories', 'appointments'];
+      await dataUtils.saveAppointments(appointments, user.id);
     } catch (e) {
       errorLog({
         message: e.message,

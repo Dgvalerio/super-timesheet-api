@@ -20,6 +20,12 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  decodeToken(token: string): string {
+    const { sub } = this.jwtService.decode(token);
+
+    return sub;
+  }
+
   async jwtToken(user: User): Promise<string> {
     const payload: JWTPayload = { name: user.name, sub: user.id };
 

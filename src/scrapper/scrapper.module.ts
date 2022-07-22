@@ -11,6 +11,8 @@ import { ScrapperService } from '@/scrapper/scrapper.service';
 import { SeedService } from '@/scrapper/seed.service';
 import { UserModule } from '@/user/user.module';
 
+import { PubSub } from 'graphql-subscriptions';
+
 @Module({
   imports: [
     AuthModule,
@@ -21,7 +23,7 @@ import { UserModule } from '@/user/user.module';
     CategoryModule,
     AppointmentModule,
   ],
-  providers: [ScrapperService, ScrapperResolver, SeedService],
+  providers: [ScrapperService, ScrapperResolver, SeedService, PubSub],
   exports: [ScrapperService],
 })
 export class ScrapperModule {}

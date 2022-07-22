@@ -86,6 +86,24 @@ type SaveAppointmentOutput {
   message: String!
 }
 
+type SeedOutput {
+  userId: String!
+  login: SeedStatus!
+  clients: SeedStatus!
+  projects: SeedStatus!
+  categories: SeedStatus!
+  appointments: SeedStatus!
+}
+
+"""Current status of seed operation."""
+enum SeedStatus {
+  Wait
+  Load
+  Save
+  Ok
+  Fail
+}
+
 type Query {
   getAllUsers: [User!]!
   getUser(input: GetUserInput!): User!
@@ -156,7 +174,7 @@ type Mutation {
   updateAzureInfos(input: UpdateAzureInfosInput!): AzureInfos!
   deleteAzureInfos(input: DeleteAzureInfosInput!): Boolean!
   updateData: Boolean!
-  importData: [String!]!
+  importData: Boolean!
   sendAppointments: [SaveAppointmentOutput!]!
 }
 
@@ -294,4 +312,8 @@ input UpdateAzureInfosInput {
 input DeleteAzureInfosInput {
   id: String
   login: String
+}
+
+type Subscription {
+  watchImportData: SeedOutput!
 }
