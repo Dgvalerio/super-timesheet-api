@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
+import { Client } from '@/client/client.entity';
 import { CreateUserInput } from '@/user/dto/create-user.input';
 import { DeleteUserInput } from '@/user/dto/delete-user.input';
 import { GetUserInput } from '@/user/dto/get-user.input';
@@ -71,6 +72,28 @@ export class UserService {
 
   async getAllUsers(): Promise<User[]> {
     return this.userRepository.find();
+  }
+
+  async getUserClients(user: User): Promise<Client[]> {
+    const { projects } = user;
+
+    if (projects.length === 0) return [];
+
+    const clients: Client[] = [];
+
+    projects.forEach(({ client, ...rest }) => {
+      client.projects = [];
+
+      const project = { ...rest, client };
+
+      const index = clients.findIndex(({ id }) => client.id === id);
+
+      if (index >= 0)
+        clients[index].projects = clients[index].projects.concat(project);
+      else clients.push({ ...client, projects: [project] });
+    });
+
+    return clients;
   }
 
   async deleteUser(input: DeleteUserInput): Promise<boolean> {

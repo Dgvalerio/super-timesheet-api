@@ -1,12 +1,15 @@
 import { NotFoundException, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { GqlAuthGuard } from '@/auth/auth.guard';
+import { Client } from '@/client/client.entity';
 import { CreateUserInput } from '@/user/dto/create-user.input';
 import { DeleteUserInput } from '@/user/dto/delete-user.input';
 import { GetUserInput } from '@/user/dto/get-user.input';
 import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
+
+import { IncomingMessage } from 'http';
 
 @Resolver()
 export class UserResolver {
@@ -33,6 +36,14 @@ export class UserResolver {
     }
 
     return user;
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [Client])
+  async getUserClients(
+    @Context() { req }: { req: IncomingMessage & { user: User } },
+  ): Promise<Client[]> {
+    return await this.userService.getUserClients(req.user);
   }
 
   @UseGuards(GqlAuthGuard)

@@ -107,6 +107,7 @@ type SaveAppointmentOutput {
 type Query {
   getAllUsers: [User!]!
   getUser(input: GetUserInput!): User!
+  getUserClients: [Client!]!
   getAllClients: [Client!]!
   getClient(input: GetClientInput!): Client!
   getAllProjects: [Project!]!
