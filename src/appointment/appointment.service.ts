@@ -193,6 +193,11 @@ export class AppointmentService {
         project: { client: true },
         category: true,
       },
+      order: {
+        date: 'desc',
+        startTime: 'desc',
+        endTime: 'desc',
+      },
     };
 
     if (params) {
