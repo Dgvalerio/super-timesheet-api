@@ -3,11 +3,11 @@ import { ObjectType, registerEnumType } from '@nestjs/graphql';
 import { User } from '@/user/user.entity';
 
 export enum SeedStatus {
-  Wait = 'Waiting for load',
-  Load = 'Loading',
-  Save = 'Saving',
-  Ok = 'Saved',
-  Fail = 'Failed',
+  Wait = 'Wait',
+  Load = 'Load',
+  Save = 'Save',
+  Ok = 'Ok',
+  Fail = 'Fail',
 }
 
 registerEnumType(SeedStatus, {
