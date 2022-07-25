@@ -150,6 +150,12 @@ export class AppointmentService {
       throw new NotFoundException('A categoria informada não existe!');
     }
 
+    if (!project.categories.find(({ id }) => category.id === id)) {
+      throw new NotFoundException(
+        'A categoria informada não existe nesse projeto!',
+      );
+    }
+
     const created = this.appointmentRepository.create({
       ...data,
       user,
