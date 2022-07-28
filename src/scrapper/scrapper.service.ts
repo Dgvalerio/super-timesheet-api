@@ -10,7 +10,6 @@ import {
   SaveAppointmentOutput,
 } from '@/scrapper/dto/save-appointment.output';
 import { SaveAppointmentsParams } from '@/scrapper/dto/save-appointments.params';
-import { SeedParams } from '@/scrapper/dto/seed.params';
 import { UpdateParams } from '@/scrapper/dto/update.params';
 import { VerifyAuthParams } from '@/scrapper/dto/verify-auth.params';
 import { User } from '@/user/user.entity';
@@ -42,22 +41,6 @@ export class ScrapperService {
       return res.data.authenticationIsValid;
     } catch (e) {
       return false;
-    }
-  }
-
-  async seed(input: SeedParams): Promise<void> {
-    try {
-      const token = await this.authService.jwtToken(input.user);
-
-      await firstValueFrom(
-        this.httpService.post(`${process.env.AUTH_API}/scrapper/seed`, {
-          login: input.login,
-          password: input.password,
-          token,
-        }),
-      );
-    } catch (e) {
-      console.log(e);
     }
   }
 
