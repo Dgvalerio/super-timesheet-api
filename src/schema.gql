@@ -282,8 +282,6 @@ input UpdateAppointmentInput {
   description: String
   commit: String
   status: AppointmentStatus
-  userId: String
-  userEmail: String
   projectId: String
   projectCode: String
   categoryId: String

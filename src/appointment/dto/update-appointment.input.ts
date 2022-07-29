@@ -7,12 +7,10 @@ import {
 import { Category } from '@/category/category.entity';
 import { today } from '@/common/helpers/today';
 import { Project } from '@/project/project.entity';
-import { User } from '@/user/user.entity';
 
 import {
   IsBoolean,
   IsDate,
-  IsEmail,
   IsEnum,
   IsMilitaryTime,
   IsNotEmpty,
@@ -71,17 +69,6 @@ export class UpdateAppointmentInput implements Partial<Appointment> {
   status?: Appointment['status'];
 
   // Relations
-  // User
-  @IsString()
-  @IsNotEmpty()
-  @IsOptional()
-  userId?: User['id'];
-
-  @IsEmail()
-  @IsNotEmpty()
-  @IsOptional()
-  userEmail?: User['email'];
-
   // Project
   @IsString()
   @IsNotEmpty()

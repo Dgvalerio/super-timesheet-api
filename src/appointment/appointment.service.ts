@@ -10,7 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Appointment } from '@/appointment/appointment.entity';
 import { CreateAppointmentDto } from '@/appointment/dto/create-appointment.dto';
 import { DeleteAppointmentInput } from '@/appointment/dto/delete-appointment.input';
-import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
+import { UpdateAppointmentDto } from '@/appointment/dto/update-appointment.dto';
 import { CategoryService } from '@/category/category.service';
 import { formatMinutesToTime, getNow } from '@/common/helpers/today';
 import { ProjectService } from '@/project/project.service';
@@ -226,7 +226,7 @@ export class AppointmentService {
     return this.appointmentRepository.find(options);
   }
 
-  async updateAppointment(input: UpdateAppointmentInput): Promise<Appointment> {
+  async updateAppointment(input: UpdateAppointmentDto): Promise<Appointment> {
     const newData: Partial<Appointment> = {};
     const appointment = await this.getAppointment({ id: input.id });
 
@@ -250,14 +250,8 @@ export class AppointmentService {
     }
 
     // User
-    if (
-      (input.userId && input.userId !== appointment.user.id) ||
-      (input.userEmail && input.userEmail !== appointment.user.email)
-    ) {
-      const user = await this.userService.getUser({
-        id: input.userId,
-        email: input.userEmail,
-      });
+    if (input.userId && input.userId !== appointment.user.id) {
+      const user = await this.userService.getUser({ id: input.userId });
 
       if (!user) {
         throw new NotFoundException('O usuário informado não existe!');

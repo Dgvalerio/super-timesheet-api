@@ -62,9 +62,13 @@ export class AppointmentResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Appointment)
   async updateAppointment(
+    @Context() { req }: { req: IncomingMessage & { user: User } },
     @Args('input') input: UpdateAppointmentInput,
   ): Promise<Appointment> {
-    return this.appointmentService.updateAppointment(input);
+    return this.appointmentService.updateAppointment({
+      ...input,
+      userId: req.user.id,
+    });
   }
 
   @UseGuards(GqlAuthGuard)
