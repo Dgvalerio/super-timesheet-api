@@ -192,8 +192,9 @@ input UpdateUserInput {
   name: String
   email: String
   dailyHours: Float
-  password: String
-  passwordConfirmation: String
+  password: String!
+  newPassword: String
+  newPasswordConfirmation: String
 }
 
 input DeleteUserInput {

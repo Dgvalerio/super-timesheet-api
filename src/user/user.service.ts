@@ -4,6 +4,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -14,6 +15,7 @@ import { GetUserInput } from '@/user/dto/get-user.input';
 import { UpdateUserDto } from '@/user/dto/update-user.dto';
 import { User } from '@/user/user.entity';
 
+import { compareSync } from 'bcrypt';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -74,18 +76,24 @@ export class UserService {
       newData.dailyHours = input.dailyHours;
     }
 
-    if (input.password && input.password !== user.password) {
-      if (input.password !== input.passwordConfirmation) {
+    if (input.newPassword) {
+      if (input.newPassword !== input.newPasswordConfirmation) {
         throw new BadRequestException(
-          'A confirmação de senha deve ser igual à senha!',
+          'A confirmação da nova senha deve ser igual à nova senha!',
         );
       } else {
-        newData.password = input.password;
+        newData.password = input.newPassword;
       }
     }
 
     if (Object.keys(newData).length === 0) {
       return user;
+    } else {
+      const validPassword = compareSync(input.password, user.password);
+
+      if (!validPassword) {
+        throw new UnauthorizedException('Senha incorreta!');
+      }
     }
 
     await this.userRepository.update({ id: user.id }, { ...newData });

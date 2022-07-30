@@ -5,6 +5,7 @@ export interface UpdateUserDto {
   name?: User['name'];
   email?: User['email'];
   dailyHours?: User['dailyHours'];
-  password?: User['password'];
-  passwordConfirmation?: User['password'];
+  password: User['password'];
+  newPassword?: User['password'];
+  newPasswordConfirmation?: User['password'];
 }

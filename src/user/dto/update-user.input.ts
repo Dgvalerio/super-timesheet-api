@@ -36,12 +36,17 @@ export class UpdateUserInput {
   @IsString()
   @MinLength(8)
   @IsNotEmpty()
-  @IsOptional()
-  password?: User['password'];
+  password: User['password'];
 
   @IsString()
   @MinLength(8)
-  @ValidateIf((o) => o.password)
   @IsNotEmpty()
-  passwordConfirmation?: User['password'];
+  @IsOptional()
+  newPassword?: User['password'];
+
+  @IsString()
+  @MinLength(8)
+  @ValidateIf((o) => o.newPassword)
+  @IsNotEmpty()
+  newPasswordConfirmation?: User['password'];
 }
