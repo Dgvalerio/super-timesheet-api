@@ -11,6 +11,7 @@ import { Client } from '@/client/client.entity';
 import { CreateUserInput } from '@/user/dto/create-user.input';
 import { DeleteUserInput } from '@/user/dto/delete-user.input';
 import { GetUserInput } from '@/user/dto/get-user.input';
+import { UpdateUserDto } from '@/user/dto/update-user.dto';
 import { User } from '@/user/user.entity';
 
 import { Repository } from 'typeorm';
@@ -45,6 +46,59 @@ export class UserService {
     }
 
     return saved;
+  }
+
+  async updateUser(input: UpdateUserDto): Promise<User> {
+    const newData: Partial<User> = {};
+    const user = await this.getUser({ id: input.id });
+
+    if (!user) {
+      throw new NotFoundException('O usuário informado não existe!');
+    }
+
+    if (input.name && input.name !== user.name) {
+      newData.name = input.name;
+    }
+
+    if (input.email && input.email !== user.email) {
+      const conflicting = await this.getUser({ email: input.email });
+
+      if (conflicting) {
+        throw new ConflictException('Esse email já foi utilizado!');
+      }
+
+      newData.email = input.email;
+    }
+
+    if (input.dailyHours && input.dailyHours !== user.dailyHours) {
+      newData.dailyHours = input.dailyHours;
+    }
+
+    if (input.password && input.password !== user.password) {
+      if (input.password !== input.passwordConfirmation) {
+        throw new BadRequestException(
+          'A confirmação de senha deve ser igual à senha!',
+        );
+      } else {
+        newData.password = input.password;
+      }
+    }
+
+    if (Object.keys(newData).length === 0) {
+      return user;
+    }
+
+    await this.userRepository.update({ id: user.id }, { ...newData });
+
+    const saved = await this.userRepository.save({ id: user.id, ...newData });
+
+    if (!saved) {
+      throw new InternalServerErrorException(
+        'Houve um problema ao atualizar o usuário',
+      );
+    }
+
+    return this.getUser({ id: input.id });
   }
 
   async getUser(params: GetUserInput): Promise<User | null> {

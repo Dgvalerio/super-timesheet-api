@@ -6,6 +6,7 @@ import { Client } from '@/client/client.entity';
 import { CreateUserInput } from '@/user/dto/create-user.input';
 import { DeleteUserInput } from '@/user/dto/delete-user.input';
 import { GetUserInput } from '@/user/dto/get-user.input';
+import { UpdateUserInput } from '@/user/dto/update-user.input';
 import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
 
@@ -18,6 +19,18 @@ export class UserResolver {
   @Mutation(() => User)
   async createUser(@Args('input') input: CreateUserInput): Promise<User> {
     return this.userService.createUser(input);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => User)
+  async updateUser(
+    @Context() { req }: { req: IncomingMessage & { user: User } },
+    @Args('input') input: UpdateUserInput,
+  ): Promise<User> {
+    return this.userService.updateUser({
+      ...input,
+      id: req.user.id,
+    });
   }
 
   @UseGuards(GqlAuthGuard)

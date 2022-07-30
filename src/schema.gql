@@ -157,6 +157,7 @@ input GetAppointmentInput {
 
 type Mutation {
   createUser(input: CreateUserInput!): User!
+  updateUser(input: UpdateUserInput!): User!
   deleteUser(input: DeleteUserInput!): Boolean!
   createClient(input: CreateClientInput!): Client!
   deleteClient(input: DeleteClientInput!): Boolean!
@@ -185,6 +186,14 @@ input CreateUserInput {
   dailyHours: Float!
   password: String!
   passwordConfirmation: String!
+}
+
+input UpdateUserInput {
+  name: String
+  email: String
+  dailyHours: Float
+  password: String
+  passwordConfirmation: String
 }
 
 input DeleteUserInput {
