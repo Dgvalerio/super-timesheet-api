@@ -1,5 +1,5 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { Module, UnauthorizedException } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -33,7 +33,7 @@ import { join } from 'path';
             const { connectionParams, extra } = context;
 
             if (!connectionParams.token || connectionParams.token === '')
-              throw new UnauthorizedException();
+              throw new Error('Token is not valid');
 
             extra.token = connectionParams.token.split(' ')[1];
           },
