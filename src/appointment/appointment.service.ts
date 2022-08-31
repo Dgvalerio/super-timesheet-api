@@ -100,7 +100,10 @@ export class AppointmentService {
     );
 
     if (timeConflict) {
-      throw new ConflictException('Esse horário já foi utilizado!');
+      throw new ConflictException({
+        timeConflict,
+        description: 'Esse horário já foi utilizado!',
+      });
     }
 
     // Verify duration

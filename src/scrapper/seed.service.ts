@@ -1,7 +1,11 @@
+/* eslint-disable no-console, @typescript-eslint/no-explicit-any */
 import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import { AppointmentStatus } from '@/appointment/appointment.entity';
+import {
+  Appointment,
+  AppointmentStatus,
+} from '@/appointment/appointment.entity';
 import { AppointmentService } from '@/appointment/appointment.service';
 import { AuthService } from '@/auth/auth.service';
 import { CategoryService } from '@/category/category.service';
@@ -17,7 +21,6 @@ import { UserService } from '@/user/user.service';
 import { AxiosRequestConfig } from 'axios';
 import { PubSub } from 'graphql-subscriptions';
 
-// eslint-disable-next-line no-console, @typescript-eslint/no-explicit-any
 export const errorLog = (...toLog: any) => console.error(...toLog);
 
 export const statusAdapter = (previous: string): AppointmentStatus => {
@@ -450,6 +453,44 @@ class ImportUserDataUtils {
     return appointments;
   }
 
+  async compareAndUpdateAppointment(
+    toSave: Seed.ToCreateAppointment,
+    saved: Appointment,
+  ): Promise<void> {
+    if (toSave.date.toISOString() === saved.date.toISOString()) {
+      console.log('O dia bate!');
+      if (toSave.startTime === saved.startTime) {
+        console.log('O horário inicial bate!');
+        if (toSave.endTime === saved.endTime) {
+          console.log('O horário final bate!');
+          if (toSave.description === saved.description) {
+            console.log('Até a descrição bate!');
+            if (toSave.notMonetize === saved.notMonetize) {
+              console.log('A monetização também bate!');
+              if (
+                (toSave.commit === 'Não aplicado' ? null : toSave.commit) ===
+                saved.commit
+              ) {
+                console.log(
+                  'Mano, o commit bate, é o mesmo apontamento, vou atualizar',
+                );
+
+                try {
+                  await this.appointmentService.updateAppointment({
+                    id: saved.id,
+                    ...toSave,
+                  });
+                } catch (e) {
+                  errorLog(`Error on compareAndUpdateAppointment: ${e}`);
+                }
+              } else console.log('Mano, o commit não bate');
+            } else console.log('A monetização não bate!');
+          } else console.log('Mas a descrição não bate!');
+        } else console.log('O horário final não bate!');
+      } else console.log('O horário inicial não bate!');
+    } else console.log('O dia não bate!');
+  }
+
   async saveAppointments(
     appointments: Seed.ToCreateAppointment[],
     userId: string,
@@ -474,11 +515,32 @@ class ImportUserDataUtils {
           });
         }
       } catch (e) {
-        errorLog(
-          `Error on create appointment ${index + 1} of ${
-            appointments.length
-          }: ${e}`,
-        );
+        if (e.response.description) {
+          const {
+            response: { description, timeConflict },
+          } = <
+            { response: { description: string; timeConflict: Appointment } }
+          >e;
+
+          errorLog(
+            `Error on create appointment ${index + 1} of ${
+              appointments.length
+            }: ${description}`,
+            timeConflict,
+          );
+
+          await this.compareAndUpdateAppointment(
+            appointments[index],
+            timeConflict,
+          );
+        } else {
+          errorLog(
+            `Error on create appointment ${index + 1} of ${
+              appointments.length
+            }: ${e}`,
+            e,
+          );
+        }
       }
 
       if (index < appointments.length - 1) await saveAppointment(index + 1);
