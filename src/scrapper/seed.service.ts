@@ -453,6 +453,9 @@ class ImportUserDataUtils {
     return appointments;
   }
 
+  descriptionAdapter = (description: string) =>
+    description.replace(/[\r\n]+/gm, '');
+
   async compareAndUpdateAppointment(
     toSave: Seed.ToCreateAppointment,
     saved: Appointment,
@@ -463,7 +466,10 @@ class ImportUserDataUtils {
         console.log('O horário inicial bate!');
         if (toSave.endTime === saved.endTime) {
           console.log('O horário final bate!');
-          if (toSave.description === saved.description) {
+          if (
+            this.descriptionAdapter(toSave.description) ===
+            this.descriptionAdapter(saved.description)
+          ) {
             console.log('Até a descrição bate!');
             if (toSave.notMonetize === saved.notMonetize) {
               console.log('A monetização também bate!');
@@ -526,7 +532,6 @@ class ImportUserDataUtils {
             `Error on create appointment ${index + 1} of ${
               appointments.length
             }: ${description}`,
-            timeConflict,
           );
 
           await this.compareAndUpdateAppointment(
