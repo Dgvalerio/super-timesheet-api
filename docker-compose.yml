@@ -5,7 +5,7 @@ services:
     container_name: api
     build: .
     ports:
-      - "${API_PORT}:${API_PORT}"
+      - "${PORT}:${PORT}"
     volumes:
       - .:/home/api
       - /home/api/node_modules
