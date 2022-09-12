@@ -98,6 +98,23 @@ enum SeedStatus {
   Fail
 }
 
+type AuthVerifyOutput {
+  userId: String!
+  page: AuthVerifyStatus!
+  auth: AuthVerifyStatus!
+  cookies: AuthVerifyStatus!
+  wipe: AuthVerifyStatus!
+}
+
+"""Current status of auth verify operation."""
+enum AuthVerifyStatus {
+  Wait
+  Load
+  Process
+  Ok
+  Fail
+}
+
 type SaveAppointmentOutput {
   appointment: Appointment
   saved: Boolean!
@@ -178,6 +195,7 @@ type Mutation {
   updateData: Boolean!
   importData: Boolean!
   sendAppointments: [SaveAppointmentOutput!]!
+  authVerify(input: AuthVerifyInput!): Boolean!
 }
 
 input CreateUserInput {
@@ -323,6 +341,12 @@ input DeleteAzureInfosInput {
   login: String
 }
 
+input AuthVerifyInput {
+  login: String!
+  password: String!
+}
+
 type Subscription {
   watchImportData: SeedOutput!
+  watchAuthVerify: AuthVerifyOutput!
 }
