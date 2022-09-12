@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
+import { puppeteerOptions, scrapper } from '@/common/helpers/puppeteer';
 import { AuthVerifyInput } from '@/scrapper/auth-verify/dto/auth-verify.input';
 import {
   AuthVerifyOutput,
@@ -9,28 +10,7 @@ import {
 import { CookieType } from '@/scrapper/auth-verify/dto/cookie.output';
 
 import { PubSub } from 'graphql-subscriptions';
-import puppeteer, {
-  BrowserConnectOptions,
-  BrowserLaunchArgumentOptions,
-  Product,
-  LaunchOptions,
-} from 'puppeteer';
-
-export type PuppeteerLaunchOptions = LaunchOptions &
-  BrowserLaunchArgumentOptions &
-  BrowserConnectOptions & {
-    product?: Product;
-    extraPrefsFirefox?: Record<string, unknown>;
-  };
-
-export const puppeteerOptions: PuppeteerLaunchOptions = {
-  args: ['--no-sandbox', '--window-size=1280,768'],
-  defaultViewport: { width: 1280, height: 768 },
-};
-
-export const baseURL = `https://luby-timesheet.azurewebsites.net`;
-export const accountLogin = `${baseURL}/Account/Login`;
-export const homeIndex = `${baseURL}/Home/Index`;
+import puppeteer from 'puppeteer';
 
 @Injectable()
 export class AuthVerifyService {
@@ -74,7 +54,7 @@ export class AuthVerifyService {
 
       await this.setProgress({ auth: AuthVerifyStatus.Load });
 
-      await page.goto(accountLogin);
+      await page.goto(scrapper.accountLogin);
 
       await page.waitForSelector('form');
 
@@ -88,7 +68,7 @@ export class AuthVerifyService {
 
       await page.waitForSelector('.sidebar-menu', { timeout: 3000 });
 
-      if (page.url() !== homeIndex) {
+      if (page.url() !== scrapper.homeIndex) {
         await this.setProgress({ auth: AuthVerifyStatus.Fail });
 
         return [];
