@@ -6,7 +6,7 @@ import {
   AuthVerifyStatus,
   WATCH_AUTH_VERIFY,
 } from '@/scrapper/auth-verify/dto/auth-verify.output';
-import { Seed } from '@/scrapper/dto/seed.types';
+import { CookieType } from '@/scrapper/auth-verify/dto/cookie.output';
 
 import { PubSub } from 'graphql-subscriptions';
 import puppeteer, {
@@ -15,7 +15,6 @@ import puppeteer, {
   Product,
   LaunchOptions,
 } from 'puppeteer';
-import Cookie = Seed.Cookie;
 
 export type PuppeteerLaunchOptions = LaunchOptions &
   BrowserLaunchArgumentOptions &
@@ -53,7 +52,7 @@ export class AuthVerifyService {
     });
   }
 
-  async authVerify(input: AuthVerifyInput): Promise<Cookie[]> {
+  async authVerify(input: AuthVerifyInput): Promise<CookieType[]> {
     try {
       await this.setProgress({ page: AuthVerifyStatus.Load });
 

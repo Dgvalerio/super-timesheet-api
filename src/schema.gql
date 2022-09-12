@@ -115,6 +115,25 @@ enum SeedStatus {
   Fail
 }
 
+type CookieType {
+  name: String!
+  value: String!
+  domain: String!
+  path: String!
+  expires: Float!
+  size: Float!
+  httpOnly: Boolean!
+  secure: Boolean!
+  session: Boolean!
+  sameSite: String
+  priority: String!
+  sameParty: Boolean!
+  sourceScheme: String!
+  sourcePort: Float!
+  partitionKey: String
+  partitionKeyOpaque: Boolean
+}
+
 type SaveAppointmentOutput {
   appointment: Appointment
   saved: Boolean!
@@ -195,7 +214,7 @@ type Mutation {
   updateData: Boolean!
   importData: Boolean!
   sendAppointments: [SaveAppointmentOutput!]!
-  authVerify(input: AuthVerifyInput!): Boolean!
+  authVerify(input: AuthVerifyInput!): [CookieType!]!
 }
 
 input CreateUserInput {

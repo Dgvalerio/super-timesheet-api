@@ -7,10 +7,9 @@ import {
   AuthVerifyOutput,
   WATCH_AUTH_VERIFY,
 } from '@/scrapper/auth-verify/dto/auth-verify.output';
-import { Seed } from '@/scrapper/dto/seed.types';
+import { CookieType } from '@/scrapper/auth-verify/dto/cookie.output';
 
 import { PubSub } from 'graphql-subscriptions';
-import Cookie = Seed.Cookie;
 
 @Resolver()
 export class AuthVerifyResolver {
@@ -20,8 +19,10 @@ export class AuthVerifyResolver {
     private authService: AuthService,
   ) {}
 
-  @Mutation(() => Boolean)
-  async authVerify(@Args('input') input: AuthVerifyInput): Promise<Cookie[]> {
+  @Mutation(() => [CookieType])
+  async authVerify(
+    @Args('input') input: AuthVerifyInput,
+  ): Promise<CookieType[]> {
     return await this.authVerifyService.authVerify(input);
   }
 
