@@ -33,6 +33,6 @@ import { PubSub } from 'graphql-subscriptions';
     AuthVerifyService,
     AuthVerifyResolver,
   ],
-  exports: [ScrapperService, SeedService],
+  exports: [ScrapperService, SeedService, AuthVerifyService],
 })
 export class ScrapperModule {}

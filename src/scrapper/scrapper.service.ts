@@ -11,7 +11,6 @@ import {
 } from '@/scrapper/dto/save-appointment.output';
 import { SaveAppointmentsParams } from '@/scrapper/dto/save-appointments.params';
 import { UpdateParams } from '@/scrapper/dto/update.params';
-import { VerifyAuthParams } from '@/scrapper/dto/verify-auth.params';
 import { User } from '@/user/user.entity';
 
 import { AxiosError } from 'axios';
@@ -25,24 +24,6 @@ export class ScrapperService {
     private authService: AuthService,
     private appointmentService: AppointmentService,
   ) {}
-
-  async verifyAuth(input: VerifyAuthParams): Promise<boolean> {
-    try {
-      const token = await this.authService.jwtToken(input.user);
-
-      const res = await firstValueFrom(
-        this.httpService.post(`${process.env.AUTH_API}/scrapper/auth-verify`, {
-          login: input.login,
-          password: input.password,
-          token,
-        }),
-      );
-
-      return res.data.authenticationIsValid;
-    } catch (e) {
-      return false;
-    }
-  }
 
   async update(input: UpdateParams): Promise<boolean> {
     try {
@@ -61,6 +42,7 @@ export class ScrapperService {
 
       return true;
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log(e);
 
       return false;

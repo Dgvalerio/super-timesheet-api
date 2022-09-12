@@ -80,6 +80,23 @@ type AuthOutput {
   token: String!
 }
 
+type AuthVerifyOutput {
+  userId: String!
+  page: AuthVerifyStatus!
+  auth: AuthVerifyStatus!
+  cookies: AuthVerifyStatus!
+  wipe: AuthVerifyStatus!
+}
+
+"""Current status of auth verify operation."""
+enum AuthVerifyStatus {
+  Wait
+  Load
+  Process
+  Ok
+  Fail
+}
+
 type SeedOutput {
   userId: String!
   login: SeedStatus!
@@ -94,23 +111,6 @@ enum SeedStatus {
   Wait
   Load
   Save
-  Ok
-  Fail
-}
-
-type AuthVerifyOutput {
-  userId: String!
-  page: AuthVerifyStatus!
-  auth: AuthVerifyStatus!
-  cookies: AuthVerifyStatus!
-  wipe: AuthVerifyStatus!
-}
-
-"""Current status of auth verify operation."""
-enum AuthVerifyStatus {
-  Wait
-  Load
-  Process
   Ok
   Fail
 }

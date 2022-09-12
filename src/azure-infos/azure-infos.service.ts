@@ -14,7 +14,7 @@ import { GetAzureInfosInput } from '@/azure-infos/dto/get-azure-infos.input';
 import { UpdateAzureInfosInput } from '@/azure-infos/dto/update-azure-infos.input';
 import { decryptPassword } from '@/common/helpers/cryptography';
 import { CryptoHash } from '@/common/interfaces/crypto-hash';
-import { ScrapperService } from '@/scrapper/scrapper.service';
+import { AuthVerifyService } from '@/scrapper/auth-verify/auth-verify.service';
 import { SeedService } from '@/scrapper/seed.service';
 import { UserService } from '@/user/user.service';
 
@@ -28,7 +28,7 @@ export class AzureInfosService {
     @InjectRepository(AzureInfos)
     private azureInfosRepository: Repository<AzureInfos>,
     private userService: UserService,
-    private scrapperService: ScrapperService,
+    private authVerifyService: AuthVerifyService,
     private seedService: SeedService,
   ) {}
 
@@ -65,8 +65,7 @@ export class AzureInfosService {
       throw new ConflictException('Esse login já foi salvo!');
     }
 
-    const validAuth = await this.scrapperService.verifyAuth({
-      user,
+    const validAuth = await this.authVerifyService.authVerify({
       login: input.login,
       password: input.password,
     });
@@ -159,7 +158,6 @@ export class AzureInfosService {
 
     if (newData.iv || newData.content || newData.login) {
       const params = {
-        user: azureInfos.user,
         login: newData.login ? input.login : azureInfos.login,
         password:
           newData.iv || newData.content
@@ -170,7 +168,7 @@ export class AzureInfosService {
               }),
       };
 
-      const validAuth = await this.scrapperService.verifyAuth(params);
+      const validAuth = await this.authVerifyService.authVerify(params);
 
       if (!validAuth) {
         throw new BadRequestException('Autenticação inválida!');
