@@ -2,6 +2,7 @@ import {
   BrowserConnectOptions,
   BrowserLaunchArgumentOptions,
   LaunchOptions,
+  Page,
   Product,
 } from 'puppeteer';
 
@@ -25,4 +26,36 @@ export const scrapper = {
   homeIndex: `${baseURL}/Home/Index`,
   worksheetRead: `${baseURL}/Worksheet/Read`,
   controlPanelManagerDeveloper: `${baseURL}/ControlPanel/ManagerDeveloper`,
+};
+
+export const waitOptions = { visible: true, timeout: 3000 };
+
+export const checkValue = async (
+  page: Page,
+  selector: string,
+  value: string | boolean,
+) => {
+  const response = await page.evaluate(
+    (aSelector, aValue) => {
+      const value = (<HTMLInputElement>document.querySelector(aSelector))[
+        typeof aValue === 'boolean' ? 'checked' : 'value'
+      ];
+
+      if (value !== aValue) {
+        if (typeof aValue === 'boolean')
+          (<HTMLInputElement>document.querySelector(aSelector)).checked =
+            aValue;
+        else
+          (<HTMLInputElement>document.querySelector(aSelector)).value = aValue;
+
+        return false;
+      }
+
+      return true;
+    },
+    selector,
+    value,
+  );
+
+  if (!response) await checkValue(page, selector, value);
 };
