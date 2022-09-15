@@ -7,12 +7,12 @@ import {
   AppointmentStatus,
 } from '@/appointment/appointment.entity';
 import { AppointmentService } from '@/appointment/appointment.service';
-import { AuthService } from '@/auth/auth.service';
 import { CategoryService } from '@/category/category.service';
 import { ClientService } from '@/client/client.service';
 import { decryptPassword } from '@/common/helpers/cryptography';
 import { brDateToISO } from '@/common/helpers/today';
 import { ProjectService } from '@/project/project.service';
+import { AuthVerifyService } from '@/scrapper/auth-verify/auth-verify.service';
 import { SeedOutput, SeedStatus } from '@/scrapper/dto/seed.output';
 import { Seed } from '@/scrapper/dto/seed.types';
 import { User } from '@/user/user.entity';
@@ -42,8 +42,8 @@ class ImportUserDataUtils {
   request: AxiosRequestConfig;
 
   constructor(
+    private authVerifyService: AuthVerifyService,
     private httpService: HttpService,
-    private authService: AuthService,
     private userService: UserService,
     private clientService: ClientService,
     private projectService: ProjectService,
@@ -98,8 +98,6 @@ class ImportUserDataUtils {
   async loadCookies(user: User): Promise<void> {
     await this.setProgress({ login: SeedStatus.Load });
 
-    const token = await this.authService.jwtToken(user);
-
     if (!user.azureInfos)
       throw new NotFoundException('Nenhuma informação da azure foi encontrada');
 
@@ -108,16 +106,12 @@ class ImportUserDataUtils {
       content: user.azureInfos.content,
     });
 
-    const res = await this.httpService.axiosRef.post<Seed.AuthVerify>(
-      `${process.env.AUTH_API}/scrapper/auth-verify`,
-      {
-        login: user.azureInfos.login,
-        password,
-        token,
-      },
-    );
+    const cookies = await this.authVerifyService.authVerify({
+      login: user.azureInfos.login,
+      password,
+    });
 
-    this.requestFactory(res.data.cookies);
+    this.requestFactory(cookies);
 
     await this.setProgress({ login: SeedStatus.Ok });
   }
@@ -560,8 +554,8 @@ class ImportUserDataUtils {
 @Injectable()
 export class SeedService {
   constructor(
+    private authVerifyService: AuthVerifyService,
     private httpService: HttpService,
-    private authService: AuthService,
     private userService: UserService,
     private clientService: ClientService,
     private projectService: ProjectService,
@@ -572,8 +566,8 @@ export class SeedService {
 
   async importUserData(user: User): Promise<void> {
     const dataUtils = new ImportUserDataUtils(
+      this.authVerifyService,
       this.httpService,
-      this.authService,
       this.userService,
       this.clientService,
       this.projectService,

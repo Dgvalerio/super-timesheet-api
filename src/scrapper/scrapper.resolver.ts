@@ -46,7 +46,8 @@ export class ScrapperResolver {
       variables,
       context,
     ) {
-      const userId = this.authService.decodeToken(context.token);
+      const token = context.token || context.Authorization.split(` `)[1];
+      const userId = this.authService.decodeToken(token);
 
       return payload.watchImportData.userId === userId;
     },
