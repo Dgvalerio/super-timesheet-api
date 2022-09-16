@@ -16,6 +16,41 @@ registerEnumType(SaveAppointmentsStatus, {
 });
 
 @ObjectType()
+export class AppointmentProgress {
+  page: SaveAppointmentsStatus;
+
+  adapteToAzure: SaveAppointmentsStatus;
+
+  client: SaveAppointmentsStatus;
+
+  project: SaveAppointmentsStatus;
+
+  category: SaveAppointmentsStatus;
+
+  description: SaveAppointmentsStatus;
+
+  date: SaveAppointmentsStatus;
+
+  commit: SaveAppointmentsStatus;
+
+  notMonetize: SaveAppointmentsStatus;
+
+  startTime: SaveAppointmentsStatus;
+
+  endTime: SaveAppointmentsStatus;
+
+  failMessage?: string;
+
+  saveInAzure: SaveAppointmentsStatus;
+
+  search: SaveAppointmentsStatus;
+
+  getMoreData: SaveAppointmentsStatus;
+
+  update: SaveAppointmentsStatus;
+}
+
+@ObjectType()
 export class SaveAppointmentsProgress {
   userId: User[`id`];
 
@@ -31,28 +66,7 @@ export class SaveAppointmentsProgress {
 
   updated: number;
 
-  appointment: {
-    page: SaveAppointmentsStatus;
-    adapteToAzure: SaveAppointmentsStatus;
-
-    client: SaveAppointmentsStatus;
-    project: SaveAppointmentsStatus;
-    category: SaveAppointmentsStatus;
-    description: SaveAppointmentsStatus;
-    date: SaveAppointmentsStatus;
-    commit: SaveAppointmentsStatus;
-    notMonetize: SaveAppointmentsStatus;
-    startTime: SaveAppointmentsStatus;
-    endTime: SaveAppointmentsStatus;
-
-    failMessage?: string;
-
-    saveInAzure: SaveAppointmentsStatus;
-
-    search: SaveAppointmentsStatus;
-    getMoreData: SaveAppointmentsStatus;
-    update: SaveAppointmentsStatus;
-  };
+  appointment: AppointmentProgress;
 }
 
 export const WATCH_SAVE_APPOINTMENTS = 'watchSaveAppointments';

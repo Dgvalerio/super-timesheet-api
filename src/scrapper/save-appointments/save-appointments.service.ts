@@ -26,7 +26,7 @@ import { statusAdapter } from '@/scrapper/seed.service';
 import { User } from '@/user/user.entity';
 
 import { AxiosRequestConfig } from 'axios';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { PubSub } from 'graphql-subscriptions';
 import puppeteer, { Page } from 'puppeteer';
 import { DeepPartial } from 'typeorm';
@@ -219,7 +219,10 @@ class SaveAppointmentsUtils implements Types.Interface {
       project: appointment.project.code,
       category: appointment.category.code,
       description: appointment.description,
-      date: format(appointment.date, 'ddMMyyyy'),
+      date: format(
+        parseISO(appointment.date.toISOString().replace('Z', '')),
+        'ddMMyyyy',
+      ),
       notMonetize: appointment.notMonetize,
       startTime: appointment.startTime.replace(':', ''),
       endTime: appointment.endTime.replace(':', ''),
@@ -234,14 +237,19 @@ class SaveAppointmentsUtils implements Types.Interface {
 
   async createAppointment(appointment: AzureAppointment): Promise<boolean> {
     try {
-      await this.setProgress({ page: SaveAppointmentsStatus.Load });
+      await this.setProgress({
+        appointment: { page: SaveAppointmentsStatus.Load },
+      });
 
       await this.page.goto(scrapper.worksheetRead);
 
       await this.page.waitForSelector('#tbWorksheet', waitOptions);
 
       await this.setProgress({
-        appointment: { client: SaveAppointmentsStatus.Load },
+        appointment: {
+          page: SaveAppointmentsStatus.Ok,
+          client: SaveAppointmentsStatus.Load,
+        },
       });
 
       await this.page.select('#IdCustomer', appointment.client);
@@ -610,7 +618,7 @@ export class SaveAppointmentsService {
     private httpService: HttpService,
   ) {}
 
-  async saveAppointments(user: User): Promise<CookieType[]> {
+  async saveAppointments(user: User): Promise<boolean> {
     try {
       const utils = new SaveAppointmentsUtils(
         this.pubSub,
@@ -627,11 +635,13 @@ export class SaveAppointmentsService {
       );
 
       await utils.run();
+
+      return true;
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log('Sign In failure: ', { e });
 
-      return [];
+      return false;
     }
   }
 }

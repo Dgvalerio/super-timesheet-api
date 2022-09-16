@@ -134,6 +134,45 @@ type CookieType {
   partitionKeyOpaque: Boolean
 }
 
+type AppointmentProgress {
+  page: SaveAppointmentsStatus!
+  adapteToAzure: SaveAppointmentsStatus!
+  client: SaveAppointmentsStatus!
+  project: SaveAppointmentsStatus!
+  category: SaveAppointmentsStatus!
+  description: SaveAppointmentsStatus!
+  date: SaveAppointmentsStatus!
+  commit: SaveAppointmentsStatus!
+  notMonetize: SaveAppointmentsStatus!
+  startTime: SaveAppointmentsStatus!
+  endTime: SaveAppointmentsStatus!
+  failMessage: String
+  saveInAzure: SaveAppointmentsStatus!
+  search: SaveAppointmentsStatus!
+  getMoreData: SaveAppointmentsStatus!
+  update: SaveAppointmentsStatus!
+}
+
+"""Current status of save appointments operation."""
+enum SaveAppointmentsStatus {
+  Wait
+  Load
+  Process
+  Ok
+  Fail
+}
+
+type SaveAppointmentsProgress {
+  userId: String!
+  page: SaveAppointmentsStatus!
+  loadAppointments: SaveAppointmentsStatus!
+  auth: SaveAppointmentsStatus!
+  saving: SaveAppointmentsStatus!
+  saved: Float!
+  updated: Float!
+  appointment: AppointmentProgress!
+}
+
 type SaveAppointmentOutput {
   appointment: Appointment
   saved: Boolean!
@@ -215,6 +254,7 @@ type Mutation {
   importData: Boolean!
   sendAppointments: [SaveAppointmentOutput!]!
   authVerify(input: AuthVerifyInput!): [CookieType!]!
+  saveAppointments: Boolean!
 }
 
 input CreateUserInput {
@@ -368,4 +408,5 @@ input AuthVerifyInput {
 type Subscription {
   watchImportData: SeedOutput!
   watchAuthVerify: AuthVerifyOutput!
+  watchSaveAppointments: SaveAppointmentsProgress!
 }
