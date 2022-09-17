@@ -208,6 +208,32 @@ class SaveAppointmentsUtils implements Types.Interface {
     await this.setProgress(progress);
   }
 
+  async finishAppointmentProgress(): Promise<void> {
+    await this.setProgress({
+      page: SaveAppointmentsStatus.Ok,
+      loadAppointments: SaveAppointmentsStatus.Ok,
+      auth: SaveAppointmentsStatus.Ok,
+      saving: SaveAppointmentsStatus.Ok,
+      appointment: {
+        client: SaveAppointmentsStatus.Ok,
+        project: SaveAppointmentsStatus.Ok,
+        category: SaveAppointmentsStatus.Ok,
+        description: SaveAppointmentsStatus.Ok,
+        date: SaveAppointmentsStatus.Ok,
+        commit: SaveAppointmentsStatus.Ok,
+        notMonetize: SaveAppointmentsStatus.Ok,
+        startTime: SaveAppointmentsStatus.Ok,
+        endTime: SaveAppointmentsStatus.Ok,
+        adapteToAzure: SaveAppointmentsStatus.Ok,
+        page: SaveAppointmentsStatus.Ok,
+        saveInAzure: SaveAppointmentsStatus.Ok,
+        search: SaveAppointmentsStatus.Ok,
+        getMoreData: SaveAppointmentsStatus.Ok,
+        update: SaveAppointmentsStatus.Ok,
+      },
+    });
+  }
+
   async adapteToAzure(appointment: Appointment): Promise<AzureAppointment> {
     await this.setProgress({
       appointment: { adapteToAzure: SaveAppointmentsStatus.Process },
@@ -604,7 +630,8 @@ class SaveAppointmentsUtils implements Types.Interface {
 
     await this.loadAppointments();
 
-    if (this.appointments.length <= 0) return;
+    if (this.appointments.length <= 0)
+      return await this.finishAppointmentProgress();
 
     await this.signIn();
 
