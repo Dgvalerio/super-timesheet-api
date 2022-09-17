@@ -42,7 +42,7 @@ export class SaveAppointmentsResolver {
       return payload[WATCH_SAVE_APPOINTMENTS].userId === userId;
     },
   })
-  watchSaveAppointments(): AsyncIterator<SaveAppointmentsProgress> {
+  [WATCH_SAVE_APPOINTMENTS](): AsyncIterator<SaveAppointmentsProgress> {
     return this.pubSub.asyncIterator<SaveAppointmentsProgress>(
       WATCH_SAVE_APPOINTMENTS,
     );

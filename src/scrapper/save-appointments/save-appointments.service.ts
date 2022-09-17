@@ -598,6 +598,8 @@ class SaveAppointmentsUtils implements Types.Interface {
   }
 
   async run(): Promise<void> {
+    await this.setProgress({ userId: this.userData.id });
+
     await this.loadPage();
 
     await this.loadAppointments();
@@ -639,7 +641,7 @@ export class SaveAppointmentsService {
       return true;
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.log('Sign In failure: ', { e });
+      console.log('Save Appointments failure: ', { e });
 
       return false;
     }
