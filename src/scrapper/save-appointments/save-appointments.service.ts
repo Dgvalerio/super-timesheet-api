@@ -60,6 +60,7 @@ class SaveAppointmentsUtils implements Types.Interface {
     saved: 0,
     updated: 0,
     appointment: {
+      id: '',
       client: SaveAppointmentsStatus.Wait,
       project: SaveAppointmentsStatus.Wait,
       category: SaveAppointmentsStatus.Wait,
@@ -186,6 +187,7 @@ class SaveAppointmentsUtils implements Types.Interface {
   async resetAppointmentProgress(): Promise<void> {
     const progress: Pick<SaveAppointmentsProgress, `appointment`> = {
       appointment: {
+        id: '',
         client: SaveAppointmentsStatus.Wait,
         project: SaveAppointmentsStatus.Wait,
         category: SaveAppointmentsStatus.Wait,
@@ -594,20 +596,23 @@ class SaveAppointmentsUtils implements Types.Interface {
     const create = async (index: number) => {
       await this.resetAppointmentProgress();
 
-      const appointment = await this.adapteToAzure(this.appointments[index]);
+      const appointment = this.appointments[index];
+      const azureAppointment = await this.adapteToAzure(appointment);
 
-      const created = await this.createAppointment(appointment);
+      await this.setProgress({ appointment: { id: appointment.id } });
+
+      const created = await this.createAppointment(azureAppointment);
 
       const isConflict =
         !created && this.progress.appointment.failMessage === conflictMessage;
 
       if (created || isConflict) {
-        const searchOutput = await this.searchInAppointments(appointment);
+        const searchOutput = await this.searchInAppointments(azureAppointment);
 
         if (searchOutput) {
           if (
             isConflict &&
-            !this.compareAppointments(searchOutput, appointment)
+            !this.compareAppointments(searchOutput, azureAppointment)
           )
             return;
 

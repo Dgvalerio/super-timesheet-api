@@ -1,5 +1,6 @@
 import { ObjectType, registerEnumType } from '@nestjs/graphql';
 
+import { Appointment } from '@/appointment/appointment.entity';
 import { User } from '@/user/user.entity';
 
 export enum SaveAppointmentsStatus {
@@ -20,6 +21,8 @@ export class AppointmentProgress {
   page: SaveAppointmentsStatus;
 
   adapteToAzure: SaveAppointmentsStatus;
+
+  id: Appointment[`id`];
 
   client: SaveAppointmentsStatus;
 
