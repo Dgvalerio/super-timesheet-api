@@ -15,7 +15,7 @@ import { UpdateAzureInfosInput } from '@/azure-infos/dto/update-azure-infos.inpu
 import { decryptPassword } from '@/common/helpers/cryptography';
 import { CryptoHash } from '@/common/interfaces/crypto-hash';
 import { AuthVerifyService } from '@/scrapper/auth-verify/auth-verify.service';
-import { SeedService } from '@/scrapper/seed.service';
+import { SeedService } from '@/scrapper/seed/seed.service';
 import { UserService } from '@/user/user.service';
 
 import { randomBytes, createCipheriv, scrypt } from 'crypto';

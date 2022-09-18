@@ -17,8 +17,8 @@ import {
   SeedOutput,
   SeedStatus,
   WATCH_IMPORT_DATA,
-} from '@/scrapper/dto/seed.output';
-import { Seed } from '@/scrapper/dto/seed.types';
+} from '@/scrapper/seed/dto/seed.output';
+import { Seed } from '@/scrapper/seed/dto/seed.types';
 import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
 

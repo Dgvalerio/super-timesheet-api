@@ -3,30 +3,20 @@ import { Context, Mutation, Resolver, Subscription } from '@nestjs/graphql';
 
 import { GqlAuthGuard } from '@/auth/auth.guard';
 import { AuthService } from '@/auth/auth.service';
-import { SeedOutput, WATCH_IMPORT_DATA } from '@/scrapper/dto/seed.output';
-import { ScrapperService } from '@/scrapper/scrapper.service';
-import { SeedService } from '@/scrapper/seed.service';
+import { SeedOutput, WATCH_IMPORT_DATA } from '@/scrapper/seed/dto/seed.output';
+import { SeedService } from '@/scrapper/seed/seed.service';
 import { User } from '@/user/user.entity';
 
 import { PubSub } from 'graphql-subscriptions';
 import { IncomingMessage } from 'http';
 
 @Resolver()
-export class ScrapperResolver {
+export class SeedResolver {
   constructor(
-    private scrapperService: ScrapperService,
     private seedService: SeedService,
     private pubSub: PubSub,
     private authService: AuthService,
   ) {}
-
-  @UseGuards(GqlAuthGuard)
-  @Mutation(() => Boolean)
-  async updateData(
-    @Context() { req }: { req: IncomingMessage & { user: User } },
-  ): Promise<boolean> {
-    return await this.scrapperService.update({ user: req.user });
-  }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
@@ -39,7 +29,7 @@ export class ScrapperResolver {
   }
 
   @Subscription(() => SeedOutput, {
-    filter(this: ScrapperResolver, payload, variables, context) {
+    filter(this: SeedResolver, payload, variables, context) {
       const token = context.token || context.Authorization.split(` `)[1];
       const userId = this.authService.decodeToken(token);
 

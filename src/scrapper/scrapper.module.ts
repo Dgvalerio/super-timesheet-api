@@ -10,9 +10,8 @@ import { AuthVerifyResolver } from '@/scrapper/auth-verify/auth-verify.resolver'
 import { AuthVerifyService } from '@/scrapper/auth-verify/auth-verify.service';
 import { SaveAppointmentsResolver } from '@/scrapper/save-appointments/save-appointments.resolver';
 import { SaveAppointmentsService } from '@/scrapper/save-appointments/save-appointments.service';
-import { ScrapperResolver } from '@/scrapper/scrapper.resolver';
-import { ScrapperService } from '@/scrapper/scrapper.service';
-import { SeedService } from '@/scrapper/seed.service';
+import { SeedResolver } from '@/scrapper/seed/seed.resolver';
+import { SeedService } from '@/scrapper/seed/seed.service';
 import { UserModule } from '@/user/user.module';
 
 import { PubSub } from 'graphql-subscriptions';
@@ -30,18 +29,12 @@ import { PubSub } from 'graphql-subscriptions';
   providers: [
     PubSub,
     SeedService,
-    ScrapperService,
-    ScrapperResolver,
+    SeedResolver,
     AuthVerifyService,
     AuthVerifyResolver,
     SaveAppointmentsService,
     SaveAppointmentsResolver,
   ],
-  exports: [
-    SeedService,
-    ScrapperService,
-    AuthVerifyService,
-    SaveAppointmentsService,
-  ],
+  exports: [SeedService, AuthVerifyService, SaveAppointmentsService],
 })
 export class ScrapperModule {}

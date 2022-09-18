@@ -245,7 +245,6 @@ type Mutation {
   createAzureInfos(input: CreateAzureInfosInput!): AzureInfos!
   updateAzureInfos(input: UpdateAzureInfosInput!): AzureInfos!
   deleteAzureInfos(input: DeleteAzureInfosInput!): Boolean!
-  updateData: Boolean!
   importData: Boolean!
   authVerify(input: AuthVerifyInput!): [CookieType!]!
   sendAppointments: Boolean!

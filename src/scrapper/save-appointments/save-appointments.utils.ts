@@ -12,15 +12,15 @@ import {
   waitOptions,
 } from '@/common/helpers/puppeteer';
 import { CookieType } from '@/scrapper/auth-verify/dto/cookie.output';
-import { AzureAppointment } from '@/scrapper/dto/save-appointment.output';
-import { Seed } from '@/scrapper/dto/seed.types';
 import { SaveAppointmentsUtilsTypes } from '@/scrapper/save-appointments/dto/save-appointments-utils.types';
 import {
+  AzureAppointment,
   SaveAppointmentsProgress,
   SaveAppointmentsStatus,
   WATCH_SAVE_APPOINTMENTS,
 } from '@/scrapper/save-appointments/dto/save-appointments.output';
-import { statusAdapter } from '@/scrapper/seed.service';
+import { Seed } from '@/scrapper/seed/dto/seed.types';
+import { statusAdapter } from '@/scrapper/seed/seed.service';
 
 import { AxiosRequestConfig } from 'axios';
 import { format, parseISO } from 'date-fns';

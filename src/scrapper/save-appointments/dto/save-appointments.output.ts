@@ -3,6 +3,29 @@ import { ObjectType, registerEnumType } from '@nestjs/graphql';
 import { Appointment } from '@/appointment/appointment.entity';
 import { User } from '@/user/user.entity';
 
+@ObjectType()
+export class AzureAppointment {
+  id: string;
+
+  client: string;
+
+  project: string;
+
+  category: string;
+
+  description: string;
+
+  date: string;
+
+  commit?: string;
+
+  notMonetize: boolean;
+
+  startTime: string;
+
+  endTime: string;
+}
+
 export enum SaveAppointmentsStatus {
   Wait = 'Wait',
   Load = 'Load',

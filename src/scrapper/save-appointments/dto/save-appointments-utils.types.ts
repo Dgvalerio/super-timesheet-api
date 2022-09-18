@@ -1,9 +1,11 @@
 import { Appointment } from '@/appointment/appointment.entity';
 import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 import { CookieType } from '@/scrapper/auth-verify/dto/cookie.output';
-import { AzureAppointment } from '@/scrapper/dto/save-appointment.output';
-import { Seed } from '@/scrapper/dto/seed.types';
-import { SaveAppointmentsProgress } from '@/scrapper/save-appointments/dto/save-appointments.output';
+import {
+  AzureAppointment,
+  SaveAppointmentsProgress,
+} from '@/scrapper/save-appointments/dto/save-appointments.output';
+import { Seed } from '@/scrapper/seed/dto/seed.types';
 import { User } from '@/user/user.entity';
 
 import { DeepPartial } from 'typeorm';
