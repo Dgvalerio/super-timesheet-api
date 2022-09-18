@@ -174,12 +174,6 @@ type SaveAppointmentsProgress {
   appointment: AppointmentProgress!
 }
 
-type SaveAppointmentOutput {
-  appointment: Appointment
-  saved: Boolean!
-  message: String!
-}
-
 type Query {
   getAllUsers: [User!]!
   getUser(input: GetUserInput!): User!
@@ -253,9 +247,8 @@ type Mutation {
   deleteAzureInfos(input: DeleteAzureInfosInput!): Boolean!
   updateData: Boolean!
   importData: Boolean!
-  sendAppointments: [SaveAppointmentOutput!]!
   authVerify(input: AuthVerifyInput!): [CookieType!]!
-  saveAppointments: Boolean!
+  sendAppointments: Boolean!
 }
 
 input CreateUserInput {

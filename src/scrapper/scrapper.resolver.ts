@@ -3,7 +3,6 @@ import { Context, Mutation, Resolver, Subscription } from '@nestjs/graphql';
 
 import { GqlAuthGuard } from '@/auth/auth.guard';
 import { AuthService } from '@/auth/auth.service';
-import { SaveAppointmentOutput } from '@/scrapper/dto/save-appointment.output';
 import { SeedOutput } from '@/scrapper/dto/seed.output';
 import { ScrapperService } from '@/scrapper/scrapper.service';
 import { SeedService } from '@/scrapper/seed.service';
@@ -54,13 +53,5 @@ export class ScrapperResolver {
   })
   watchImportData(): AsyncIterator<SeedOutput> {
     return this.pubSub.asyncIterator<SeedOutput>('watchImportData');
-  }
-
-  @UseGuards(GqlAuthGuard)
-  @Mutation(() => [SaveAppointmentOutput])
-  async sendAppointments(
-    @Context() { req }: { req: IncomingMessage & { user: User } },
-  ): Promise<SaveAppointmentOutput[]> {
-    return this.scrapperService.sendAppointments(req.user);
   }
 }

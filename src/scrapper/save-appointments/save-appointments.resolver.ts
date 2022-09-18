@@ -23,7 +23,7 @@ export class SaveAppointmentsResolver {
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
-  async saveAppointments(
+  async sendAppointments(
     @Context() { req }: { req: IncomingMessage & { user: User } },
   ): Promise<boolean> {
     return await this.saveAppointmentsService.saveAppointments(req.user);
