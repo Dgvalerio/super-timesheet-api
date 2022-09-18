@@ -13,7 +13,11 @@ import { decryptPassword } from '@/common/helpers/cryptography';
 import { brDateToISO } from '@/common/helpers/today';
 import { ProjectService } from '@/project/project.service';
 import { AuthVerifyService } from '@/scrapper/auth-verify/auth-verify.service';
-import { SeedOutput, SeedStatus } from '@/scrapper/dto/seed.output';
+import {
+  SeedOutput,
+  SeedStatus,
+  WATCH_IMPORT_DATA,
+} from '@/scrapper/dto/seed.output';
 import { Seed } from '@/scrapper/dto/seed.types';
 import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
@@ -66,8 +70,8 @@ class ImportUserDataUtils {
   setProgress(newProgress: Partial<SeedOutput>) {
     this.progress = { ...this.progress, ...newProgress };
 
-    return this.pubSub.publish('watchImportData', {
-      watchImportData: this.progress,
+    return this.pubSub.publish(WATCH_IMPORT_DATA, {
+      [WATCH_IMPORT_DATA]: this.progress,
     });
   }
 

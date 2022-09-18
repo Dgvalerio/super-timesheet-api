@@ -29,3 +29,5 @@ export class SeedOutput {
 
   appointments: SeedStatus;
 }
+
+export const WATCH_IMPORT_DATA = 'watchImportData';

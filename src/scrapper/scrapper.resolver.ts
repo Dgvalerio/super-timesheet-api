@@ -3,7 +3,7 @@ import { Context, Mutation, Resolver, Subscription } from '@nestjs/graphql';
 
 import { GqlAuthGuard } from '@/auth/auth.guard';
 import { AuthService } from '@/auth/auth.service';
-import { SeedOutput } from '@/scrapper/dto/seed.output';
+import { SeedOutput, WATCH_IMPORT_DATA } from '@/scrapper/dto/seed.output';
 import { ScrapperService } from '@/scrapper/scrapper.service';
 import { SeedService } from '@/scrapper/seed.service';
 import { User } from '@/user/user.entity';
@@ -39,19 +39,14 @@ export class ScrapperResolver {
   }
 
   @Subscription(() => SeedOutput, {
-    filter(
-      this: ScrapperResolver,
-      payload: { watchImportData: SeedOutput },
-      variables,
-      context,
-    ) {
+    filter(this: ScrapperResolver, payload, variables, context) {
       const token = context.token || context.Authorization.split(` `)[1];
       const userId = this.authService.decodeToken(token);
 
-      return payload.watchImportData.userId === userId;
+      return payload[WATCH_IMPORT_DATA].userId === userId;
     },
   })
-  watchImportData(): AsyncIterator<SeedOutput> {
-    return this.pubSub.asyncIterator<SeedOutput>('watchImportData');
+  [WATCH_IMPORT_DATA](): AsyncIterator<SeedOutput> {
+    return this.pubSub.asyncIterator<SeedOutput>(WATCH_IMPORT_DATA);
   }
 }
