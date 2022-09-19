@@ -2,13 +2,12 @@ import { Appointment } from '@/appointment/appointment.entity';
 import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 import { CookieType } from '@/scrapper/auth-verify/dto/cookie.output';
 import {
+  AppointmentProgress,
   AzureAppointment,
   SaveAppointmentsProgress,
 } from '@/scrapper/save-appointments/dto/save-appointments.output';
 import { Seed } from '@/scrapper/seed/dto/seed.types';
 import { User } from '@/user/user.entity';
-
-import { DeepPartial } from 'typeorm';
 
 export namespace SaveAppointmentsUtilsTypes {
   export interface UserData {
@@ -42,7 +41,11 @@ export namespace SaveAppointmentsUtilsTypes {
   export interface Interface {
     progress: SaveAppointmentsProgress;
     setProgress(
-      newProgress: DeepPartial<SaveAppointmentsProgress>,
+      newProgress: Partial<
+        Omit<SaveAppointmentsProgress, 'appointment'> & {
+          appointment: Partial<AppointmentProgress>;
+        }
+      >,
     ): Promise<void>;
     requestFactory(cookies: Seed.AuthVerify['cookies']): void;
     loadPage(): Promise<void>;

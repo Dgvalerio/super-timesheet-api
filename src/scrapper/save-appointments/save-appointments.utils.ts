@@ -14,6 +14,7 @@ import {
 import { CookieType } from '@/scrapper/auth-verify/dto/cookie.output';
 import { SaveAppointmentsUtilsTypes } from '@/scrapper/save-appointments/dto/save-appointments-utils.types';
 import {
+  AppointmentProgress,
   AzureAppointment,
   SaveAppointmentsProgress,
   SaveAppointmentsStatus,
@@ -26,7 +27,6 @@ import { AxiosRequestConfig } from 'axios';
 import { format, parseISO } from 'date-fns';
 import { PubSub } from 'graphql-subscriptions';
 import puppeteer, { Page } from 'puppeteer';
-import { DeepPartial } from 'typeorm';
 import Types = SaveAppointmentsUtilsTypes;
 
 const conflictMessage =
@@ -57,19 +57,28 @@ class SaveAppointmentsUtils implements Types.Interface {
     saved: 0,
     updated: 0,
     appointment: {
-      id: '',
-      client: SaveAppointmentsStatus.Wait,
-      project: SaveAppointmentsStatus.Wait,
-      category: SaveAppointmentsStatus.Wait,
-      description: SaveAppointmentsStatus.Wait,
-      date: SaveAppointmentsStatus.Wait,
-      commit: SaveAppointmentsStatus.Wait,
-      notMonetize: SaveAppointmentsStatus.Wait,
-      startTime: SaveAppointmentsStatus.Wait,
-      endTime: SaveAppointmentsStatus.Wait,
-
       adapteToAzure: SaveAppointmentsStatus.Wait,
       page: SaveAppointmentsStatus.Wait,
+
+      client: SaveAppointmentsStatus.Wait,
+      _client: ``,
+      project: SaveAppointmentsStatus.Wait,
+      _project: ``,
+      category: SaveAppointmentsStatus.Wait,
+      _category: ``,
+      description: SaveAppointmentsStatus.Wait,
+      _description: ``,
+      date: SaveAppointmentsStatus.Wait,
+      _date: new Date(),
+      commit: SaveAppointmentsStatus.Wait,
+      _commit: ``,
+      notMonetize: SaveAppointmentsStatus.Wait,
+      _notMonetize: false,
+      startTime: SaveAppointmentsStatus.Wait,
+      _startTime: ``,
+      endTime: SaveAppointmentsStatus.Wait,
+      _endTime: ``,
+
       saveInAzure: SaveAppointmentsStatus.Wait,
       search: SaveAppointmentsStatus.Wait,
       getMoreData: SaveAppointmentsStatus.Wait,
@@ -78,7 +87,11 @@ class SaveAppointmentsUtils implements Types.Interface {
   };
 
   setProgress(
-    newProgress: DeepPartial<SaveAppointmentsProgress>,
+    newProgress: Partial<
+      Omit<SaveAppointmentsProgress, 'appointment'> & {
+        appointment: Partial<AppointmentProgress>;
+      }
+    >,
   ): Promise<void> {
     this.progress = {
       ...this.progress,
@@ -187,22 +200,34 @@ class SaveAppointmentsUtils implements Types.Interface {
   async resetAppointmentProgress(): Promise<void> {
     const progress: Pick<SaveAppointmentsProgress, `appointment`> = {
       appointment: {
-        id: '',
-        client: SaveAppointmentsStatus.Wait,
-        project: SaveAppointmentsStatus.Wait,
-        category: SaveAppointmentsStatus.Wait,
-        description: SaveAppointmentsStatus.Wait,
-        date: SaveAppointmentsStatus.Wait,
-        commit: SaveAppointmentsStatus.Wait,
-        notMonetize: SaveAppointmentsStatus.Wait,
-        startTime: SaveAppointmentsStatus.Wait,
-        endTime: SaveAppointmentsStatus.Wait,
-
         adapteToAzure: SaveAppointmentsStatus.Wait,
+
         page: SaveAppointmentsStatus.Wait,
+
+        client: SaveAppointmentsStatus.Wait,
+        _client: ``,
+        project: SaveAppointmentsStatus.Wait,
+        _project: ``,
+        category: SaveAppointmentsStatus.Wait,
+        _category: ``,
+        description: SaveAppointmentsStatus.Wait,
+        _description: ``,
+        date: SaveAppointmentsStatus.Wait,
+        _date: new Date(),
+        commit: SaveAppointmentsStatus.Wait,
+        _commit: ``,
+        notMonetize: SaveAppointmentsStatus.Wait,
+        _notMonetize: false,
+        startTime: SaveAppointmentsStatus.Wait,
+        _startTime: ``,
+        endTime: SaveAppointmentsStatus.Wait,
+        _endTime: ``,
+
         saveInAzure: SaveAppointmentsStatus.Wait,
+
         search: SaveAppointmentsStatus.Wait,
         getMoreData: SaveAppointmentsStatus.Wait,
+
         update: SaveAppointmentsStatus.Wait,
       },
     };
@@ -598,7 +623,19 @@ class SaveAppointmentsUtils implements Types.Interface {
       const appointment = this.appointments[index];
       const azureAppointment = await this.adapteToAzure(appointment);
 
-      await this.setProgress({ appointment: { id: appointment.id } });
+      await this.setProgress({
+        appointment: {
+          _client: appointment.project.client.name,
+          _project: appointment.project.name,
+          _category: appointment.category.name,
+          _description: appointment.description,
+          _date: appointment.date,
+          _commit: appointment.commit,
+          _notMonetize: appointment.notMonetize,
+          _startTime: appointment.startTime,
+          _endTime: appointment.endTime,
+        },
+      });
 
       const created = await this.createAppointment(azureAppointment);
 

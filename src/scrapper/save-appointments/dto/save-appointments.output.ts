@@ -45,25 +45,41 @@ export class AppointmentProgress {
 
   adapteToAzure: SaveAppointmentsStatus;
 
-  id: Appointment[`id`];
-
   client: SaveAppointmentsStatus;
+
+  _client: Appointment[`project`][`client`][`name`];
 
   project: SaveAppointmentsStatus;
 
+  _project: Appointment[`project`][`name`];
+
   category: SaveAppointmentsStatus;
+
+  _category: Appointment[`category`][`name`];
 
   description: SaveAppointmentsStatus;
 
+  _description: Appointment[`description`];
+
   date: SaveAppointmentsStatus;
+
+  _date: Appointment[`date`];
 
   commit: SaveAppointmentsStatus;
 
+  _commit: Appointment[`commit`];
+
   notMonetize: SaveAppointmentsStatus;
+
+  _notMonetize: Appointment[`notMonetize`];
 
   startTime: SaveAppointmentsStatus;
 
+  _startTime: Appointment[`startTime`];
+
   endTime: SaveAppointmentsStatus;
+
+  _endTime: Appointment[`endTime`];
 
   failMessage?: string;
 
