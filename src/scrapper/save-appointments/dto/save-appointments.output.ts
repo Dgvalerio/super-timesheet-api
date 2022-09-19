@@ -86,7 +86,7 @@ export class SaveAppointmentsProgress {
 
   auth: SaveAppointmentsStatus;
 
-  saving: SaveAppointmentsStatus;
+  saving: number;
 
   saved: number;
 

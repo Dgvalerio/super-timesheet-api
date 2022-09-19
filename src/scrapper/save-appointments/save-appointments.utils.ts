@@ -53,7 +53,7 @@ class SaveAppointmentsUtils implements Types.Interface {
     page: SaveAppointmentsStatus.Wait,
     loadAppointments: SaveAppointmentsStatus.Wait,
     auth: SaveAppointmentsStatus.Wait,
-    saving: SaveAppointmentsStatus.Wait,
+    saving: 0,
     saved: 0,
     updated: 0,
     appointment: {
@@ -134,7 +134,10 @@ class SaveAppointmentsUtils implements Types.Interface {
       status: AppointmentStatus.Draft,
     });
 
-    await this.setProgress({ loadAppointments: SaveAppointmentsStatus.Ok });
+    await this.setProgress({
+      loadAppointments: SaveAppointmentsStatus.Ok,
+      saving: this.appointments.length,
+    });
   }
 
   async signIn(): Promise<CookieType[]> {
@@ -212,7 +215,6 @@ class SaveAppointmentsUtils implements Types.Interface {
       page: SaveAppointmentsStatus.Ok,
       loadAppointments: SaveAppointmentsStatus.Ok,
       auth: SaveAppointmentsStatus.Ok,
-      saving: SaveAppointmentsStatus.Ok,
       appointment: {
         client: SaveAppointmentsStatus.Ok,
         project: SaveAppointmentsStatus.Ok,
