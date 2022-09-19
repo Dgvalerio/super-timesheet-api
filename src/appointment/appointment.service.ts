@@ -197,32 +197,20 @@ export class AppointmentService {
     params: FindOptionsWhere<Appointment & { month?: Appointment['date'] }>,
   ): Promise<Appointment[]> {
     const options: FindManyOptions<Appointment> = {
-      relations: {
-        user: true,
-        project: { client: true },
-        category: true,
-      },
-      order: {
-        date: 'desc',
-        startTime: 'desc',
-        endTime: 'desc',
-      },
+      relations: { user: true, project: { client: true }, category: true },
+      order: { date: 'desc', startTime: 'desc', endTime: 'desc' },
     };
 
     if (params) {
       if (params.month) {
         const { month, ...others } = params;
 
-        const first = set(month as Date, {
-          date: 1,
-          hours: 0,
-          minutes: 0,
-          seconds: 0,
-          milliseconds: 0,
-        });
-        const last = endOfMonth(first);
+        const yearMonth = format(month as Date, `yyyy-MM`);
+        const start = new Date(`${yearMonth}-01T00:00:00.000Z`);
+        const day = format(endOfMonth(month as Date), `dd`);
+        const end = new Date(`${yearMonth}-${day}T23:59:59.000Z`);
 
-        options.where = { ...others, date: Between<Date>(first, last) };
+        options.where = { ...others, date: Between<Date>(start, end) };
       } else options.where = { ...params };
     }
 
