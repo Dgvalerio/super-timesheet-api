@@ -70,7 +70,7 @@ export class AzureInfosService {
       password: input.password,
     });
 
-    if (!validAuth) {
+    if (!validAuth || validAuth.length === 0) {
       throw new BadRequestException('Autenticação inválida!');
     }
 
