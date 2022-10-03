@@ -75,7 +75,9 @@ export class AzureInfosService {
       password: input.password,
     });
 
-    console.log('createAzureInfos [1]', { validAuth });
+    console.log('createAzureInfos [1]', !validAuth || validAuth.length === 0, {
+      validAuth,
+    });
 
     if (!validAuth || validAuth.length === 0) {
       throw new BadRequestException('Autenticação inválida!');
@@ -85,6 +87,8 @@ export class AzureInfosService {
       input.password,
     );
 
+    console.log('createAzureInfos [2]', { iv, content });
+
     const created = this.azureInfosRepository.create({
       login: input.login,
       iv,
@@ -92,6 +96,8 @@ export class AzureInfosService {
       user,
     });
     const saved = await this.azureInfosRepository.save(created);
+
+    console.log('createAzureInfos [3]', { created, saved });
 
     if (!saved) {
       throw new InternalServerErrorException(
