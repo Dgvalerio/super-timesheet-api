@@ -170,7 +170,9 @@ export class AzureInfosService {
 
       const validAuth = await this.authVerifyService.authVerify(params);
 
-      if (!validAuth) {
+      console.log('updateAzureInfos', { validAuth });
+
+      if (!validAuth || validAuth.length === 0) {
         throw new BadRequestException('Autenticação inválida!');
       }
 
