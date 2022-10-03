@@ -107,7 +107,11 @@ export class AzureInfosService {
 
     const updatedUser = await this.userService.getUser({ id: user.id });
 
-    await this.seedService.importUserData(updatedUser);
+    console.log('createAzureInfos [4]', { updatedUser });
+
+    this.seedService.importUserData(updatedUser);
+
+    console.log('createAzureInfos [5]', 'importUserData');
 
     return this.getAzureInfos({ id: saved.id });
   }
