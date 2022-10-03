@@ -65,10 +65,17 @@ export class AzureInfosService {
       throw new ConflictException('Esse login já foi salvo!');
     }
 
+    console.log('createAzureInfos [0]', {
+      login: input.login,
+      password: input.password,
+    });
+
     const validAuth = await this.authVerifyService.authVerify({
       login: input.login,
       password: input.password,
     });
+
+    console.log('createAzureInfos [1]', { validAuth });
 
     if (!validAuth || validAuth.length === 0) {
       throw new BadRequestException('Autenticação inválida!');
@@ -169,8 +176,6 @@ export class AzureInfosService {
       };
 
       const validAuth = await this.authVerifyService.authVerify(params);
-
-      console.log('updateAzureInfos', { validAuth });
 
       if (!validAuth || validAuth.length === 0) {
         throw new BadRequestException('Autenticação inválida!');
