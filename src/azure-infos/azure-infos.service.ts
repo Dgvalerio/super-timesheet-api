@@ -65,18 +65,9 @@ export class AzureInfosService {
       throw new ConflictException('Esse login já foi salvo!');
     }
 
-    console.log('createAzureInfos [0]', {
-      login: input.login,
-      password: input.password,
-    });
-
     const validAuth = await this.authVerifyService.authVerify({
       login: input.login,
       password: input.password,
-    });
-
-    console.log('createAzureInfos [1]', !validAuth || validAuth.length === 0, {
-      validAuth,
     });
 
     if (!validAuth || validAuth.length === 0) {
@@ -87,8 +78,6 @@ export class AzureInfosService {
       input.password,
     );
 
-    console.log('createAzureInfos [2]', { iv, content });
-
     const created = this.azureInfosRepository.create({
       login: input.login,
       iv,
@@ -96,8 +85,6 @@ export class AzureInfosService {
       user,
     });
     const saved = await this.azureInfosRepository.save(created);
-
-    console.log('createAzureInfos [3]', { created, saved });
 
     if (!saved) {
       throw new InternalServerErrorException(
@@ -107,11 +94,7 @@ export class AzureInfosService {
 
     const updatedUser = await this.userService.getUser({ id: user.id });
 
-    console.log('createAzureInfos [4]', { updatedUser });
-
     this.seedService.importUserData(updatedUser);
-
-    console.log('createAzureInfos [5]', 'importUserData');
 
     return this.getAzureInfos({ id: saved.id });
   }
