@@ -27,7 +27,13 @@ import {
   endOfMonth,
   differenceInMinutes,
 } from 'date-fns';
-import { Between, FindManyOptions, FindOneOptions, Repository } from 'typeorm';
+import {
+  Between,
+  FindManyOptions,
+  FindOneOptions,
+  FindOptionsOrder,
+  Repository,
+} from 'typeorm';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
 @Injectable()
@@ -194,7 +200,12 @@ export class AppointmentService {
   }
 
   async getAllAppointments(
-    params: FindOptionsWhere<Appointment & { month?: Appointment['date'] }>,
+    params: FindOptionsWhere<
+      Appointment & {
+        month?: Appointment['date'];
+        order?: FindOptionsOrder<Appointment>;
+      }
+    >,
   ): Promise<Appointment[]> {
     const options: FindManyOptions<Appointment> = {
       relations: { user: true, project: { client: true }, category: true },
@@ -202,6 +213,11 @@ export class AppointmentService {
     };
 
     if (params) {
+      if (params.order && typeof params.order === 'object') {
+        options.order = { ...(params.order as FindOptionsOrder<Appointment>) };
+        delete params.order;
+      }
+
       if (params.month) {
         const { month, ...others } = params;
 

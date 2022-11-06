@@ -145,6 +145,7 @@ class SaveAppointmentsUtils implements Types.Interface {
     this.appointments = await this.appointmentService.getAllAppointments({
       user: { id: this.userData.id },
       status: AppointmentStatus.Draft,
+      order: { date: 'asc', startTime: 'asc', endTime: 'asc' },
     });
 
     await this.setProgress({
