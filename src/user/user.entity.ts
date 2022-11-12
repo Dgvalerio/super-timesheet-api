@@ -2,6 +2,7 @@ import { Field, HideField, ID, Int, ObjectType } from '@nestjs/graphql';
 
 import { AzureInfos } from '@/azure-infos/azure-infos.entity';
 import { hashPasswordTransform } from '@/common/helpers/cryptography';
+import { GithubInfos } from '@/github-infos/github-infos.entity';
 import { Project } from '@/project/project.entity';
 
 import {
@@ -40,4 +41,7 @@ export class User {
 
   @OneToOne(() => AzureInfos, (azureInfos) => azureInfos.user)
   azureInfos?: AzureInfos;
+
+  @OneToOne(() => GithubInfos, (githubInfos) => githubInfos.user)
+  githubInfos?: GithubInfos;
 }

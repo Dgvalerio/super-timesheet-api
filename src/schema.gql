@@ -41,6 +41,12 @@ type AzureInfos {
   updatedDate: DateTime!
 }
 
+type GithubInfos {
+  id: ID!
+  access_token: String!
+  user: User!
+}
+
 type User {
   id: ID!
   dailyHours: Int!
@@ -48,6 +54,7 @@ type User {
   email: String!
   projects: [Project!]!
   azureInfos: AzureInfos
+  githubInfos: GithubInfos
 }
 
 type Appointment {
@@ -196,6 +203,7 @@ type Query {
   getAppointment(input: GetAppointmentInput!): Appointment!
   getCurrentMonthWorkedTime: String!
   getAzureInfos: AzureInfos!
+  getGithubInfos: GithubInfos!
 }
 
 input GetUserInput {
@@ -256,6 +264,7 @@ type Mutation {
   importData: Boolean!
   authVerify(input: AuthVerifyInput!): [CookieType!]!
   sendAppointments: Boolean!
+  createGithubInfos(input: CreateGithubInfosInput!): GithubInfos!
 }
 
 input CreateUserInput {
@@ -404,6 +413,10 @@ input DeleteAzureInfosInput {
 input AuthVerifyInput {
   login: String!
   password: String!
+}
+
+input CreateGithubInfosInput {
+  access_token: String!
 }
 
 type Subscription {
