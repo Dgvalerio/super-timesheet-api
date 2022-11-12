@@ -11,6 +11,7 @@ import { AuthModule } from '@/auth/auth.module';
 import { AzureInfosModule } from '@/azure-infos/azure-infos.module';
 import { CategoryModule } from '@/category/category.module';
 import { ClientModule } from '@/client/client.module';
+import { GithubInfosModule } from '@/github-infos/github-infos.module';
 import { ProjectModule } from '@/project/project.module';
 import { ScrapperModule } from '@/scrapper/scrapper.module';
 import { UserModule } from '@/user/user.module';
@@ -52,6 +53,7 @@ import { join } from 'path';
     AppointmentModule,
     AzureInfosModule,
     ScrapperModule,
+    GithubInfosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
