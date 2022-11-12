@@ -2,12 +2,10 @@ import { NotFoundException, UseGuards } from '@nestjs/common';
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { GqlAuthGuard } from '@/auth/auth.guard';
+import { ContextWithUser } from '@/common/interfaces/context-with-user';
 import { CreateGithubInfosInput } from '@/github-infos/dto/create-github-infos.input';
 import { GithubInfos } from '@/github-infos/github-infos.entity';
 import { GithubInfosService } from '@/github-infos/github-infos.service';
-import { User } from '@/user/user.entity';
-
-import { IncomingMessage } from 'http';
 
 @Resolver()
 export class GithubInfosResolver {
@@ -16,8 +14,8 @@ export class GithubInfosResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => GithubInfos)
   async createGithubInfos(
-    @Context() { req }: { req: IncomingMessage & { user: User } },
-    @Args('input') input: CreateGithubInfosInput,
+    @Context() { req }: ContextWithUser,
+    @Args('input') input: CreateGithubInfosInput
   ): Promise<GithubInfos> {
     return this.githubInfosService.createGithubInfos({
       userId: req.user.id,
@@ -28,7 +26,7 @@ export class GithubInfosResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => GithubInfos)
   async getGithubInfos(
-    @Context() { req }: { req: IncomingMessage & { user: User } },
+    @Context() { req }: ContextWithUser
   ): Promise<GithubInfos> {
     const githubInfos = await this.githubInfosService.getGithubInfos({
       user: { id: req.user.id },

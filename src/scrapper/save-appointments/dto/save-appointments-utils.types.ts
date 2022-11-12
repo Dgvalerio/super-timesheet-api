@@ -45,7 +45,7 @@ export namespace SaveAppointmentsUtilsTypes {
         Omit<SaveAppointmentsProgress, 'appointment'> & {
           appointment: Partial<AppointmentProgress>;
         }
-      >,
+      >
     ): Promise<void>;
     requestFactory(cookies: Seed.AuthVerify['cookies']): void;
     loadPage(): Promise<void>;
@@ -55,12 +55,12 @@ export namespace SaveAppointmentsUtilsTypes {
     adapteToAzure(appointment: Appointment): Promise<AzureAppointment>;
     createAppointment(appointment: AzureAppointment): Promise<boolean>;
     searchInAppointments(
-      search: AzureAppointment,
+      search: AzureAppointment
     ): Promise<SearchOutput | undefined>;
     descriptionAdapter(description: string): string;
     compareAppointments(
       searchResult: SearchOutput,
-      toSave: AzureAppointment,
+      toSave: AzureAppointment
     ): boolean;
     processAppointments(): Promise<void>;
     run(): Promise<void>;

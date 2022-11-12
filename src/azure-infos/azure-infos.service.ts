@@ -29,7 +29,7 @@ export class AzureInfosService {
     private azureInfosRepository: Repository<AzureInfos>,
     private userService: UserService,
     private authVerifyService: AuthVerifyService,
-    private seedService: SeedService,
+    private seedService: SeedService
   ) {}
 
   private static async encryptPassword(text: string): Promise<CryptoHash> {
@@ -37,7 +37,7 @@ export class AzureInfosService {
     const key: Buffer = (await promisify(scrypt)(
       `${process.env.AZURE_SECRET}`,
       'salt',
-      32,
+      32
     )) as Buffer;
 
     const cipher = createCipheriv('aes-256-ctr', key, iv);
@@ -52,7 +52,7 @@ export class AzureInfosService {
 
   async createAzureInfos(input: CreateAzureInfosInput): Promise<AzureInfos> {
     const user = await this.userService.getUser(
-      input.userId ? { id: input.userId } : { email: input.userEmail },
+      input.userId ? { id: input.userId } : { email: input.userEmail }
     );
 
     if (!user) {
@@ -75,7 +75,7 @@ export class AzureInfosService {
     }
 
     const { iv, content } = await AzureInfosService.encryptPassword(
-      input.password,
+      input.password
     );
 
     const created = this.azureInfosRepository.create({
@@ -88,7 +88,7 @@ export class AzureInfosService {
 
     if (!saved) {
       throw new InternalServerErrorException(
-        'Houve um problema ao cadastrar suas informações',
+        'Houve um problema ao cadastrar suas informações'
       );
     }
 
@@ -136,7 +136,7 @@ export class AzureInfosService {
 
     if (input.password) {
       const { iv, content } = await AzureInfosService.encryptPassword(
-        input.password,
+        input.password
       );
 
       if (iv !== azureInfos.iv || content !== azureInfos.content) {
@@ -190,7 +190,7 @@ export class AzureInfosService {
 
     if (!saved) {
       throw new InternalServerErrorException(
-        'Houve um problema ao atualizar as informações',
+        'Houve um problema ao atualizar as informações'
       );
     }
 

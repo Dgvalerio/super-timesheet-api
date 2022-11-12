@@ -11,7 +11,8 @@ export const today = (): Date => {
   return date;
 };
 
-export const getNow = () => utcToZonedTime(new Date(), 'America/Sao_Paulo');
+export const getNow = (): Date =>
+  utcToZonedTime(new Date(), 'America/Sao_Paulo');
 
 export const formatMinutesToTime = (totalMinutes: number): string => {
   const aux = {
@@ -25,7 +26,7 @@ export const formatMinutesToTime = (totalMinutes: number): string => {
   return `${hours}:${minutes}`;
 };
 
-export const brDateToISO = (date: string) => {
+export const brDateToISO = (date: string): string => {
   const [day, month, year] = date.split('/');
 
   return `${year}-${month}-${day}T00:00:00.000Z`;

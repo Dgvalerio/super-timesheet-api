@@ -15,7 +15,7 @@ export class CategoryResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Category)
   async createCategory(
-    @Args('input') input: CreateCategoryInput,
+    @Args('input') input: CreateCategoryInput
   ): Promise<Category> {
     return this.categoryService.createCategory(input);
   }
@@ -41,7 +41,7 @@ export class CategoryResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
   async deleteCategory(
-    @Args('input') input: DeleteCategoryInput,
+    @Args('input') input: DeleteCategoryInput
   ): Promise<boolean> {
     return this.categoryService.deleteCategory(input);
   }

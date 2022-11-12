@@ -17,7 +17,7 @@ import { compareSync } from 'bcrypt';
 export class AuthService {
   constructor(
     private userService: UserService,
-    private jwtService: JwtService,
+    private jwtService: JwtService
   ) {}
 
   decodeToken(token: string): string {

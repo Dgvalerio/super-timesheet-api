@@ -45,7 +45,7 @@ class SaveAppointmentsUtils implements Types.Interface {
     private pubSub: PubSub,
     private appointmentService: AppointmentService,
     private httpService: HttpService,
-    private userData: Types.UserData,
+    private userData: Types.UserData
   ) {}
 
   progress: SaveAppointmentsProgress = {
@@ -91,7 +91,7 @@ class SaveAppointmentsUtils implements Types.Interface {
       Omit<SaveAppointmentsProgress, 'appointment'> & {
         appointment: Partial<AppointmentProgress>;
       }
-    >,
+    >
   ): Promise<void> {
     this.progress = {
       ...this.progress,
@@ -107,7 +107,7 @@ class SaveAppointmentsUtils implements Types.Interface {
   requestFactory(cookies: Seed.AuthVerify['cookies']): void {
     const cookie: string = cookies.reduce(
       (previous, { name, value }) => `${previous} ${name}=${value};`,
-      '',
+      ''
     );
 
     this.request = {
@@ -274,7 +274,7 @@ class SaveAppointmentsUtils implements Types.Interface {
       description: appointment.description,
       date: format(
         parseISO(appointment.date.toISOString().replace('Z', '')),
-        'ddMMyyyy',
+        'ddMMyyyy'
       ),
       notMonetize: appointment.notMonetize,
       startTime: appointment.startTime.replace(':', ''),
@@ -307,7 +307,7 @@ class SaveAppointmentsUtils implements Types.Interface {
 
       await this.page.select('#IdCustomer', appointment.client);
       await this.page.waitForResponse((response) =>
-        response.url().includes('/Worksheet/ReadProject'),
+        response.url().includes('/Worksheet/ReadProject')
       );
 
       await this.setProgress({
@@ -319,10 +319,10 @@ class SaveAppointmentsUtils implements Types.Interface {
 
       await this.page.select('#IdProject', appointment.project);
       await this.page.waitForResponse((response) =>
-        response.url().includes('/Worksheet/ReadCategory'),
+        response.url().includes('/Worksheet/ReadCategory')
       );
       await this.page.waitForResponse((response) =>
-        response.url().includes('/Worksheet/ReadProjectProgress'),
+        response.url().includes('/Worksheet/ReadProjectProgress')
       );
 
       await this.setProgress({
@@ -445,7 +445,7 @@ class SaveAppointmentsUtils implements Types.Interface {
           await this.page.waitForSelector('.alert.alert-danger', waitOptions);
 
           const response = await this.page.evaluate(
-            () => document.querySelector('.alert.alert-danger')?.textContent,
+            () => document.querySelector('.alert.alert-danger')?.textContent
           );
 
           if (response) failMessage = response.replace(/\n\s+/gm, '');
@@ -459,7 +459,7 @@ class SaveAppointmentsUtils implements Types.Interface {
   }
 
   async searchInAppointments(
-    search: AzureAppointment,
+    search: AzureAppointment
   ): Promise<Types.SearchOutput | undefined> {
     await this.setProgress({
       appointment: { search: SaveAppointmentsStatus.Process },
@@ -476,10 +476,10 @@ class SaveAppointmentsUtils implements Types.Interface {
             let item: Types.GetDataFromRow | undefined;
 
             const getDataFromRow = (item: Element): Types.GetDataFromRow => {
-              const getInnerText = (field: unknown) =>
+              const getInnerText = (field: unknown): string =>
                 (field as HTMLTableColElement)?.innerText;
 
-              const getId = (field: unknown) =>
+              const getId = (field: unknown): string =>
                 (field as HTMLTableColElement)?.children[0].id;
 
               return {
@@ -508,7 +508,7 @@ class SaveAppointmentsUtils implements Types.Interface {
           },
           search.date,
           search.startTime,
-          search.endTime,
+          search.endTime
         );
 
       await this.setProgress({
@@ -568,7 +568,7 @@ class SaveAppointmentsUtils implements Types.Interface {
 
   compareAppointments(
     searchResult: Types.SearchOutput,
-    toSave: AzureAppointment,
+    toSave: AzureAppointment
   ): boolean {
     return (
       JSON.stringify({
@@ -600,7 +600,7 @@ class SaveAppointmentsUtils implements Types.Interface {
   }
 
   async processAppointments(): Promise<void> {
-    const update = async (appointment: Types.UpdateInput) => {
+    const update = async (appointment: Types.UpdateInput): Promise<void> => {
       await this.setProgress({
         appointment: { update: SaveAppointmentsStatus.Load },
       });
@@ -618,7 +618,7 @@ class SaveAppointmentsUtils implements Types.Interface {
       });
     };
 
-    const create = async (index: number) => {
+    const create = async (index: number): Promise<void> => {
       await this.resetAppointmentProgress();
 
       const appointment = this.appointments[index];

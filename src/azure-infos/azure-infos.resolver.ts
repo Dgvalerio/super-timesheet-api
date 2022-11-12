@@ -7,9 +7,7 @@ import { AzureInfosService } from '@/azure-infos/azure-infos.service';
 import { CreateAzureInfosInput } from '@/azure-infos/dto/create-azure-infos.input';
 import { DeleteAzureInfosInput } from '@/azure-infos/dto/delete-azure-infos.input';
 import { UpdateAzureInfosInput } from '@/azure-infos/dto/update-azure-infos.input';
-import { User } from '@/user/user.entity';
-
-import { IncomingMessage } from 'http';
+import { ContextWithUser } from '@/common/interfaces/context-with-user';
 
 @Resolver()
 export class AzureInfosResolver {
@@ -18,7 +16,7 @@ export class AzureInfosResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => AzureInfos)
   async createAzureInfos(
-    @Args('input') input: CreateAzureInfosInput,
+    @Args('input') input: CreateAzureInfosInput
   ): Promise<AzureInfos> {
     return this.azureInfosService.createAzureInfos(input);
   }
@@ -26,7 +24,7 @@ export class AzureInfosResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => AzureInfos)
   async getAzureInfos(
-    @Context() { req }: { req: IncomingMessage & { user: User } },
+    @Context() { req }: ContextWithUser
   ): Promise<AzureInfos> {
     const azureInfos = await this.azureInfosService.getAzureInfos({
       login: req.user.azureInfos.login,
@@ -42,7 +40,7 @@ export class AzureInfosResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => AzureInfos)
   async updateAzureInfos(
-    @Args('input') input: UpdateAzureInfosInput,
+    @Args('input') input: UpdateAzureInfosInput
   ): Promise<AzureInfos> {
     return this.azureInfosService.updateAzureInfos(input);
   }
@@ -50,7 +48,7 @@ export class AzureInfosResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
   async deleteAzureInfos(
-    @Args('input') input: DeleteAzureInfosInput,
+    @Args('input') input: DeleteAzureInfosInput
   ): Promise<boolean> {
     return this.azureInfosService.deleteAzureInfos(input);
   }

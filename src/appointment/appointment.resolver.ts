@@ -9,9 +9,7 @@ import { GetAllAppointmentsInput } from '@/appointment/dto/get-all-appointments.
 import { GetAppointmentInput } from '@/appointment/dto/get-appointment.input';
 import { UpdateAppointmentInput } from '@/appointment/dto/update-appointment.input';
 import { GqlAuthGuard } from '@/auth/auth.guard';
-import { User } from '@/user/user.entity';
-
-import { IncomingMessage } from 'http';
+import { ContextWithUser } from '@/common/interfaces/context-with-user';
 
 @Resolver()
 export class AppointmentResolver {
@@ -20,8 +18,8 @@ export class AppointmentResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Appointment)
   async createAppointment(
-    @Context() { req }: { req: IncomingMessage & { user: User } },
-    @Args('input') input: CreateAppointmentInput,
+    @Context() { req }: ContextWithUser,
+    @Args('input') input: CreateAppointmentInput
   ): Promise<Appointment> {
     return this.appointmentService.createAppointment({
       ...input,
@@ -32,8 +30,8 @@ export class AppointmentResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => [Appointment])
   async getAllAppointments(
-    @Context() { req }: { req: IncomingMessage & { user: User } },
-    @Args('input') input: GetAllAppointmentsInput,
+    @Context() { req }: ContextWithUser,
+    @Args('input') input: GetAllAppointmentsInput
   ): Promise<Appointment[]> {
     return this.appointmentService.getAllAppointments({
       ...input,
@@ -44,8 +42,8 @@ export class AppointmentResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => Appointment)
   async getAppointment(
-    @Context() { req }: { req: IncomingMessage & { user: User } },
-    @Args('input') input: GetAppointmentInput,
+    @Context() { req }: ContextWithUser,
+    @Args('input') input: GetAppointmentInput
   ): Promise<Appointment> {
     const appointment = await this.appointmentService.getAppointment({
       ...input,
@@ -62,8 +60,8 @@ export class AppointmentResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Appointment)
   async updateAppointment(
-    @Context() { req }: { req: IncomingMessage & { user: User } },
-    @Args('input') input: UpdateAppointmentInput,
+    @Context() { req }: ContextWithUser,
+    @Args('input') input: UpdateAppointmentInput
   ): Promise<Appointment> {
     return this.appointmentService.updateAppointment({
       ...input,
@@ -74,7 +72,7 @@ export class AppointmentResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
   async deleteAppointment(
-    @Args('input') input: DeleteAppointmentInput,
+    @Args('input') input: DeleteAppointmentInput
   ): Promise<boolean> {
     return this.appointmentService.deleteAppointment(input);
   }
@@ -82,7 +80,7 @@ export class AppointmentResolver {
   @UseGuards(GqlAuthGuard)
   @Query(() => String)
   async getCurrentMonthWorkedTime(
-    @Context() { req }: { req: IncomingMessage & { user: User } },
+    @Context() { req }: ContextWithUser
   ): Promise<string> {
     return this.appointmentService.getCurrentMonthWorkedTime({
       user: { id: req.user.id },

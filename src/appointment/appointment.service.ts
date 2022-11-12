@@ -43,7 +43,7 @@ export class AppointmentService {
     private appointmentRepository: Repository<Appointment>,
     private userService: UserService,
     private projectService: ProjectService,
-    private categoryService: CategoryService,
+    private categoryService: CategoryService
   ) {}
 
   async createAppointment(data: CreateAppointmentDto): Promise<Appointment> {
@@ -68,19 +68,19 @@ export class AppointmentService {
 
       if (compareAsc(new Date(startDate), now) >= 0) {
         throw new BadRequestException(
-          'O horário inicial precisa ser menor que o atual',
+          'O horário inicial precisa ser menor que o atual'
         );
       }
 
       if (compareAsc(new Date(startDate), new Date(endDate)) >= 0) {
         throw new BadRequestException(
-          'O horário inicial precisa ser menor que o final',
+          'O horário inicial precisa ser menor que o final'
         );
       }
 
       if (compareAsc(new Date(endDate), now) > 0) {
         throw new BadRequestException(
-          'O horário final não deve ser maior que o atual',
+          'O horário final não deve ser maior que o atual'
         );
       }
     }
@@ -101,8 +101,8 @@ export class AppointmentService {
           {
             start: toDate(data.startTime),
             end: add(toDate(data.endTime), { minutes: 1 }),
-          },
-        ),
+          }
+        )
     );
 
     if (timeConflict) {
@@ -161,7 +161,7 @@ export class AppointmentService {
 
     if (!project.categories.find(({ id }) => category.id === id)) {
       throw new NotFoundException(
-        'A categoria informada não existe nesse projeto!',
+        'A categoria informada não existe nesse projeto!'
       );
     }
 
@@ -175,7 +175,7 @@ export class AppointmentService {
 
     if (!saved) {
       throw new InternalServerErrorException(
-        'Houve um problema ao cadastrar um apontamento',
+        'Houve um problema ao cadastrar um apontamento'
       );
     }
 
@@ -183,7 +183,7 @@ export class AppointmentService {
   }
 
   async getAppointment(
-    params: FindOneOptions<Appointment>['where'],
+    params: FindOneOptions<Appointment>['where']
   ): Promise<Appointment | null> {
     const options: FindOneOptions<Appointment> = {
       relations: {
@@ -205,7 +205,7 @@ export class AppointmentService {
         month?: Appointment['date'];
         order?: FindOptionsOrder<Appointment>;
       }
-    >,
+    >
   ): Promise<Appointment[]> {
     const options: FindManyOptions<Appointment> = {
       relations: { user: true, project: { client: true }, category: true },
@@ -353,19 +353,19 @@ export class AppointmentService {
 
         if (compareAsc(new Date(startDate), now) >= 0) {
           throw new BadRequestException(
-            'O horário inicial precisa ser menor que o atual',
+            'O horário inicial precisa ser menor que o atual'
           );
         }
 
         if (compareAsc(new Date(startDate), new Date(endDate)) >= 0) {
           throw new BadRequestException(
-            'O horário inicial precisa ser menor que o final',
+            'O horário inicial precisa ser menor que o final'
           );
         }
 
         if (compareAsc(new Date(endDate), now) > 0) {
           throw new BadRequestException(
-            'O horário final não deve ser maior que o atual',
+            'O horário final não deve ser maior que o atual'
           );
         }
       }
@@ -380,7 +380,7 @@ export class AppointmentService {
 
     if (!saved) {
       throw new InternalServerErrorException(
-        'Houve um problema ao atualizar um apontamento',
+        'Houve um problema ao atualizar um apontamento'
       );
     }
 
@@ -400,7 +400,7 @@ export class AppointmentService {
   }
 
   async getCurrentMonthWorkedTime(
-    params: Pick<FindOptionsWhere<Appointment>, 'user'>,
+    params: Pick<FindOptionsWhere<Appointment>, 'user'>
   ): Promise<string> {
     const first = set(new Date(), {
       date: 1,
@@ -426,11 +426,11 @@ export class AppointmentService {
           previousValue +
           differenceInMinutes(
             new Date(`${simpleDate}T${endTime}`),
-            new Date(`${simpleDate}T${startTime}`),
+            new Date(`${simpleDate}T${startTime}`)
           )
         );
       },
-      0,
+      0
     );
 
     return formatMinutesToTime(workedMinutes);

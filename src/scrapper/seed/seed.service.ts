@@ -25,7 +25,7 @@ import { UserService } from '@/user/user.service';
 import { AxiosRequestConfig } from 'axios';
 import { PubSub } from 'graphql-subscriptions';
 
-export const errorLog = (...toLog: any) => console.error(...toLog);
+export const errorLog = (...toLog: unknown[]): void => console.error(...toLog);
 
 export const statusAdapter = (previous: string): AppointmentStatus => {
   switch (previous) {
@@ -53,7 +53,7 @@ class ImportUserDataUtils {
     private projectService: ProjectService,
     private categoryService: CategoryService,
     private appointmentService: AppointmentService,
-    private pubSub: PubSub,
+    private pubSub: PubSub
   ) {
     this.pubSub = pubSub;
   }
@@ -67,7 +67,7 @@ class ImportUserDataUtils {
     appointments: SeedStatus.Wait,
   };
 
-  setProgress(newProgress: Partial<SeedOutput>) {
+  setProgress(newProgress: Partial<SeedOutput>): Promise<void> {
     this.progress = { ...this.progress, ...newProgress };
 
     return this.pubSub.publish(WATCH_IMPORT_DATA, {
@@ -75,10 +75,10 @@ class ImportUserDataUtils {
     });
   }
 
-  requestFactory(cookies: Seed.AuthVerify['cookies']) {
+  requestFactory(cookies: Seed.AuthVerify['cookies']): void {
     const cookie: string = cookies.reduce(
       (previous, { name, value }) => `${previous} ${name}=${value};`,
-      '',
+      ''
     );
 
     this.request = {
@@ -158,7 +158,7 @@ class ImportUserDataUtils {
           if (id) clients.push({ id, title });
 
           return { id: id || '-1', title };
-        },
+        }
       );
 
       await Promise.all(clientsPromise);
@@ -174,7 +174,7 @@ class ImportUserDataUtils {
   async saveClients(clients: Seed.Client[]): Promise<void> {
     await this.setProgress({ clients: SeedStatus.Save });
 
-    const saveClient = async (index: number) => {
+    const saveClient = async (index: number): Promise<void> => {
       const { id, title } = clients[index];
 
       try {
@@ -214,7 +214,7 @@ class ImportUserDataUtils {
 
     const mappedProjects = await Promise.all(mapPromise);
     const projects: Seed.Project[] = mappedProjects.reduce((prev, current) =>
-      prev.concat(current),
+      prev.concat(current)
     );
 
     if (projects.length <= 0) errorLog('Projects not loaded');
@@ -225,7 +225,7 @@ class ImportUserDataUtils {
   async saveProjects(userId: string, projects: Seed.Project[]): Promise<void> {
     await this.setProgress({ projects: SeedStatus.Save });
 
-    const saveProject = async (index: number) => {
+    const saveProject = async (index: number): Promise<void> => {
       const { Id, Name, EndDate, StartDate, IdCustomer } = projects[index];
 
       try {
@@ -243,7 +243,7 @@ class ImportUserDataUtils {
           });
       } catch (e) {
         errorLog(
-          `Error on save project ${index + 1} of ${projects.length}: ${e}`,
+          `Error on save project ${index + 1} of ${projects.length}: ${e}`
         );
       }
 
@@ -267,7 +267,7 @@ class ImportUserDataUtils {
         errorLog(
           `Error on add project ${index + 1} of ${
             projects.length
-          } to user: ${e}`,
+          } to user: ${e}`
         );
       }
 
@@ -288,7 +288,7 @@ class ImportUserDataUtils {
         const { data } = await this.httpService.axiosRef.post<Seed.Category[]>(
           '/Worksheet/ReadCategory',
           `idproject=${Id}`,
-          { ...this.request },
+          { ...this.request }
         );
 
         return data;
@@ -301,7 +301,7 @@ class ImportUserDataUtils {
 
     const mappedCategories = await Promise.all(mapPromise);
     const categories: Seed.Category[] = mappedCategories.reduce(
-      (prev, current) => prev.concat(current),
+      (prev, current) => prev.concat(current)
     );
 
     if (categories.length <= 0) errorLog('Categories not loaded');
@@ -312,7 +312,7 @@ class ImportUserDataUtils {
   async saveCategories(categories: Seed.Category[]): Promise<void> {
     await this.setProgress({ categories: SeedStatus.Save });
 
-    const saveCategory = async (index: number) => {
+    const saveCategory = async (index: number): Promise<void> => {
       const { Id, Name, IdProject } = categories[index];
 
       try {
@@ -327,7 +327,7 @@ class ImportUserDataUtils {
           });
       } catch (e) {
         errorLog(
-          `Error on save category ${index + 1} of ${categories.length}: ${e}`,
+          `Error on save category ${index + 1} of ${categories.length}: ${e}`
         );
       }
 
@@ -337,7 +337,7 @@ class ImportUserDataUtils {
         });
 
         const inCategories = project.categories.find(
-          ({ code }) => code === String(Id),
+          ({ code }) => code === String(Id)
         );
 
         if (!inCategories) {
@@ -355,7 +355,7 @@ class ImportUserDataUtils {
         errorLog(
           `Error on add category ${index + 1} of ${
             categories.length
-          } to project: ${e}`,
+          } to project: ${e}`
         );
       }
 
@@ -423,7 +423,7 @@ class ImportUserDataUtils {
             },
           } = await this.httpService.axiosRef.get<Seed.FullAppointment>(
             `/Worksheet/Update?id=${partial.code}`,
-            { ...this.request },
+            { ...this.request }
           );
 
           return {
@@ -438,7 +438,7 @@ class ImportUserDataUtils {
             status: partial.status,
             commit: CommitRepository || '',
           };
-        },
+        }
       );
 
       appointments = await Promise.all(appointmentsPromise);
@@ -451,12 +451,12 @@ class ImportUserDataUtils {
     return appointments;
   }
 
-  descriptionAdapter = (description: string) =>
+  descriptionAdapter = (description: string): string =>
     description.replace(/[\r\n]+/gm, '');
 
   async compareAndUpdateAppointment(
     toSave: Seed.ToCreateAppointment,
-    saved: Appointment,
+    saved: Appointment
   ): Promise<void> {
     if (toSave.date.toISOString() === saved.date.toISOString()) {
       console.log('O dia bate!');
@@ -476,7 +476,7 @@ class ImportUserDataUtils {
                 saved.commit
               ) {
                 console.log(
-                  'Mano, o commit bate, é o mesmo apontamento, vou atualizar',
+                  'Mano, o commit bate, é o mesmo apontamento, vou atualizar'
                 );
 
                 try {
@@ -497,11 +497,11 @@ class ImportUserDataUtils {
 
   async saveAppointments(
     appointments: Seed.ToCreateAppointment[],
-    userId: string,
+    userId: string
   ): Promise<void> {
     await this.setProgress({ appointments: SeedStatus.Save });
 
-    const saveAppointment = async (index: number) => {
+    const saveAppointment = async (index: number): Promise<void> => {
       try {
         const appointment = await this.appointmentService.getAppointment({
           code: appointments[index].code,
@@ -529,19 +529,19 @@ class ImportUserDataUtils {
           errorLog(
             `Error on create appointment ${index + 1} of ${
               appointments.length
-            }: ${description}`,
+            }: ${description}`
           );
 
           await this.compareAndUpdateAppointment(
             appointments[index],
-            timeConflict,
+            timeConflict
           );
         } else {
           errorLog(
             `Error on create appointment ${index + 1} of ${
               appointments.length
             }: ${e}`,
-            e,
+            e
           );
         }
       }
@@ -565,7 +565,7 @@ export class SeedService {
     private projectService: ProjectService,
     private categoryService: CategoryService,
     private appointmentService: AppointmentService,
-    private pubSub: PubSub,
+    private pubSub: PubSub
   ) {}
 
   async importUserData(user: User): Promise<void> {
@@ -577,7 +577,7 @@ export class SeedService {
       this.projectService,
       this.categoryService,
       this.appointmentService,
-      this.pubSub,
+      this.pubSub
     );
 
     await dataUtils.setProgress({ userId: user.id });

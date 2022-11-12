@@ -24,7 +24,7 @@ export class AuthVerifyService {
     wipe: AuthVerifyStatus.Wait,
   };
 
-  setProgress(newProgress: Partial<AuthVerifyOutput>) {
+  setProgress(newProgress: Partial<AuthVerifyOutput>): Promise<void> {
     this.progress = { ...this.progress, ...newProgress };
 
     return this.pubSub.publish(WATCH_AUTH_VERIFY, {
@@ -44,10 +44,10 @@ export class AuthVerifyService {
 
       page.on('request', (request) =>
         ['image', 'stylesheet', 'font', 'other'].includes(
-          request.resourceType(),
+          request.resourceType()
         )
           ? request.abort()
-          : request.continue(),
+          : request.continue()
       );
 
       await this.setProgress({ page: AuthVerifyStatus.Ok });

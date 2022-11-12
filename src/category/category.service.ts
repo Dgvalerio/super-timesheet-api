@@ -18,7 +18,7 @@ import { Repository } from 'typeorm';
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
-    private categoryRepository: Repository<Category>,
+    private categoryRepository: Repository<Category>
   ) {}
 
   async createCategory(input: CreateCategoryInput): Promise<Category> {
@@ -41,7 +41,7 @@ export class CategoryService {
 
     if (!saved) {
       throw new InternalServerErrorException(
-        'Houve um problema ao cadastrar uma categoria',
+        'Houve um problema ao cadastrar uma categoria'
       );
     }
 

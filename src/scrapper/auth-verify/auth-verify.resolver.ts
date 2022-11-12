@@ -16,12 +16,12 @@ export class AuthVerifyResolver {
   constructor(
     private authVerifyService: AuthVerifyService,
     private pubSub: PubSub,
-    private authService: AuthService,
+    private authService: AuthService
   ) {}
 
   @Mutation(() => [CookieType])
   async authVerify(
-    @Args('input') input: AuthVerifyInput,
+    @Args('input') input: AuthVerifyInput
   ): Promise<CookieType[]> {
     return await this.authVerifyService.authVerify(input);
   }
@@ -31,7 +31,7 @@ export class AuthVerifyResolver {
       this: AuthVerifyResolver,
       payload: { [WATCH_AUTH_VERIFY]: AuthVerifyOutput },
       variables,
-      context,
+      context
     ) {
       const userId = this.authService.decodeToken(context.token);
 

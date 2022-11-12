@@ -39,7 +39,7 @@ export class ClientResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
   async deleteClient(
-    @Args('input') input: DeleteClientInput,
+    @Args('input') input: DeleteClientInput
   ): Promise<boolean> {
     return this.clientService.deleteClient(input);
   }

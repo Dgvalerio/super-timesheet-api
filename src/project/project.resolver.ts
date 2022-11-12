@@ -20,13 +20,13 @@ export class ProjectResolver {
   constructor(
     private projectService: ProjectService,
     private categoryService: CategoryService,
-    private userService: UserService,
+    private userService: UserService
   ) {}
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Project)
   async createProject(
-    @Args('input') input: CreateProjectInput,
+    @Args('input') input: CreateProjectInput
   ): Promise<Project> {
     return this.projectService.createProject(input);
   }
@@ -52,7 +52,7 @@ export class ProjectResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Project)
   async updateProject(
-    @Args('input') input: UpdateProjectInput,
+    @Args('input') input: UpdateProjectInput
   ): Promise<Project> {
     return this.projectService.updateProject(input);
   }
@@ -60,7 +60,7 @@ export class ProjectResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
   async deleteProject(
-    @Args('input') input: DeleteProjectInput,
+    @Args('input') input: DeleteProjectInput
   ): Promise<boolean> {
     return this.projectService.deleteProject(input);
   }
@@ -96,7 +96,7 @@ export class ProjectResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Project)
   async addProjectToUser(
-    @Args('input') input: AddProjectToUserInput,
+    @Args('input') input: AddProjectToUserInput
   ): Promise<Project> {
     const user = await this.userService.getUser({
       id: input.userId,

@@ -33,8 +33,8 @@ export const waitOptions = { visible: true, timeout: 3000 };
 export const checkValue = async (
   page: Page,
   selector: string,
-  value: string | boolean,
-) => {
+  value: string | boolean
+): Promise<void> => {
   const response = await page.evaluate(
     (aSelector, aValue) => {
       const value = (<HTMLInputElement>document.querySelector(aSelector))[
@@ -54,7 +54,7 @@ export const checkValue = async (
       return true;
     },
     selector,
-    value,
+    value
   );
 
   if (!response) await checkValue(page, selector, value);

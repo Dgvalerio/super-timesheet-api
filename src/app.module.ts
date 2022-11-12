@@ -29,7 +29,7 @@ import { join } from 'path';
       subscriptions: {
         'graphql-ws': {
           onConnect: (
-            context: Context<{ token: string }, { token: string }>,
+            context: Context<{ token: string }, { token: string }>
           ) => {
             const { connectionParams, extra } = context;
 

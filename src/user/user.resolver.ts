@@ -3,14 +3,13 @@ import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { GqlAuthGuard } from '@/auth/auth.guard';
 import { Client } from '@/client/client.entity';
+import { ContextWithUser } from '@/common/interfaces/context-with-user';
 import { CreateUserInput } from '@/user/dto/create-user.input';
 import { DeleteUserInput } from '@/user/dto/delete-user.input';
 import { GetUserInput } from '@/user/dto/get-user.input';
 import { UpdateUserInput } from '@/user/dto/update-user.input';
 import { User } from '@/user/user.entity';
 import { UserService } from '@/user/user.service';
-
-import { IncomingMessage } from 'http';
 
 @Resolver()
 export class UserResolver {
@@ -24,8 +23,8 @@ export class UserResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => User)
   async updateUser(
-    @Context() { req }: { req: IncomingMessage & { user: User } },
-    @Args('input') input: UpdateUserInput,
+    @Context() { req }: ContextWithUser,
+    @Args('input') input: UpdateUserInput
   ): Promise<User> {
     return this.userService.updateUser({
       ...input,
@@ -53,9 +52,7 @@ export class UserResolver {
 
   @UseGuards(GqlAuthGuard)
   @Query(() => [Client])
-  async getUserClients(
-    @Context() { req }: { req: IncomingMessage & { user: User } },
-  ): Promise<Client[]> {
+  async getUserClients(@Context() { req }: ContextWithUser): Promise<Client[]> {
     return await this.userService.getUserClients(req.user);
   }
 

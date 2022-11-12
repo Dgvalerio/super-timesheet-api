@@ -22,13 +22,13 @@ import { Repository } from 'typeorm';
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private userRepository: Repository<User>
   ) {}
 
   async createUser(input: CreateUserInput): Promise<User> {
     if (input.password !== input.passwordConfirmation) {
       throw new BadRequestException(
-        'A confirmação de senha deve ser igual à senha!',
+        'A confirmação de senha deve ser igual à senha!'
       );
     }
 
@@ -43,7 +43,7 @@ export class UserService {
 
     if (!saved) {
       throw new InternalServerErrorException(
-        'Houve um problema ao cadastrar um usuário',
+        'Houve um problema ao cadastrar um usuário'
       );
     }
 
@@ -79,7 +79,7 @@ export class UserService {
     if (input.newPassword) {
       if (input.newPassword !== input.newPasswordConfirmation) {
         throw new BadRequestException(
-          'A confirmação da nova senha deve ser igual à nova senha!',
+          'A confirmação da nova senha deve ser igual à nova senha!'
         );
       } else {
         newData.password = input.newPassword;
@@ -102,7 +102,7 @@ export class UserService {
 
     if (!saved) {
       throw new InternalServerErrorException(
-        'Houve um problema ao atualizar o usuário',
+        'Houve um problema ao atualizar o usuário'
       );
     }
 

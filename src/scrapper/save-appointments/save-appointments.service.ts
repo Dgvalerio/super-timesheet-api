@@ -13,7 +13,7 @@ export class SaveAppointmentsService {
   constructor(
     private pubSub: PubSub,
     private appointmentService: AppointmentService,
-    private httpService: HttpService,
+    private httpService: HttpService
   ) {}
 
   async saveAppointments(user: User): Promise<boolean> {
@@ -29,7 +29,7 @@ export class SaveAppointmentsService {
             iv: user.azureInfos.iv,
             content: user.azureInfos.content,
           }),
-        },
+        }
       );
 
       await utils.run();

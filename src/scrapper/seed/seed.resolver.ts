@@ -3,26 +3,23 @@ import { Context, Mutation, Resolver, Subscription } from '@nestjs/graphql';
 
 import { GqlAuthGuard } from '@/auth/auth.guard';
 import { AuthService } from '@/auth/auth.service';
+import { ContextWithUser } from '@/common/interfaces/context-with-user';
 import { SeedOutput, WATCH_IMPORT_DATA } from '@/scrapper/seed/dto/seed.output';
 import { SeedService } from '@/scrapper/seed/seed.service';
-import { User } from '@/user/user.entity';
 
 import { PubSub } from 'graphql-subscriptions';
-import { IncomingMessage } from 'http';
 
 @Resolver()
 export class SeedResolver {
   constructor(
     private seedService: SeedService,
     private pubSub: PubSub,
-    private authService: AuthService,
+    private authService: AuthService
   ) {}
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
-  async importData(
-    @Context() { req }: { req: IncomingMessage & { user: User } },
-  ): Promise<boolean> {
+  async importData(@Context() { req }: ContextWithUser): Promise<boolean> {
     await this.seedService.importUserData(req.user);
 
     return true;

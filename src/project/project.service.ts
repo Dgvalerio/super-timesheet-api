@@ -29,13 +29,13 @@ export class ProjectService {
     private projectRepository: Repository<Project>,
     private clientService: ClientService,
     private categoryService: CategoryService,
-    private userService: UserService,
+    private userService: UserService
   ) {}
 
   private async verifyConflicts<ValueType = string>(
     fieldName: keyof Project,
-    newValue: ValueType,
-  ) {
+    newValue: ValueType
+  ): Promise<void> {
     const haveConflict = await this.getProject({ [fieldName]: newValue });
 
     if (haveConflict) {
@@ -54,7 +54,7 @@ export class ProjectService {
     }
 
     const client = await this.clientService.getClient(
-      input.clientId ? { id: input.clientId } : { code: input.clientCode },
+      input.clientId ? { id: input.clientId } : { code: input.clientCode }
     );
 
     if (!client) {
@@ -66,7 +66,7 @@ export class ProjectService {
 
     if (!saved) {
       throw new InternalServerErrorException(
-        'Houve um problema ao cadastrar um projeto',
+        'Houve um problema ao cadastrar um projeto'
       );
     }
 
@@ -91,7 +91,7 @@ export class ProjectService {
   }
 
   async getProject(
-    params: FindOneOptions<Project>['where'],
+    params: FindOneOptions<Project>['where']
   ): Promise<Project | null> {
     const options: FindOneOptions<Project> = {
       relations: {
@@ -127,7 +127,7 @@ export class ProjectService {
       (input.clientCode && input.clientCode !== project.client.code)
     ) {
       const client = await this.clientService.getClient(
-        input.clientId ? { id: input.clientId } : { code: input.clientCode },
+        input.clientId ? { id: input.clientId } : { code: input.clientCode }
       );
 
       if (!client) {
@@ -159,7 +159,7 @@ export class ProjectService {
 
     if (!saved) {
       throw new InternalServerErrorException(
-        'Houve um problema ao atualizar um projeto',
+        'Houve um problema ao atualizar um projeto'
       );
     }
 
@@ -179,7 +179,7 @@ export class ProjectService {
   }
 
   async addCategory(
-    input: Pick<AddCategoryInput, 'projectId' | 'categoryId'>,
+    input: Pick<AddCategoryInput, 'projectId' | 'categoryId'>
   ): Promise<Project> {
     const project = await this.getProject({ id: input.projectId });
 
@@ -189,7 +189,7 @@ export class ProjectService {
 
     if (project.categories.find(({ id }) => id === category.id)) {
       throw new ConflictException(
-        `Essa categoria já foi adicionada a esse projeto!`,
+        `Essa categoria já foi adicionada a esse projeto!`
       );
     }
 
@@ -200,7 +200,7 @@ export class ProjectService {
 
     if (!saved) {
       throw new InternalServerErrorException(
-        'Houve um problema ao adicionar uma categoria ao projeto',
+        'Houve um problema ao adicionar uma categoria ao projeto'
       );
     }
 
@@ -208,7 +208,7 @@ export class ProjectService {
   }
 
   async addProjectToUser(
-    input: Pick<AddProjectToUserInput, 'userId' | 'projectId'>,
+    input: Pick<AddProjectToUserInput, 'userId' | 'projectId'>
   ): Promise<Project> {
     const user = await this.userService.getUser({
       id: input.userId,
@@ -220,7 +220,7 @@ export class ProjectService {
 
     if (project.users.find(({ id }) => id === user.id)) {
       throw new ConflictException(
-        `Esse projeto já foi adicionado a esse usuário!`,
+        `Esse projeto já foi adicionado a esse usuário!`
       );
     }
 
@@ -231,7 +231,7 @@ export class ProjectService {
 
     if (!saved) {
       throw new InternalServerErrorException(
-        'Houve um problema ao adicionar o projeto ao usuário',
+        'Houve um problema ao adicionar o projeto ao usuário'
       );
     }
 

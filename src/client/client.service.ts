@@ -18,7 +18,7 @@ import { Repository } from 'typeorm';
 export class ClientService {
   constructor(
     @InjectRepository(Client)
-    private clientRepository: Repository<Client>,
+    private clientRepository: Repository<Client>
   ) {}
 
   async createClient(input: CreateClientInput): Promise<Client> {
@@ -41,7 +41,7 @@ export class ClientService {
 
     if (!saved) {
       throw new InternalServerErrorException(
-        'Houve um problema ao cadastrar um cliente',
+        'Houve um problema ao cadastrar um cliente'
       );
     }
 

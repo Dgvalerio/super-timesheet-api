@@ -19,11 +19,11 @@ export class GithubInfosService {
   constructor(
     @InjectRepository(GithubInfos)
     private githubInfosRepository: Repository<GithubInfos>,
-    private userService: UserService,
+    private userService: UserService
   ) {}
 
   async verifyAccessToken(
-    token: GithubInfos['access_token'],
+    token: GithubInfos['access_token']
   ): Promise<boolean> {
     try {
       const octokit = new Octokit({ auth: token });
@@ -65,7 +65,7 @@ export class GithubInfosService {
 
     if (!saved) {
       throw new InternalServerErrorException(
-        'Houve um problema ao cadastrar suas informações',
+        'Houve um problema ao cadastrar suas informações'
       );
     }
 
@@ -73,7 +73,7 @@ export class GithubInfosService {
   }
 
   async getGithubInfos(
-    params: FindOneOptions<GithubInfos>['where'],
+    params: FindOneOptions<GithubInfos>['where']
   ): Promise<GithubInfos | null> {
     const options: FindOneOptions<GithubInfos> = { relations: { user: true } };
 

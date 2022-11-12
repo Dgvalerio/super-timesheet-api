@@ -17,13 +17,13 @@ export const decryptPassword = async (hash: CryptoHash): Promise<string> => {
   const key: Buffer = (await promisify(scrypt)(
     `${process.env.AZURE_SECRET}`,
     'salt',
-    32,
+    32
   )) as Buffer;
 
   const decipher = createDecipheriv(
     'aes-256-ctr',
     key,
-    Buffer.from(hash.iv, 'hex'),
+    Buffer.from(hash.iv, 'hex')
   );
 
   const decrypted = Buffer.concat([
