@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
+import isValidParams from '@/common/helpers/is-valid-params';
 import { CreateGithubInfosDto } from '@/github-infos/dto/create-github-infos.dto';
 import { GithubInfos } from '@/github-infos/github-infos.entity';
 import { UserService } from '@/user/user.service';
@@ -77,8 +78,7 @@ export class GithubInfosService {
   ): Promise<GithubInfos | null> {
     const options: FindOneOptions<GithubInfos> = { relations: { user: true } };
 
-    if (params) options.where = { ...params };
-    else throw new BadRequestException('Nenhum parâmetro válido foi informado');
+    if (isValidParams(params)) options.where = { ...params };
 
     return this.githubInfosRepository.findOne(options);
   }

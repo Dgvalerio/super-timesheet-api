@@ -12,6 +12,7 @@ import { CreateAppointmentDto } from '@/appointment/dto/create-appointment.dto';
 import { DeleteAppointmentInput } from '@/appointment/dto/delete-appointment.input';
 import { UpdateAppointmentDto } from '@/appointment/dto/update-appointment.dto';
 import { CategoryService } from '@/category/category.service';
+import isValidParams from '@/common/helpers/is-valid-params';
 import { formatMinutesToTime, getNow } from '@/common/helpers/today';
 import { ProjectService } from '@/project/project.service';
 import { UserService } from '@/user/user.service';
@@ -193,8 +194,7 @@ export class AppointmentService {
       },
     };
 
-    if (params) options.where = { ...params };
-    else throw new BadRequestException('Nenhum parâmetro válido foi informado');
+    if (isValidParams(params)) options.where = { ...params };
 
     return this.appointmentRepository.findOne(options);
   }

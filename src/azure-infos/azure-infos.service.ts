@@ -13,13 +13,14 @@ import { DeleteAzureInfosInput } from '@/azure-infos/dto/delete-azure-infos.inpu
 import { GetAzureInfosInput } from '@/azure-infos/dto/get-azure-infos.input';
 import { UpdateAzureInfosInput } from '@/azure-infos/dto/update-azure-infos.input';
 import { decryptPassword } from '@/common/helpers/cryptography';
+import isValidParams from '@/common/helpers/is-valid-params';
 import { CryptoHash } from '@/common/interfaces/crypto-hash';
 import { AuthVerifyService } from '@/scrapper/auth-verify/auth-verify.service';
 import { SeedService } from '@/scrapper/seed/seed.service';
 import { UserService } from '@/user/user.service';
 
 import { randomBytes, createCipheriv, scrypt } from 'crypto';
-import { Repository } from 'typeorm';
+import { Repository, FindOneOptions } from 'typeorm';
 import { promisify } from 'util';
 
 @Injectable()
@@ -100,20 +101,11 @@ export class AzureInfosService {
   }
 
   async getAzureInfos(params: GetAzureInfosInput): Promise<AzureInfos | null> {
-    let where = {};
+    const options: FindOneOptions<AzureInfos> = { relations: { user: true } };
 
-    if (params.id) {
-      where = { id: params.id };
-    } else if (params.login) {
-      where = { login: params.login };
-    } else {
-      throw new BadRequestException('Nenhum parâmetro válido foi informado');
-    }
+    if (isValidParams(params)) options.where = { ...params };
 
-    return this.azureInfosRepository.findOne({
-      where,
-      relations: { user: true },
-    });
+    return this.azureInfosRepository.findOne(options);
   }
 
   async updateAzureInfos(input: UpdateAzureInfosInput): Promise<AzureInfos> {

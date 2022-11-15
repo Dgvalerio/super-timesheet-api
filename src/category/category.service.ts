@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -11,8 +10,9 @@ import { Category } from '@/category/category.entity';
 import { CreateCategoryInput } from '@/category/dto/create-category.input';
 import { DeleteCategoryInput } from '@/category/dto/delete-category.input';
 import { GetCategoryInput } from '@/category/dto/get-category.input';
+import isValidParams from '@/common/helpers/is-valid-params';
 
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 
 @Injectable()
 export class CategoryService {
@@ -53,19 +53,11 @@ export class CategoryService {
   }
 
   async getCategory(params: GetCategoryInput): Promise<Category> {
-    let search = {};
+    const options: FindOneOptions<Category> = {};
 
-    if (params.id) {
-      search = { id: params.id };
-    } else if (params.name) {
-      search = { name: params.name };
-    } else if (params.code) {
-      search = { code: params.code };
-    } else {
-      throw new BadRequestException('Nenhum parâmetro válido foi informado');
-    }
+    if (isValidParams(params)) options.where = { ...params };
 
-    return this.categoryRepository.findOneBy(search);
+    return this.categoryRepository.findOne(options);
   }
 
   async deleteCategory(input: DeleteCategoryInput): Promise<boolean> {

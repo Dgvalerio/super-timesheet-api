@@ -9,6 +9,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Client } from '@/client/client.entity';
+import isValidParams from '@/common/helpers/is-valid-params';
 import { CreateUserInput } from '@/user/dto/create-user.input';
 import { DeleteUserInput } from '@/user/dto/delete-user.input';
 import { UpdateUserDto } from '@/user/dto/update-user.dto';
@@ -120,8 +121,7 @@ export class UserService {
       },
     };
 
-    if (params) options.where = { ...params };
-    else throw new BadRequestException('Nenhum parâmetro válido foi informado');
+    if (isValidParams(params)) options.where = { ...params };
 
     return this.userRepository.findOne(options);
   }

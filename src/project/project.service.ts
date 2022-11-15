@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -9,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { CategoryService } from '@/category/category.service';
 import { ClientService } from '@/client/client.service';
+import isValidParams from '@/common/helpers/is-valid-params';
 import {
   CreateProjectInput,
   DeleteProjectInput,
@@ -101,8 +101,7 @@ export class ProjectService {
       },
     };
 
-    if (params) options.where = { ...params };
-    else throw new BadRequestException('Nenhum parâmetro válido foi informado');
+    if (isValidParams(params)) options.where = { ...params };
 
     return this.projectRepository.findOne(options);
   }
