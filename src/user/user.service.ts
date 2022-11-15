@@ -11,12 +11,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Client } from '@/client/client.entity';
 import { CreateUserInput } from '@/user/dto/create-user.input';
 import { DeleteUserInput } from '@/user/dto/delete-user.input';
-import { GetUserInput } from '@/user/dto/get-user.input';
 import { UpdateUserDto } from '@/user/dto/update-user.dto';
 import { User } from '@/user/user.entity';
 
 import { compareSync } from 'bcrypt';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -109,27 +108,22 @@ export class UserService {
     return this.getUser({ id: input.id });
   }
 
-  async getUser(params: GetUserInput): Promise<User | null> {
-    let where = {};
-
-    if (params.id) {
-      where = { id: params.id };
-    } else if (params.email) {
-      where = { email: params.email };
-    } else {
-      throw new BadRequestException('Nenhum parâmetro válido foi informado');
-    }
-
-    return this.userRepository.findOne({
-      where,
+  async getUser(params: FindOneOptions<User>['where']): Promise<User | null> {
+    const options: FindOneOptions<User> = {
       relations: {
         projects: {
           categories: true,
           client: { projects: { categories: true } },
         },
         azureInfos: true,
+        githubInfos: true,
       },
-    });
+    };
+
+    if (params) options.where = { ...params };
+    else throw new BadRequestException('Nenhum parâmetro válido foi informado');
+
+    return this.userRepository.findOne(options);
   }
 
   async getAllUsers(): Promise<User[]> {
