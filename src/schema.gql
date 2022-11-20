@@ -41,9 +41,17 @@ type AzureInfos {
   updatedDate: DateTime!
 }
 
+type RepositoryGroup {
+  id: ID!
+  name: String!
+  repositories: String!
+  githubInfos: GithubInfos!
+}
+
 type GithubInfos {
   id: ID!
   access_token: String!
+  repositoryGroups: [RepositoryGroup!]!
   user: User!
 }
 
