@@ -12,6 +12,7 @@ import { AzureInfosModule } from '@/azure-infos/azure-infos.module';
 import { CategoryModule } from '@/category/category.module';
 import { ClientModule } from '@/client/client.module';
 import { GithubInfosModule } from '@/github-infos/github-infos.module';
+import { RepositoryGroupModule } from '@/github/repository-group/repository-group.module';
 import { ProjectModule } from '@/project/project.module';
 import { ScrapperModule } from '@/scrapper/scrapper.module';
 import { UserModule } from '@/user/user.module';
@@ -54,6 +55,7 @@ import { join } from 'path';
     AzureInfosModule,
     ScrapperModule,
     GithubInfosModule,
+    RepositoryGroupModule,
   ],
   controllers: [AppController],
   providers: [AppService],

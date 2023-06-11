@@ -1,10 +1,12 @@
 import { GithubInfos } from '@/github-infos/github-infos.entity';
-import { User } from '@/user/user.entity';
+import { RepositoryGroup } from '@/github/repository-group/repository-group.entity';
 
 export interface CreateRepositoryGroupDto {
-  access_token: GithubInfos['access_token'];
+  name: RepositoryGroup['name'];
+
+  repositories: RepositoryGroup['repositories'];
 
   // Relations
-  // User
-  userId: User['id'];
+  // GithubInfos
+  githubInfosId: GithubInfos['id'];
 }

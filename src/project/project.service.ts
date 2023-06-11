@@ -152,7 +152,7 @@ export class ProjectService {
       return project;
     }
 
-    await this.projectRepository.update(project, { ...newData });
+    await this.projectRepository.update(project.id, { ...newData });
 
     const saved = await this.projectRepository.save({ ...project, ...newData });
 

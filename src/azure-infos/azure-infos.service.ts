@@ -173,7 +173,7 @@ export class AzureInfosService {
       await this.seedService.importUserData(updatedUser);
     }
 
-    await this.azureInfosRepository.update(azureInfos, { ...newData });
+    await this.azureInfosRepository.update(azureInfos.id, { ...newData });
 
     const saved = await this.azureInfosRepository.save({
       ...azureInfos,

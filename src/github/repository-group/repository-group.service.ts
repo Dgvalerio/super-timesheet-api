@@ -1,55 +1,48 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import isValidParams from '@/common/helpers/is-valid-params';
-import { CreateGithubInfosDto } from '@/github-infos/dto/create-github-infos.dto';
-import { GithubInfos } from '@/github-infos/github-infos.entity';
-import { UserService } from '@/user/user.service';
+import { GithubInfosService } from '@/github-infos/github-infos.service';
+import { CreateRepositoryGroupDto } from '@/github/repository-group/dto/create-repository-group.dto';
+import { RepositoryGroup } from '@/github/repository-group/repository-group.entity';
 
 import { FindOneOptions, Repository } from 'typeorm';
 
 @Injectable()
 export class RepositoryGroupService {
   constructor(
-    @InjectRepository(GithubInfos)
-    private githubInfosRepository: Repository<GithubInfos>,
-    private userService: UserService
+    @InjectRepository(RepositoryGroup)
+    private repositoryGroupRepository: Repository<RepositoryGroup>,
+    private githubInfosService: GithubInfosService
   ) {}
 
   async createRepositoryGroup(
-    input: CreateGithubInfosDto
-  ): Promise<GithubInfos> {
-    const user = await this.userService.getUser({ id: input.userId });
-
-    if (!user) {
-      throw new NotFoundException('O usuário informado não existe!');
-    }
-
-    const conflicting = await this.getGithubInfos({
-      user: { id: input.userId },
+    input: CreateRepositoryGroupDto
+  ): Promise<RepositoryGroup> {
+    const conflicting = await this.getRepositoryGroup({
+      name: input.name,
+      githubInfos: { id: input.githubInfosId },
     });
 
     if (conflicting) {
-      throw new ConflictException('Esse usuário já tem um token!');
+      throw new ConflictException('Um grupo com esse nome já foi criado!');
     }
 
-    const validAuth = await this.verifyAccessToken(input.access_token);
-
-    if (!validAuth) {
-      throw new BadRequestException('Token de acesso inválido!');
-    }
-
-    const created = this.githubInfosRepository.create({
-      access_token: input.access_token,
-      user,
+    const githubInfos = await this.githubInfosService.getGithubInfos({
+      id: input.githubInfosId,
     });
-    const saved = await this.githubInfosRepository.save(created);
+
+    const created = this.repositoryGroupRepository.create({
+      name: input.name,
+      repositories: input.repositories,
+      githubInfos,
+    });
+
+    const saved = await this.repositoryGroupRepository.save(created);
 
     if (!saved) {
       throw new InternalServerErrorException(
@@ -57,16 +50,18 @@ export class RepositoryGroupService {
       );
     }
 
-    return this.getGithubInfos({ id: saved.id });
+    return this.getRepositoryGroup({ id: saved.id });
   }
 
-  async getGithubInfos(
-    params: FindOneOptions<GithubInfos>['where']
-  ): Promise<GithubInfos | null> {
-    const options: FindOneOptions<GithubInfos> = { relations: { user: true } };
+  async getRepositoryGroup(
+    params: FindOneOptions<RepositoryGroup>['where']
+  ): Promise<RepositoryGroup | null> {
+    const options: FindOneOptions<RepositoryGroup> = {
+      relations: { githubInfos: true },
+    };
 
     if (isValidParams(params)) options.where = { ...params };
 
-    return this.githubInfosRepository.findOne(options);
+    return this.repositoryGroupRepository.findOne(options);
   }
 }

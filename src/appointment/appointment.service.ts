@@ -371,7 +371,7 @@ export class AppointmentService {
       }
     }
 
-    await this.appointmentRepository.update(appointment, { ...newData });
+    await this.appointmentRepository.update(appointment.id, { ...newData });
 
     const saved = await this.appointmentRepository.save({
       ...appointment,

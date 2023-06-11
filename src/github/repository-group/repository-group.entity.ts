@@ -14,8 +14,8 @@ export class RepositoryGroup {
   @Column()
   name: string;
 
-  @Column()
-  repositories: string;
+  @Column('simple-array')
+  repositories: string[];
 
   @ManyToOne(() => GithubInfos, (infos) => infos.repositoryGroups)
   githubInfos: GithubInfos;

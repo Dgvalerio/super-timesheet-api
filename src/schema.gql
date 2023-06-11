@@ -44,7 +44,7 @@ type AzureInfos {
 type RepositoryGroup {
   id: ID!
   name: String!
-  repositories: String!
+  repositories: [String!]!
   githubInfos: GithubInfos!
 }
 
@@ -212,6 +212,7 @@ type Query {
   getCurrentMonthWorkedTime: String!
   getAzureInfos: AzureInfos!
   getGithubInfos: GithubInfos!
+  getRepositoryGroup(name: String!): RepositoryGroup!
 }
 
 input GetUserInput {
@@ -273,6 +274,7 @@ type Mutation {
   authVerify(input: AuthVerifyInput!): [CookieType!]!
   sendAppointments: Boolean!
   createGithubInfos(input: CreateGithubInfosInput!): GithubInfos!
+  createRepositoryGroup(input: CreateRepositoryGroupInput!): RepositoryGroup!
 }
 
 input CreateUserInput {
@@ -425,6 +427,11 @@ input AuthVerifyInput {
 
 input CreateGithubInfosInput {
   access_token: String!
+}
+
+input CreateRepositoryGroupInput {
+  name: String!
+  repositories: [String!]!
 }
 
 type Subscription {

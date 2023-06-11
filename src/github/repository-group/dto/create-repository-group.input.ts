@@ -1,12 +1,16 @@
 import { InputType } from '@nestjs/graphql';
 
-import { GithubInfos } from '@/github-infos/github-infos.entity';
+import { RepositoryGroup } from '@/github/repository-group/repository-group.entity';
 
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 
 @InputType()
 export class CreateRepositoryGroupInput {
   @IsString()
   @IsNotEmpty()
-  access_token: GithubInfos['access_token'];
+  name: RepositoryGroup['name'];
+
+  @IsArray()
+  @IsNotEmpty()
+  repositories: RepositoryGroup['repositories'];
 }
